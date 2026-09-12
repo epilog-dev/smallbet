@@ -8,9 +8,9 @@ import type { PageDocument } from "@/lib/page-schema";
 export function TryTheQuestion({ doc }: { doc: PageDocument }) {
   const section = doc.sections.find((s) => s.type === "pricing-intent");
   if (!section || section.type !== "pricing-intent") return null;
-  // The landing page is monochrome, so the embed is too: ink buttons and a neutral accent
-  // (a grey hex is treated as "near-neutral" by the palette). Real Ledgerly pages keep their colour.
-  const theme: PageDocument["theme"] = { ...doc.theme, button: "ink", accentHex: "#808080" };
+  // Ink buttons like the rest of the landing page, with an emerald accent for ticks, chips and the
+  // reveal bars. The Ledgerly fixture keeps its own colour elsewhere.
+  const theme: PageDocument["theme"] = { ...doc.theme, button: "ink", accent: "emerald", accentHex: undefined };
   const ctx: PageContextValue = {
     mode: "preview",
     doc,
