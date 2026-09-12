@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { progress } from "@/lib/progress";
 
@@ -13,8 +13,10 @@ export function NavigationProgress() {
   const pathname = usePathname();
   const search = useSearchParams();
 
-  // The route committed → finish.
+  // The route committed → finish. Remember it so popstate can tell a real navigation from a hash jump.
+  const current = useRef("");
   useEffect(() => {
+    current.current = pathname + (search.size ? `?${search}` : "");
     progress.done();
   }, [pathname, search]);
 
@@ -29,11 +31,15 @@ export function NavigationProgress() {
       if (url.pathname === location.pathname && url.search === location.search) return; // hash / same page
       progress.start();
     };
+    // popstate also fires for in-page #anchors; only a different path/query is a navigation.
+    const onPop = () => {
+      if (location.pathname + location.search !== current.current) progress.start();
+    };
     document.addEventListener("click", onClick, true);
-    window.addEventListener("popstate", progress.start);
+    window.addEventListener("popstate", onPop);
     return () => {
       document.removeEventListener("click", onClick, true);
-      window.removeEventListener("popstate", progress.start);
+      window.removeEventListener("popstate", onPop);
     };
   }, []);
 
