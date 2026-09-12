@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { AnswerCard, type AnswerExample } from "@/components/marketing/AnswerCard";
 import { PageThumb } from "@/components/marketing/PageThumb";
 import { TryTheQuestion } from "@/components/marketing/TryTheQuestion";
@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/app/ThemeToggle";
 import { SmallbetLogo } from "@/components/brand/Logo";
 import { DEMO_DOCS } from "@/lib/demo/docs";
 import { getUser } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: { absolute: "smallbet — get a price, not a waitlist" },
@@ -78,6 +79,9 @@ export default async function LandingPage() {
             <a href="#how" className="hover:text-foreground">
               How it works
             </a>
+            <a href="#plans" className="hover:text-foreground">
+              Pricing
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -121,7 +125,7 @@ export default async function LandingPage() {
                 <span className="size-2.5 rounded-[2px] bg-muted-foreground/50" /> Try the question
               </a>
             </div>
-            <p className="mt-4 text-[13px] text-muted-foreground">Free in early access · Your first page takes about a minute</p>
+            <p className="mt-4 text-[13px] text-muted-foreground">Free during early access · Your first page takes about a minute</p>
           </div>
           <AnswerCard ex={EXAMPLE} />
         </div>
@@ -136,7 +140,7 @@ export default async function LandingPage() {
             <p className="text-sm text-muted-foreground">Try the question</p>
             <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">Your visitors are asked exactly one thing.</h2>
             <p className="mt-4 text-[1.05rem] leading-relaxed text-muted-foreground">
-              This is the whole ask, lifted from a real page. Click a price or say no — nothing here is recorded. Thirty seconds, no form, no signup.
+              This is the whole ask, lifted from a real page. Tap a price or say no, and see how everyone else answered. Nothing here is recorded — thirty seconds, no form, no signup.
             </p>
           </div>
           <div className="mt-10">
@@ -153,16 +157,22 @@ export default async function LandingPage() {
             <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">A waitlist tells you people are curious. A price tells you if they&apos;re serious.</h2>
           </div>
           <div className="mt-12 overflow-hidden rounded-xl border border-border">
-            <div className="grid grid-cols-[1fr_1.2fr_1.2fr] border-b border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+            <div className="hidden grid-cols-[1fr_1.2fr_1.2fr] border-b border-border bg-muted/50 text-xs font-medium text-muted-foreground sm:grid">
               <div className="px-4 py-3" />
               <div className="px-4 py-3">A waitlist signup</div>
               <div className="px-4 py-3 text-foreground">A stated price</div>
             </div>
             {CONTRAST.map((row) => (
-              <div key={row.label} className="grid grid-cols-[1fr_1.2fr_1.2fr] border-b border-border text-sm last:border-b-0">
-                <div className="px-4 py-4 font-medium">{row.label}</div>
-                <div className="px-4 py-4 text-muted-foreground">{row.waitlist}</div>
-                <div className="px-4 py-4">{row.price}</div>
+              <div key={row.label} className="grid border-b border-border text-sm last:border-b-0 sm:grid-cols-[1fr_1.2fr_1.2fr]">
+                <div className="px-4 pt-4 font-medium sm:py-4">{row.label}</div>
+                <div className="px-4 pt-2 text-muted-foreground sm:py-4">
+                  <span className="mb-0.5 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 sm:hidden">Waitlist</span>
+                  {row.waitlist}
+                </div>
+                <div className="px-4 pt-2 pb-4 sm:py-4">
+                  <span className="mb-0.5 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 sm:hidden">Stated price</span>
+                  {row.price}
+                </div>
               </div>
             ))}
           </div>
@@ -193,7 +203,7 @@ export default async function LandingPage() {
                   </div>
                   <div className="rounded-md border border-border bg-background p-2.5">
                     <p className="text-muted-foreground">Price points</p>
-                    <p className="mt-0.5 font-medium">$19 · $39 · $79 /mo</p>
+                    <p className="mt-0.5 font-medium tabular-nums">$9 · 19 · 39 · 79 · 149 /mo</p>
                   </div>
                 </div>
               </div>
@@ -208,8 +218,8 @@ export default async function LandingPage() {
                 <PageThumb doc={demo} maxHeight={300} />
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">2 · Get the page.</span> Written for your audience, on one considered design, light or dark. Every section
-                is a form; the AI will rewrite any one of them on request.
+                <span className="font-medium text-foreground">2 · Get the page.</span> Written for your audience, in your colours, light or dark. Visitors pick the price
+                they&apos;d pay from a ladder — or say no — and see how everyone else answered.
               </p>
             </div>
             {/* 3 */}
@@ -234,8 +244,8 @@ export default async function LandingPage() {
                 <p className="mt-4 text-xs text-muted-foreground">+ every reason, in the visitor&apos;s words, exportable.</p>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">3 · Share the link.</span> Answers land on your dashboard as they come in: distribution by tier, median stated
-                price, the revenue-maximising tier, and the reasons behind every no.
+                <span className="font-medium text-foreground">3 · Share the link.</span> Answers land on your dashboard as they come in: how many picked each price, the
+                median, the defensible price, and the reasons behind every no.
               </p>
             </div>
           </div>
@@ -257,6 +267,48 @@ export default async function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ---------- pricing ---------- */}
+      <section id="plans" className="border-b border-border py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+          <div className="max-w-2xl">
+            <p className="text-sm text-muted-foreground">Pricing</p>
+            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">Free while we get this right.</h2>
+            <p className="mt-4 text-[1.05rem] leading-relaxed text-muted-foreground">
+              During early access everything is free — every page, every answer, no limits. Here is what it will cost once we start charging, so nothing surprises
+              you later. Pages you make now keep Pro for three months after that.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+            <PriceCard
+              name="Free"
+              price="$0"
+              blurb="One honest test."
+              items={["1 live page at a time", "Live for 14 days", "25 answers", "The full result: chart, median, defensible price, reasons, emails", "\"Built with smallbet\" on the page"]}
+            />
+            <PriceCard
+              name="Keep it up"
+              price="$29"
+              per="/ year, per page"
+              blurb="Keep one page live and collecting."
+              highlight
+              items={["That page stays live", "500 answers", "Weekly email digest", "CSV export", "One-off — no subscription"]}
+            />
+            <PriceCard
+              name="Pro"
+              price="$29"
+              per="/ month"
+              blurb="For people who test ideas often."
+              items={["Unlimited pages and answers", "No smallbet footer", "Instant answer notifications", "Unlimited AI rewrites", "CSV export"]}
+            />
+          </div>
+
+          <p className="mt-8 text-sm text-muted-foreground">
+            Nothing is ever locked. The free tier gets the complete result for one 14-day test; you pay for time and volume, not for seeing your own data.
+          </p>
         </div>
       </section>
 
@@ -290,9 +342,36 @@ export default async function LandingPage() {
             <a href="#try" className="hover:text-foreground">
               Try the question
             </a>
+            <a href="#plans" className="hover:text-foreground">
+              Pricing
+            </a>
           </p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function PriceCard({ name, price, per, blurb, items, highlight }: { name: string; price: string; per?: string; blurb: string; items: string[]; highlight?: boolean }) {
+  return (
+    <div className={cn("relative rounded-xl border bg-card p-6", highlight ? "border-foreground" : "border-border")}>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium">{name}</p>
+        <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">Free for now</span>
+      </div>
+      <p className="mt-3 flex items-baseline gap-1">
+        <span className="text-3xl font-semibold tracking-[-0.03em] tabular-nums">{price}</span>
+        {per && <span className="text-sm text-muted-foreground">{per}</span>}
+      </p>
+      <p className="mt-1 text-sm text-muted-foreground">{blurb}</p>
+      <ul className="mt-5 space-y-2 text-sm">
+        {items.map((it) => (
+          <li key={it} className="flex gap-2.5">
+            <Check className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={2.5} aria-hidden />
+            {it}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

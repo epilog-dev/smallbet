@@ -27,7 +27,7 @@ export function AnswerCard({ ex, className }: { ex: AnswerExample; className?: s
             <span className="text-base font-normal text-muted-foreground">{ex.per}</span>
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{ex.tier}</span> · the tier that maximises revenue
+            <span className="font-medium text-foreground">{ex.tier}</span> · the price that earns the most
           </p>
         </div>
         <dl className="grid shrink-0 grid-cols-3 gap-4 text-right">
