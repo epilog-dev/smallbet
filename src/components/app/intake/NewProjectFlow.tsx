@@ -99,7 +99,7 @@ export function NewProjectFlow() {
               usage: { generator: ev.generator, inputTokens: ev.usage.inputTokens, outputTokens: ev.usage.outputTokens, ms: ev.usage.ms },
             });
             progress.start();
-            router.push(isMobile ? `/app/projects/${id}` : `/app/projects/${id}/edit`);
+            router.push(`/app/projects/${id}/edit`);
           } catch (e) {
             // The page was written; only saving failed. That's not an AI problem, so no template offer.
             setSaving(false);
@@ -204,7 +204,7 @@ export function NewProjectFlow() {
                 <p className="text-xs font-medium text-muted-foreground">Step 3 of 3</p>
                 <h2 className="mt-1 text-lg font-semibold tracking-tight">{phase === "done" ? "Your page is ready" : `Writing ${brief.productName}…`}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {phase === "done" ? (isMobile ? "Saving it to your account. You can publish from the next screen." : "Saving it to your account and opening the editor.") : isMobile ? "Sections appear above as they're written." : "Sections appear on the right as they're written."}
+                  {phase === "done" ? "Saving it to your account and opening the editor." : isMobile ? "Sections appear above as they're written." : "Sections appear on the right as they're written."}
                 </p>
               </div>
               <ol className="space-y-1.5">
@@ -232,7 +232,7 @@ export function NewProjectFlow() {
                 <div className="flex flex-col gap-2">
                   <Button size="lg" disabled={saving}>
                     {saving ? <Loader2 className="animate-spin" /> : null}
-                    {saving ? "Saving…" : isMobile ? "Opening…" : "Opening editor…"}
+                    {saving ? "Saving…" : "Opening editor…"}
                   </Button>
                   {!saving && (
                     <Button variant="outline" onClick={() => void build()}>
