@@ -1,0 +1,510 @@
+import { PageDocumentSchema, type PageDocument } from "@/lib/page-schema";
+
+/** Hand-written reference documents, one per preset. Used by /dev/preview and as few-shot examples. */
+const raw: Record<string, PageDocument> = {
+  editorial: {
+    version: 1,
+    meta: {
+      productName: "Ledgerly",
+      tagline: "Bookkeeping that closes itself for solo consultants",
+      seoTitle: "Ledgerly — bookkeeping that closes itself",
+      seoDescription: "Tell us what you'd pay for month-end that finishes without you. Pre-launch, nothing charged.",
+    },
+    theme: { preset: "editorial", accent: "violet", rationale: "Calm, trustworthy finance for independent professionals." },
+    nav: { logoText: "Ledgerly", ctaLabel: "See pricing" },
+    goal: { targetResponses: 25, deadlineDays: 30 },
+    sections: [
+      {
+        id: "hero",
+        type: "hero",
+        variant: "centered",
+        hidden: false,
+        props: {
+          eyebrow: "For solo consultants who bill by the hour",
+          headline: "Month-end that closes itself.",
+          headlineHighlight: "closes itself.",
+          subheadline:
+            "Ledgerly reads your bank feed and invoices, categorises every line, and hands you a finished P&L on the first of the month. No spreadsheet, no Sunday evening.",
+          primaryCta: "See pricing",
+          secondaryCta: "How it works",
+          visual: {
+            kind: "mock-ui",
+            mockTitle: "September — closed",
+            mockRows: [
+              { label: "Revenue", value: "$18,420", tone: "positive" },
+              { label: "Uncategorised", value: "0 lines", tone: "accent" },
+              { label: "Expenses", value: "$3,112", tone: "neutral" },
+              { label: "Close status", value: "Done · 1 Oct", tone: "positive" },
+            ],
+          },
+        },
+      },
+      {
+        id: "problem",
+        type: "problem",
+        variant: "cards",
+        hidden: false,
+        props: {
+          title: "Bookkeeping is the work you didn't sell",
+          items: [
+            { title: "Categorising takes an evening", description: "Two hundred lines a month, each one a small decision you already made once." },
+            { title: "Your accountant asks the same questions", description: "Every quarter: what was this transfer, is this personal, where's the receipt." },
+            { title: "You don't actually know your margin", description: "Revenue you know. What's left after tools, tax and the odd write-off is a guess." },
+          ],
+        },
+      },
+      {
+        id: "features",
+        type: "features",
+        variant: "grid",
+        hidden: false,
+        props: {
+          title: "What Ledgerly does for you",
+          subtitle: "Built for one person with one business, not a finance team.",
+          items: [
+            { icon: "refresh-cw", title: "Bank feed, categorised", description: "Each line is matched to a rule you approved once. New patterns get one question, then they're rules too." },
+            { icon: "file-text", title: "Invoices reconciled", description: "Paid, partly paid, overdue — matched to deposits automatically, with a nudge template for late payers." },
+            { icon: "bar-chart-3", title: "A real P&L on the 1st", description: "Monthly and year-to-date, with effective hourly rate and tax set aside, sent as a PDF you can forward." },
+            { icon: "shield-check", title: "Accountant-ready export", description: "One export in the format your accountant uses. They stop asking; you stop explaining." },
+            { icon: "bell", title: "Only the questions that matter", description: "If a transaction is genuinely ambiguous you get one message. Everything else is silent." },
+            { icon: "lock", title: "Read-only by design", description: "Ledgerly can see your accounts. It can never move money." },
+          ],
+        },
+      },
+      {
+        id: "steps",
+        type: "steps",
+        variant: "numbered",
+        hidden: false,
+        props: {
+          title: "Set up once, then forget it",
+          items: [
+            { title: "Connect", description: "Link your business account and invoicing tool. Takes about four minutes." },
+            { title: "Approve the first month", description: "Confirm or correct the first pass of categories. That becomes your rulebook." },
+            { title: "Get the close", description: "Every 1st you receive a finished P&L and a short list of anything that needs a decision." },
+          ],
+        },
+      },
+      {
+        id: "pricing",
+        type: "pricing-intent",
+        variant: "tiers",
+        hidden: false,
+        props: {
+          title: "What would you pay for a month-end that does itself?",
+          subtitle: "Ledgerly isn't built yet. Your honest answer decides whether it gets built and what it costs. Nothing is charged.",
+          currency: "USD",
+          interval: "month",
+          tiers: [
+            { id: "solo", name: "Solo", price: 19, blurb: "One business, one bank account", features: ["Bank feed categorisation", "Monthly P&L PDF", "Accountant export"] },
+            { id: "pro", name: "Pro", price: 39, blurb: "Multiple accounts and currencies", features: ["Everything in Solo", "Invoice reconciliation", "Quarterly tax estimate", "Priority questions"] },
+            { id: "firm", name: "With accountant", price: 79, blurb: "Shared workspace for you and your accountant", features: ["Everything in Pro", "Accountant seat", "Year-end pack", "Audit trail"] },
+          ],
+          highlightedTierId: "pro",
+          ctaLabel: "I'd pay this",
+          noPayLabel: "I wouldn't pay for this",
+          askEmail: true,
+          followUpQuestion: "What would make Ledgerly a must-have for you?",
+        },
+      },
+      {
+        id: "founder",
+        type: "founder-note",
+        variant: "letter",
+        hidden: false,
+        props: {
+          title: "Why I'm asking before building",
+          body: [
+            "I've done my own books for six years and I still dread the first weekend of every month. Every tool I tried was built for a team with a bookkeeper in it.",
+            "Before I spend a year building Ledgerly, I want to know whether enough people would actually pay for it. If the answer is no, I'd rather learn that now.",
+          ],
+          signature: "Mara, founder",
+        },
+      },
+      {
+        id: "faq",
+        type: "faq",
+        variant: "accordion",
+        hidden: false,
+        props: {
+          title: "Questions",
+          items: [
+            { question: "Is Ledgerly available today?", answer: "No. This page exists to find out whether it should be. If enough people say they'd pay, we build it and email you first." },
+            { question: "Am I committing to anything?", answer: "No. Picking a price is a signal, not a purchase. There's no card, no account, and you can change your answer." },
+            { question: "Why not just use QuickBooks or Xero?", answer: "They're excellent general ledgers and they assume someone is doing the bookkeeping. Ledgerly assumes nobody is." },
+            { question: "What about my data?", answer: "Read-only bank access through a regulated aggregator, encrypted at rest, deletable on request. Ledgerly can never move money." },
+          ],
+        },
+      },
+      {
+        id: "cta",
+        type: "cta-band",
+        variant: "with-progress",
+        hidden: false,
+        props: { headline: "Help decide if Ledgerly gets built", subheadline: "Thirty seconds. No card, no signup.", ctaLabel: "Pick a price" },
+      },
+    ],
+  },
+  clean: {
+    version: 1,
+    meta: {
+      productName: "Handoff",
+      tagline: "Design-to-dev handoff without the Slack thread",
+      seoTitle: "Handoff — design to dev, without the thread",
+      seoDescription: "Would you pay for handoff notes that write themselves from Figma? Pre-launch.",
+    },
+    theme: { preset: "clean", accent: "blue" },
+    nav: { logoText: "Handoff", ctaLabel: "Pricing" },
+    goal: { targetResponses: 30, deadlineDays: 21 },
+    sections: [
+      {
+        id: "hero",
+        type: "hero",
+        variant: "split",
+        hidden: false,
+        props: {
+          eyebrow: "For product teams shipping from Figma",
+          headline: "Handoff notes that write themselves.",
+          headlineHighlight: "write themselves.",
+          subheadline: "Handoff watches your Figma file, diffs every change, and posts a plain-English change list with specs to the ticket. Engineers stop asking what changed.",
+          primaryCta: "See pricing",
+          secondaryCta: "How it works",
+          visual: {
+            kind: "mock-ui",
+            mockTitle: "PROJ-142 · Checkout redesign",
+            mockRows: [
+              { label: "Changed layers", value: "14", tone: "accent" },
+              { label: "Spacing tokens", value: "8 / 12 / 16", tone: "neutral" },
+              { label: "New states", value: "Error, loading", tone: "neutral" },
+              { label: "Posted to", value: "Linear · 2m ago", tone: "positive" },
+            ],
+          },
+        },
+      },
+      {
+        id: "problem",
+        type: "problem",
+        variant: "checklist",
+        hidden: false,
+        props: {
+          title: "Handoff is where a week goes to die",
+          items: [
+            { title: "Nobody knows what changed", description: "The file moved on; the ticket didn't. Engineers rebuild from the wrong frame." },
+            { title: "Specs live in DMs", description: "Padding values, states and edge cases are answered once, in a thread, then lost." },
+            { title: "Review finds it late", description: "The mismatch shows up in QA, two sprints after it was cheap to fix." },
+          ],
+        },
+      },
+      {
+        id: "features",
+        type: "features",
+        variant: "list",
+        hidden: false,
+        props: {
+          title: "Everything the ticket should have had",
+          items: [
+            { icon: "workflow", title: "Change diffs", description: "Every save is compared to the last handed-off version. Only real changes surface." },
+            { icon: "layers", title: "Specs inline", description: "Spacing, type, colour and component props, pulled from your tokens, not eyeballed." },
+            { icon: "message-square", title: "Posted where work happens", description: "Linear, Jira or GitHub. Comments stay attached to the frame they're about." },
+            { icon: "check-circle-2", title: "Acceptance checklist", description: "States and breakpoints become checkboxes the engineer ticks off before review." },
+          ],
+        },
+      },
+      {
+        id: "steps",
+        type: "steps",
+        variant: "timeline",
+        hidden: false,
+        props: {
+          title: "How it works",
+          items: [
+            { title: "Install the Figma plugin", description: "Mark a frame as 'in development'. That's the baseline." },
+            { title: "Design keeps designing", description: "Handoff watches the file and diffs on every save." },
+            { title: "Ticket updates itself", description: "A change list with specs lands on the ticket, tagged to the right engineer." },
+          ],
+        },
+      },
+      {
+        id: "pricing",
+        type: "pricing-intent",
+        variant: "tiers",
+        hidden: false,
+        props: {
+          title: "What would your team pay?",
+          subtitle: "Handoff is pre-launch. Choose the plan you'd realistically expense — or tell us you wouldn't. Nothing is charged.",
+          currency: "USD",
+          interval: "month",
+          tiers: [
+            { id: "team", name: "Team", price: 49, blurb: "Up to 5 designers", features: ["Unlimited files", "Linear + Jira + GitHub", "Change diffs & specs"] },
+            { id: "org", name: "Org", price: 149, blurb: "Unlimited designers", features: ["Everything in Team", "Design token sync", "SSO", "Priority support"] },
+          ],
+          highlightedTierId: "team",
+          ctaLabel: "We'd pay this",
+          noPayLabel: "We wouldn't pay for this",
+          askEmail: true,
+          followUpQuestion: "What's the one integration or feature that would make this a yes?",
+        },
+      },
+      {
+        id: "faq",
+        type: "faq",
+        variant: "two-column",
+        hidden: false,
+        props: {
+          title: "Questions",
+          items: [
+            { question: "Does this replace Figma Dev Mode?", answer: "No — it sits on top. Dev Mode shows the current state; Handoff tells you what changed since you last looked and puts it on the ticket." },
+            { question: "When could we use it?", answer: "If enough teams say they'd pay, a private beta within roughly three months. You'd be invited first." },
+            { question: "Is this a commitment?", answer: "No. There's no card and no account. Your answer helps us decide whether and what to build." },
+            { question: "Which trackers?", answer: "Linear, Jira and GitHub Issues at launch. Tell us in the follow-up if you need something else." },
+          ],
+        },
+      },
+      {
+        id: "cta",
+        type: "cta-band",
+        variant: "simple",
+        hidden: false,
+        props: { headline: "Tell us if this is worth building", subheadline: "One click. No signup.", ctaLabel: "Pick a plan" },
+      },
+    ],
+  },
+  bold: {
+    version: 1,
+    meta: {
+      productName: "Tracepoint",
+      tagline: "Production traces, replayed locally",
+      seoTitle: "Tracepoint — replay production bugs locally",
+      seoDescription: "Would you pay to replay any production request on your laptop? Pre-launch.",
+    },
+    theme: { preset: "bold", accent: "lime" },
+    nav: { logoText: "tracepoint", ctaLabel: "Pricing" },
+    goal: { targetResponses: 40, deadlineDays: 30 },
+    sections: [
+      {
+        id: "hero",
+        type: "hero",
+        variant: "centered",
+        hidden: false,
+        props: {
+          eyebrow: "For backend teams on Node and Go",
+          headline: "Replay any production request. Locally.",
+          headlineHighlight: "Locally.",
+          subheadline: "Tracepoint captures the inputs, dependencies and timing of a failing request, then reproduces it on your machine with a debugger attached. No more 'cannot reproduce'.",
+          primaryCta: "See pricing",
+          secondaryCta: "How it works",
+          visual: {
+            kind: "mock-ui",
+            mockTitle: "trace 9f2c · POST /checkout",
+            mockRows: [
+              { label: "Status", value: "500 · 1.9s", tone: "neutral" },
+              { label: "Captured deps", value: "pg, redis, stripe", tone: "accent" },
+              { label: "Replay", value: "Ready", tone: "positive" },
+              { label: "Diff vs. success", value: "2 calls", tone: "accent" },
+            ],
+          },
+        },
+      },
+      {
+        id: "problem",
+        type: "problem",
+        variant: "cards",
+        hidden: false,
+        props: {
+          title: "\"Cannot reproduce\" costs you days",
+          items: [
+            { title: "Logs tell you it broke, not why", description: "You see the stack trace. You don't see the request body, the cache state or the third-party response." },
+            { title: "Staging isn't production", description: "The bug needs that customer, that feature flag and that rate limit. Staging has none of them." },
+            { title: "Adding logging means another deploy", description: "By the time the new log line ships, the incident is closed and nobody remembers." },
+          ],
+        },
+      },
+      {
+        id: "features",
+        type: "features",
+        variant: "grid",
+        hidden: false,
+        props: {
+          title: "Built for the 2 a.m. page",
+          items: [
+            { icon: "database", title: "Full request capture", description: "Inputs, headers, env, and every outbound call's response — recorded only on errors and sampled slow requests." },
+            { icon: "refresh-cw", title: "Deterministic replay", description: "Dependencies are mocked from the capture so the replay does exactly what production did." },
+            { icon: "search", title: "Diff against a success", description: "Compare the failing trace with a similar successful one. The difference is usually the bug." },
+            { icon: "lock", title: "Redaction by default", description: "PII patterns and your own rules are stripped before anything leaves your VPC." },
+            { icon: "timer", title: "Sub-1% overhead", description: "eBPF-assisted capture on Linux; a lightweight SDK elsewhere." },
+            { icon: "workflow", title: "Works with your debugger", description: "VS Code, GoLand, Delve, Node inspector. Set a breakpoint, hit replay." },
+          ],
+        },
+      },
+      {
+        id: "pricing",
+        type: "pricing-intent",
+        variant: "tiers",
+        hidden: false,
+        props: {
+          title: "What would you pay per service?",
+          subtitle: "Tracepoint is pre-launch. Pick the price you'd actually sign off — or say you wouldn't. No card, nothing charged.",
+          currency: "USD",
+          interval: "month",
+          tiers: [
+            { id: "starter", name: "Starter", price: 29, blurb: "Per service, 7-day retention", features: ["Error capture", "Local replay", "1 team"] },
+            { id: "scale", name: "Scale", price: 99, blurb: "Per service, 30-day retention", features: ["Everything in Starter", "Slow-request sampling", "Diff against success", "SSO"] },
+          ],
+          highlightedTierId: "scale",
+          ctaLabel: "I'd pay this",
+          noPayLabel: "I wouldn't pay for this",
+          askEmail: true,
+          followUpQuestion: "What would stop you from installing this in production?",
+        },
+      },
+      {
+        id: "founder",
+        type: "founder-note",
+        variant: "quote",
+        hidden: false,
+        props: {
+          body: [
+            "I spent three years on an on-call rotation where half the tickets closed as 'cannot reproduce'. I'd like to delete that resolution from the dropdown.",
+            "If enough teams would pay for this, I'll build it. If not, I'd rather know before I quit my job.",
+          ],
+          signature: "Dev, founder",
+        },
+      },
+      {
+        id: "faq",
+        type: "faq",
+        variant: "accordion",
+        hidden: false,
+        props: {
+          title: "FAQ",
+          items: [
+            { question: "Is this OpenTelemetry?", answer: "It uses OTel context for correlation, but captures far more than spans: bodies, dependency responses and environment, enough to replay." },
+            { question: "What about sensitive data?", answer: "Redaction runs in your infrastructure before capture is stored. You choose what leaves." },
+            { question: "Does picking a price commit me?", answer: "No. It's a signal so we know whether to build this and at what price. No card, no account." },
+            { question: "Languages?", answer: "Node and Go first. Python and JVM if there's demand — tell us in the follow-up." },
+          ],
+        },
+      },
+      {
+        id: "cta",
+        type: "cta-band",
+        variant: "with-progress",
+        hidden: false,
+        props: { headline: "Vote with a price", subheadline: "No signup. Takes 30 seconds.", ctaLabel: "Pick a price" },
+      },
+    ],
+  },
+  playful: {
+    version: 1,
+    meta: {
+      productName: "Pantry",
+      tagline: "Dinner from what's already in your kitchen",
+      seoTitle: "Pantry — dinner from what you already have",
+      seoDescription: "Would you pay for an app that plans dinner from your actual fridge? Pre-launch.",
+    },
+    theme: { preset: "playful", accent: "orange" },
+    nav: { logoText: "Pantry", ctaLabel: "Pricing" },
+    goal: { targetResponses: 50, deadlineDays: 30 },
+    sections: [
+      {
+        id: "hero",
+        type: "hero",
+        variant: "split",
+        hidden: false,
+        props: {
+          eyebrow: "For busy households who hate food waste",
+          headline: "Dinner from what's already in your fridge.",
+          headlineHighlight: "already in your fridge.",
+          subheadline: "Snap a photo of your fridge and pantry. Pantry plans the week around what you have, tells you the three things to buy, and nothing goes soft in the drawer.",
+          primaryCta: "See pricing",
+          secondaryCta: "How it works",
+          visual: {
+            kind: "mock-ui",
+            mockTitle: "This week",
+            mockRows: [
+              { label: "Meals planned", value: "5 of 5", tone: "positive" },
+              { label: "Using up", value: "Spinach, feta", tone: "accent" },
+              { label: "To buy", value: "3 items", tone: "neutral" },
+              { label: "Saved this month", value: "$62", tone: "positive" },
+            ],
+          },
+        },
+      },
+      {
+        id: "problem",
+        type: "problem",
+        variant: "cards",
+        hidden: false,
+        props: {
+          title: "The 6 p.m. problem",
+          items: [
+            { title: "You have food and nothing to eat", description: "A full fridge, no plan, and takeaway wins again." },
+            { title: "Recipe apps assume an empty kitchen", description: "They send you shopping for twelve things when you needed two." },
+            { title: "Good food goes in the bin", description: "The average household throws out around a third of what it buys." },
+          ],
+        },
+      },
+      {
+        id: "features",
+        type: "features",
+        variant: "alternating",
+        hidden: false,
+        props: {
+          title: "How Pantry helps",
+          items: [
+            { icon: "camera", title: "Photo, not a form", description: "Point your phone at the fridge. Pantry recognises what's there and roughly how much." },
+            { icon: "calendar", title: "A week that fits your life", description: "Tell it the nights you're out and who's fussy. It plans around them." },
+            { icon: "heart", title: "Use-it-up first", description: "Ingredients closest to going off are scheduled early in the week, automatically." },
+          ],
+        },
+      },
+      {
+        id: "pricing",
+        type: "pricing-intent",
+        variant: "single-price",
+        hidden: false,
+        props: {
+          title: "Would you pay for this?",
+          subtitle: "Pantry isn't built yet. Your answer decides if it happens. No card, nothing charged.",
+          currency: "USD",
+          interval: "month",
+          tiers: [
+            { id: "family", name: "Pantry", price: 6, blurb: "One household, unlimited fridges", features: ["Photo recognition", "Weekly plan", "Smart shopping list", "Use-it-up reminders"] },
+          ],
+          highlightedTierId: "family",
+          ctaLabel: "Yes, I'd pay this",
+          noPayLabel: "No, I wouldn't pay for this",
+          askEmail: true,
+          followUpQuestion: "What would make Pantry worth it for your household?",
+        },
+      },
+      {
+        id: "faq",
+        type: "faq",
+        variant: "two-column",
+        hidden: false,
+        props: {
+          title: "Good questions",
+          items: [
+            { question: "Can I use it now?", answer: "Not yet. If enough people want it, we build it and let you in first." },
+            { question: "Does it handle allergies and diets?", answer: "Yes — set them once per person and every plan respects them." },
+            { question: "Is this a commitment?", answer: "No. Picking a price is a signal, not a purchase." },
+            { question: "Android or iPhone?", answer: "Both at launch." },
+          ],
+        },
+      },
+      {
+        id: "cta",
+        type: "cta-band",
+        variant: "simple",
+        hidden: false,
+        props: { headline: "Help us decide", subheadline: "Thirty seconds, no signup.", ctaLabel: "Give your answer" },
+      },
+    ],
+  },
+};
+
+export const DEMO_DOCS: Record<string, PageDocument> = Object.fromEntries(
+  Object.entries(raw).map(([k, v]) => [k, PageDocumentSchema.parse(v)]),
+);
+export const DEMO_KEYS = Object.keys(DEMO_DOCS);
