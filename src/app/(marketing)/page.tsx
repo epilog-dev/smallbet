@@ -5,11 +5,12 @@ import { AnswerCard, type AnswerExample } from "@/components/marketing/AnswerCar
 import { PageThumb } from "@/components/marketing/PageThumb";
 import { TryTheQuestion } from "@/components/marketing/TryTheQuestion";
 import { ThemeToggle } from "@/components/app/ThemeToggle";
+import { SmallbetLogo } from "@/components/brand/Logo";
 import { DEMO_DOCS } from "@/lib/demo/docs";
 import { getUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: { absolute: "validate — get a price, not a waitlist" },
+  title: { absolute: "smallbet — get a price, not a waitlist" },
   description: "Describe your idea. Get a page that asks visitors what they'd pay, and a number you can plan around.",
 };
 
@@ -44,7 +45,7 @@ const CONTRAST: Array<{ label: string; waitlist: string; price: string }> = [
 
 const NOT = [
   ["Not a purchase.", "Nobody is charged. A stated price is a strong signal, not a contract — and we say so on every page."],
-  ["Not traffic.", "You bring the visitors. validate makes sure each one is asked the one question that matters, and that you can read the answers."],
+  ["Not traffic.", "You bring the visitors. smallbet makes sure each one is asked the one question that matters, and that you can read the answers."],
   ["Not a verdict.", "Under ten answers the dashboard tells you it's a hint, not a result. It never dresses up thin data."],
 ];
 
@@ -62,14 +63,8 @@ export default async function LandingPage() {
 
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
-            <span aria-hidden className="grid size-4 grid-cols-2 gap-px overflow-hidden rounded-[3px]">
-              <span className="bg-foreground" />
-              <span className="bg-foreground/40" />
-              <span className="bg-foreground/40" />
-              <span className="bg-foreground" />
-            </span>
-            validate
+          <Link href="/" className="flex items-center text-[15px]">
+            <SmallbetLogo />
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#try" className="hover:text-foreground">
@@ -85,7 +80,7 @@ export default async function LandingPage() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {user ? (
-              <Link href="/app" className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-medium text-background hover:bg-foreground/90">
+              <Link href="/app" className="inline-flex h-9 items-center rounded-vp-md bg-cta px-3.5 text-sm font-medium text-cta-foreground hover:bg-cta-hover">
                 Open app
               </Link>
             ) : (
@@ -93,7 +88,7 @@ export default async function LandingPage() {
                 <Link href="/login" className="inline-flex h-9 items-center rounded-md border border-border bg-background px-3.5 text-sm font-medium hover:bg-muted">
                   Log in
                 </Link>
-                <Link href={start} className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-medium text-background hover:bg-foreground/90">
+                <Link href={start} className="inline-flex h-9 items-center rounded-vp-md bg-cta px-3.5 text-sm font-medium text-cta-foreground hover:bg-cta-hover">
                   Price my idea
                 </Link>
               </>
@@ -107,17 +102,17 @@ export default async function LandingPage() {
         <div className="mx-auto grid max-w-5xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1fr_1.05fr]">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-[13px] font-medium shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-              <span className="size-1.5 rounded-full bg-blue-600" /> For founders with an idea and no proof
+              <span className="size-1.5 rounded-full bg-foreground" /> For founders with an idea and no proof
             </span>
             <h1 className="mt-6 max-w-[14ch] text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.03em] text-balance sm:text-[3.25rem] sm:leading-[1.06] lg:text-[3.6rem] lg:leading-[1.05]">
               Get a price, <span className="text-muted-foreground/70">not a waitlist.</span>
             </h1>
             <p className="mt-6 max-w-[32rem] text-[1.05rem] leading-relaxed text-muted-foreground text-pretty sm:text-[1.1rem]">
-              Describe your idea in a sentence. validate writes a page that asks visitors what they&apos;d pay — or whether they&apos;d pay at all — and turns the
+              Describe your idea in a sentence. smallbet writes a page that asks visitors what they&apos;d pay — or whether they&apos;d pay at all — and turns the
               answers into a number you can plan around.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-2.5">
-              <Link href={start} className="inline-flex h-10 items-center gap-2 rounded-md bg-foreground px-4 text-sm font-medium text-background hover:bg-foreground/90">
+              <Link href={start} className="inline-flex h-10 items-center gap-2 rounded-vp-md bg-cta px-4 text-sm font-medium text-cta-foreground hover:bg-cta-hover">
                 Price my idea <ArrowRight className="size-4" />
               </Link>
               <a href="#try" className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-medium hover:bg-muted">
@@ -266,12 +261,16 @@ export default async function LandingPage() {
       {/* ---------- cta ---------- */}
       <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <div className="relative overflow-hidden rounded-xl bg-foreground px-8 py-14 text-center text-background sm:px-14">
-            <div aria-hidden className="absolute -right-16 -top-16 size-72 rounded-full bg-blue-500/40 blur-3xl" />
+          {/* Same treatment as a generated page's cta-band/Simple, with the accent being ink. */}
+          <div
+            className="relative overflow-hidden rounded-vp-xl border border-border px-8 py-14 text-center sm:px-14"
+            style={{ background: "radial-gradient(70% 120% at 50% 0%, color-mix(in oklab, var(--foreground) 22%, var(--card)) 0%, var(--card) 70%)" }}
+          >
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--foreground),transparent)]" />
             <h2 className="relative text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Put a price on it.</h2>
-            <p className="relative mx-auto mt-3 max-w-xl text-base opacity-80">A week of answers beats a year of wondering. Your first page takes about a minute.</p>
+            <p className="relative mx-auto mt-3 max-w-xl text-base text-muted-foreground">A week of answers beats a year of wondering. Your first page takes about a minute.</p>
             <div className="relative mt-8">
-              <Link href={start} className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-sm font-medium text-foreground hover:bg-background/90">
+              <Link href={start} className="inline-flex h-10 items-center gap-2 rounded-vp-md bg-cta px-4 text-sm font-medium text-cta-foreground hover:bg-cta-hover">
                 Price my idea <ArrowRight className="size-4" />
               </Link>
             </div>
@@ -281,7 +280,7 @@ export default async function LandingPage() {
 
       <footer className="border-t border-border py-10">
         <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-4 px-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:px-8">
-          <p>© {new Date().getFullYear()} validate</p>
+          <p>© {new Date().getFullYear()} smallbet</p>
           <p className="flex items-center gap-4">
             <Link href="/login" className="hover:text-foreground">
               Log in

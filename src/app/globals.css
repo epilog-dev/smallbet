@@ -35,6 +35,9 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-cta: var(--cta);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-cta-hover: var(--cta-hover);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -50,6 +53,10 @@
 
 :root {
   --background: oklch(1 0 0);
+  /* Marketing CTA: ink-on-paper, same as a generated page's "ink" button style (theme/tokens.ts). */
+  --cta: oklch(0.17 0 0);
+  --cta-foreground: oklch(0.99 0 0);
+  --cta-hover: oklch(0.28 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -85,6 +92,9 @@
 
 .dark {
   --background: oklch(0.145 0 0);
+  --cta: oklch(0.96 0 0);
+  --cta-foreground: oklch(0.15 0 0);
+  --cta-hover: oklch(0.88 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
