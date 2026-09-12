@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { TONES } from "@/lib/ai/types";
 import { CURRENCIES, CURRENCY_LABELS } from "@/lib/page-schema";
 import type { IdeaInput } from "@/lib/ai/types";
 
@@ -23,7 +22,6 @@ export function IdeaForm({ initial, busy, onSubmit }: { initial?: IdeaInput; bus
   const [idea, setIdea] = useState(initial?.idea ?? "");
   const [audience, setAudience] = useState(initial?.audience ?? "");
   const [priceHint, setPriceHint] = useState(initial?.priceHint ?? "");
-  const [tone, setTone] = useState<IdeaInput["tone"]>(initial?.tone);
   const [currency, setCurrency] = useState<IdeaInput["currency"]>(initial?.currency);
   const valid = idea.trim().length >= 12;
 
@@ -33,7 +31,7 @@ export function IdeaForm({ initial, busy, onSubmit }: { initial?: IdeaInput; bus
       onSubmit={(e) => {
         e.preventDefault();
         if (!valid || busy) return;
-        onSubmit({ idea: idea.trim(), audience: audience.trim() || undefined, priceHint: priceHint.trim() || undefined, currency, tone });
+        onSubmit({ idea: idea.trim(), audience: audience.trim() || undefined, priceHint: priceHint.trim() || undefined, currency });
       }}
     >
       <div className="space-y-2">
@@ -90,27 +88,6 @@ export function IdeaForm({ initial, busy, onSubmit }: { initial?: IdeaInput; bus
           </div>
           <p className="text-xs text-muted-foreground">Auto picks the currency from your hint, or US dollars. You can change it later in the editor.</p>
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Tone</Label>
-        <Select
-          value={tone ?? "auto"}
-          onValueChange={(v) => setTone(v === "auto" ? undefined : (v as IdeaInput["tone"]))}
-          items={{ auto: "Let the AI decide", ...Object.fromEntries(TONES.map((t) => [t, t[0].toUpperCase() + t.slice(1)])) }}
-        >
-          <SelectTrigger className="w-full sm:w-56">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="auto">Let the AI decide</SelectItem>
-            {TONES.map((t) => (
-              <SelectItem key={t} value={t} className="capitalize">
-                {t}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="sticky bottom-0 -mx-5 border-t border-border bg-background/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:m-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
