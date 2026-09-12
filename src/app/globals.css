@@ -169,6 +169,16 @@
   --font-vp: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Live client pages: in-page anchors (nav links, hero CTA → pricing) glide instead of jumping. */
+html:has(.vp[data-live]) {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has(.vp[data-live]) {
+    scroll-behavior: auto;
+  }
+}
+
 .vp {
   /* light */
   --vp-bg: oklch(0.98 0.002 90);

@@ -28,7 +28,7 @@ export function SectionShell({
     <section
       id={id}
       data-section-id={id}
-      className={cn("relative", rule && "border-t border-vp-border", tight ? "py-14 sm:py-20" : "py-20 sm:py-24", className)}
+      className={cn("relative scroll-mt-14", rule && "border-t border-vp-border", tight ? "py-14 sm:py-20" : "py-20 sm:py-24", className)}
     >
       {children}
     </section>
