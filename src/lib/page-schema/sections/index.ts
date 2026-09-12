@@ -17,7 +17,8 @@ export * from "./pricing-intent";
 export * from "./faq";
 export * from "./cta-band";
 
-export const SectionSchema = z.discriminatedUnion("type", [
+// z.union (not discriminatedUnion) so the JSON Schema uses anyOf, which Gemini structured output supports.
+export const SectionSchema = z.union([
   HeroSectionSchema,
   ProblemSectionSchema,
   FeaturesSectionSchema,

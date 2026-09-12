@@ -40,8 +40,7 @@ export type PageNav = z.infer<typeof PageNavSchema>;
 export type PageGoal = z.infer<typeof PageGoalSchema>;
 
 /**
- * Schema handed to the model. Identical to PageDocumentSchema today; kept separate
- * so we can relax constraints for generation (e.g. optional ids) without touching
- * what the editor and renderer rely on.
+ * Schema handed to the model. `version` is omitted because a numeric literal becomes a
+ * numeric enum in JSON Schema, which Gemini rejects; `repairDocument` stamps it back.
  */
-export const AiPageDocumentSchema = PageDocumentSchema;
+export const AiPageDocumentSchema = PageDocumentSchema.omit({ version: true });
