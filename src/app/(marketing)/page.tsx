@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { AnswerCard, type AnswerExample } from "@/components/marketing/AnswerCard";
 import { PageThumb } from "@/components/marketing/PageThumb";
 import { TryTheQuestion } from "@/components/marketing/TryTheQuestion";
+import { ThemeToggle } from "@/components/app/ThemeToggle";
 import { DEMO_DOCS } from "@/lib/demo/docs";
 import { getUser } from "@/lib/supabase/server";
 
@@ -82,6 +83,7 @@ export default async function LandingPage() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {user ? (
               <Link href="/app" className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-medium text-background hover:bg-foreground/90">
                 Open app
@@ -127,7 +129,7 @@ export default async function LandingPage() {
           <AnswerCard ex={EXAMPLE} />
         </div>
 
-        <div aria-hidden className="mt-16 h-14 w-full border-y border-border [background-image:repeating-linear-gradient(90deg,rgba(0,0,0,0.06)_0_1px,transparent_1px_6px)]" />
+        <div aria-hidden className="mt-16 h-14 w-full border-y border-border [background-image:repeating-linear-gradient(90deg,color-mix(in_oklab,var(--foreground)_8%,transparent)_0_1px,transparent_1px_6px)]" />
       </section>
 
       {/* ---------- try the question ---------- */}

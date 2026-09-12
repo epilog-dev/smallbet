@@ -239,6 +239,20 @@
   background-image: repeating-linear-gradient(90deg, var(--vp-hatch) 0 1px, transparent 1px 6px);
 }
 
+/* status colours that follow the page's own mode, not the app theme */
+.vp .vp-positive {
+  color: oklch(0.55 0.15 163);
+}
+.vp .vp-negative {
+  color: oklch(0.55 0.2 20);
+}
+.vp[data-mode="dark"] .vp-positive {
+  color: oklch(0.8 0.14 163);
+}
+.vp[data-mode="dark"] .vp-negative {
+  color: oklch(0.8 0.12 20);
+}
+
 /* quiet semantic hooks shared by sections */
 .vp .vp-label {
   font-size: 0.8rem;

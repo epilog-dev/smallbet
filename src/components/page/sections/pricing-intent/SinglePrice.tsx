@@ -43,7 +43,7 @@ export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing
                 <div className="mt-4 text-center">
                   <NoPayLink label={p.noPayLabel} onClick={() => w.choose("would_not_pay")} />
                 </div>
-                {w.error && <p className="mt-3 text-center text-sm text-rose-600 dark:text-rose-300">{w.error}</p>}
+                {w.error && <p className="mt-3 text-center text-sm vp-negative">{w.error}</p>}
               </div>
             </div>
           )}

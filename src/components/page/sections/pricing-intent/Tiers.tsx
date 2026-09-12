@@ -70,7 +70,7 @@ export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-inten
               </div>
               <div data-reveal className="mt-8 text-center">
                 <NoPayLink label={p.noPayLabel} onClick={() => w.choose("would_not_pay")} />
-                {w.error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-300">{w.error}</p>}
+                {w.error && <p className="mt-3 text-sm vp-negative">{w.error}</p>}
               </div>
             </>
           )}

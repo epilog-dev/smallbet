@@ -12,7 +12,7 @@ export function ProblemChecklist({ section }: SectionProps<"problem">) {
         <ul className="vp-ladder divide-y divide-vp-border">
           {p.items.map((it, i) => (
             <li key={i} data-reveal style={{ transitionDelay: `${i * 60}ms` }} className="flex gap-4 p-5">
-              <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-rose-500/12 text-rose-600 dark:text-rose-300">
+              <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-rose-500/12 vp-negative">
                 <X className="size-3.5" strokeWidth={3} aria-hidden />
               </span>
               <div>

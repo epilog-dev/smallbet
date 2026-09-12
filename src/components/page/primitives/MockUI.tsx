@@ -37,7 +37,7 @@ const AXIS: Record<NonNullable<HeroVisual["axis"]>, string[]> = {
 };
 
 function toneClass(t: Row["tone"]) {
-  return t === "positive" ? "text-emerald-600 dark:text-emerald-400" : t === "accent" ? "text-vp-accent-ink" : "text-vp-muted";
+  return t === "positive" ? "vp-positive" : t === "accent" ? "text-vp-accent-ink" : "text-vp-muted";
 }
 
 function Pill({ children, active }: { children: React.ReactNode; active?: boolean }) {

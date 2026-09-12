@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "../ThemeToggle";
 import { UserMenu } from "./UserMenu";
 
 export function AppShell({ email, children }: { email: string; children: React.ReactNode }) {
@@ -21,6 +22,7 @@ export function AppShell({ email, children }: { email: string; children: React.R
             <Button size="sm" render={<Link href="/app/new" />} nativeButton={false}>
               <Plus /> New idea
             </Button>
+            <ThemeToggle />
             <UserMenu email={email} />
           </div>
         </div>

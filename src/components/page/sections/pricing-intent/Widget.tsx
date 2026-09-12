@@ -117,7 +117,7 @@ export function ConfirmPanel({
         onChange={(e) => setEmail(e.target.value)}
         className="mt-5 h-12 w-full rounded-vp-md border border-vp-border bg-vp-bg px-4 text-vp-fg placeholder:text-vp-muted/70 focus:outline-none focus:ring-2 focus:ring-vp-accent"
       />
-      {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-300">{error}</p>}
+      {error && <p className="mt-3 text-sm vp-negative">{error}</p>}
       <div className="mt-5 flex flex-col gap-2 sm:flex-row">
         <VpButton type="submit" size="lg" disabled={busy} className="flex-1">
           {busy ? "Sending…" : email ? "Send my answer" : "Skip & send my answer"}
@@ -147,7 +147,7 @@ export function FollowUpPanel({
   const [text, setText] = useState("");
   return (
     <div className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
-      <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
+      <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-emerald-500/15 vp-positive">
         <Check className="size-5" strokeWidth={3} aria-hidden />
       </div>
       <h3 className="vp-display text-2xl text-vp-fg">{live ? "Thank you — recorded." : "Thank you — that's the whole flow."}</h3>

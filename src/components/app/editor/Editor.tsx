@@ -12,6 +12,7 @@ import { requestSection } from "@/lib/generate-client";
 import { briefFromDocument, defaultSection, type PageDocument, type Section, type SectionType } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import { PublishControls } from "../PublishControls";
+import { ThemeToggle } from "../ThemeToggle";
 import { FramedPreview, type FramedPreviewHandle } from "../FramedPreview";
 import { DeviceSelect, PagePanel, SectionPanel, ThemePanel } from "./Panels";
 import { SectionList, SINGLETONS } from "./SectionList";
@@ -116,6 +117,7 @@ export function Editor({ project, publicUrl }: EditorProps) {
           <SaveIndicator state={saveState} />
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <DeviceSelect value={device} onChange={setDevice} />
           {project.status === "published" && (
             <Button variant="ghost" size="sm" render={<a href={publicUrl} target="_blank" rel="noreferrer" />} nativeButton={false}>

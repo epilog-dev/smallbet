@@ -8,6 +8,9 @@ import type { ResponseRow } from "@/lib/db/responses";
 
 const tierName = (r: ResponseRow, names: Record<string, string>) => (r.tier_id ? (names[r.tier_id] ?? r.tier_id) : "—");
 
+// Fixed locale + zone so server and client render the same text (no hydration mismatch).
+const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+
 export function ResponsesTable({ rows, tierNames, projectName }: { rows: ResponseRow[]; tierNames: Record<string, string>; projectName: string }) {
   const exportCsv = () => {
     const head = ["created_at", "answer", "tier", "amount", "currency", "interval", "email", "reason", "referrer"];
@@ -57,7 +60,9 @@ export function ResponsesTable({ rows, tierNames, projectName }: { rows: Respons
           <TableBody>
             {rows.map((r) => (
               <TableRow key={r.id}>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{new Date(r.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground" title={r.created_at}>
+                  {when.format(new Date(r.created_at))} UTC
+                </TableCell>
                 <TableCell>
                   <span className={r.kind === "would_pay" ? "font-medium" : "text-muted-foreground"}>{r.kind === "would_pay" ? "Would pay" : "Wouldn't pay"}</span>
                 </TableCell>

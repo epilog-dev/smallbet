@@ -91,12 +91,16 @@ export const FramedPreview = forwardRef<
     return () => ro.disconnect();
   }, [mount, minHeight]);
 
-  // Keep stylesheets in sync (dev HMR injects new <style>/<link> tags into the parent head).
+  // Keep stylesheets and the <html> class (app theme, font vars) in sync with the parent.
   useEffect(() => {
     if (!mount) return;
     const doc = mount.ownerDocument;
-    const mo = new MutationObserver(() => syncStyles(document, doc));
+    const mo = new MutationObserver(() => {
+      syncStyles(document, doc);
+      doc.documentElement.className = document.documentElement.className;
+    });
     mo.observe(document.head, { childList: true, subtree: true, characterData: true });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     return () => mo.disconnect();
   }, [mount]);
 
