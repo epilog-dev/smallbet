@@ -27,10 +27,12 @@ export const IdeaBriefSchema = z.object({
   suggestedTiers: z
     .array(z.object({ name: z.string().min(1).max(30), price: z.number().min(0).max(100000), blurb: z.string().min(1).max(90) }))
     .min(1)
-    .max(3)
-    .describe("Realistic price points anchored to the priceHint and market norms."),
+    .max(6)
+    .describe(
+      "Price points the visitor chooses between, ascending. Default: 4-6 points roughly doubling and bracketing the founder's hint so people can go lower or higher (e.g. 9, 19, 39, 79, 149). name is a 1-2 word label (Hobby, Solo, Team, Business). Use 2-3 plans only when the idea clearly needs packaging; 1 for one-off products.",
+    ),
   tone: z.enum(TONES),
-  theme: z.object({ accent: AccentHueSchema, mode: ColorModeSchema }),
+  theme: z.object({ accent: AccentHueSchema, mode: ColorModeSchema, accentHex: z.string().max(7).optional().describe("Leave unset; the founder may set a brand colour.") }),
   heroVariant: z.enum(["centered", "split", "minimal"]).describe("centered for most; split when the product visual matters; minimal for services."),
 });
 export type IdeaBrief = z.infer<typeof IdeaBriefSchema>;

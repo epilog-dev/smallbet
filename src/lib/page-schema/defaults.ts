@@ -86,18 +86,22 @@ export function defaultSection<T extends SectionType>(type: T, variant?: string)
         return {
           id,
           type: "pricing-intent",
-          variant: (variant as "tiers") ?? "tiers",
+          variant: (variant as "price-ladder") ?? "price-ladder",
           hidden: false,
           props: {
-            title: "What would you pay?",
+            title: "What would you pay for this?",
             subtitle:
-              "This product is not built yet. Your answer decides whether it gets built and what it will cost.",
+              "This product is not built yet. Your answer decides whether it gets built and what it will cost. Nothing is charged.",
             currency: "USD",
             interval: "month",
             tiers: [
-              { id: "starter", name: "Starter", price: 9, blurb: "For individuals", features: ["Core features", "Email support"] },
-              { id: "pro", name: "Pro", price: 29, blurb: "For small teams", features: ["Everything in Starter", "Unlimited usage", "Priority support"] },
+              { id: "hobby", name: "Hobby", price: 9, blurb: "For personal use", features: [] },
+              { id: "solo", name: "Solo", price: 19, blurb: "For one professional", features: [] },
+              { id: "pro", name: "Pro", price: 39, blurb: "For serious daily use", features: [] },
+              { id: "team", name: "Team", price: 79, blurb: "For a small team", features: [] },
+              { id: "business", name: "Business", price: 149, blurb: "For a company", features: [] },
             ],
+            whatYouGet: ["Does the core job automatically", "Tells you when it needs a decision", "Works with what you already use"],
             highlightedTierId: "pro",
             ctaLabel: "I'd pay this",
             noPayLabel: "I wouldn't pay for this",

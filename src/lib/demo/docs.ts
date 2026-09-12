@@ -109,7 +109,7 @@ const raw: Record<string, PageDocument> = {
       {
         id: "pricing",
         type: "pricing-intent",
-        variant: "tiers",
+        variant: "price-ladder",
         hidden: false,
         props: {
           title: "What would you pay for a month-end that does itself?",
@@ -117,10 +117,13 @@ const raw: Record<string, PageDocument> = {
           currency: "USD",
           interval: "month",
           tiers: [
-            { id: "solo", name: "Solo", price: 19, blurb: "One business, one bank account", features: ["Bank feed categorisation", "Monthly P&L PDF", "Accountant export"] },
-            { id: "pro", name: "Pro", price: 39, blurb: "Multiple accounts and currencies", features: ["Everything in Solo", "Invoice reconciliation", "Quarterly tax estimate", "Priority questions"] },
-            { id: "firm", name: "With accountant", price: 79, blurb: "Shared workspace for you and your accountant", features: ["Everything in Pro", "Accountant seat", "Year-end pack", "Audit trail"] },
+            { id: "hobby", name: "Hobby", price: 9, blurb: "Side income, a few transactions a month", features: [] },
+            { id: "solo", name: "Solo", price: 19, blurb: "One business, one bank account", features: [] },
+            { id: "pro", name: "Pro", price: 39, blurb: "Multiple accounts and currencies", features: [] },
+            { id: "firm", name: "With accountant", price: 79, blurb: "Shared workspace with your accountant", features: [] },
+            { id: "studio", name: "Studio", price: 149, blurb: "A small agency with staff", features: [] },
           ],
+          whatYouGet: ["Reads your bank feed and invoices every night", "Categorises every line, asks only when unsure", "A finished P&L in your inbox on the 1st", "One-click export your accountant can open"],
           highlightedTierId: "pro",
           ctaLabel: "I'd pay this",
           noPayLabel: "I wouldn't pay for this",

@@ -275,6 +275,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      project_public_buckets: {
+        Args: { p_slug: string }
+        Returns: {
+          tier_id: string | null
+          n: number
+        }[]
+      }
       project_public_stats: {
         Args: { p_slug: string }
         Returns: {
@@ -284,6 +291,10 @@ export type Database = {
       }
       record_view: {
         Args: { p_slug: string; p_visitor: string; p_referrer?: string | null; p_utm?: Json | null }
+        Returns: undefined
+      }
+      set_response_details: {
+        Args: { p_id: string; p_visitor: string; p_reason?: string | null; p_email?: string | null }
         Returns: undefined
       }
       set_response_reason: {

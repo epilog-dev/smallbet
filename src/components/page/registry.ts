@@ -11,6 +11,7 @@ import { StepsNumbered } from "./sections/steps/Numbered";
 import { StepsTimeline } from "./sections/steps/Timeline";
 import { FounderNoteLetter } from "./sections/founder-note/Letter";
 import { FounderNoteQuote } from "./sections/founder-note/Quote";
+import { PricingIntentPriceLadder } from "./sections/pricing-intent/PriceLadder";
 import { PricingIntentTiers } from "./sections/pricing-intent/Tiers";
 import { PricingIntentSinglePrice } from "./sections/pricing-intent/SinglePrice";
 import { FaqAccordion } from "./sections/faq/Accordion";
@@ -27,7 +28,7 @@ export const SECTION_REGISTRY: SectionRegistry = {
   features: { grid: FeaturesGrid, alternating: FeaturesAlternating, list: FeaturesList },
   steps: { numbered: StepsNumbered, timeline: StepsTimeline },
   "founder-note": { letter: FounderNoteLetter, quote: FounderNoteQuote },
-  "pricing-intent": { tiers: PricingIntentTiers, "single-price": PricingIntentSinglePrice },
+  "pricing-intent": { "price-ladder": PricingIntentPriceLadder, tiers: PricingIntentTiers, "single-price": PricingIntentSinglePrice },
   faq: { accordion: FaqAccordion, "two-column": FaqTwoColumn },
   "cta-band": { simple: CtaBandSimple, "with-progress": CtaBandWithProgress },
   stats: { row: StatsRow, cards: StatsCards },

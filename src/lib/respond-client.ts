@@ -12,10 +12,22 @@ export interface RespondPayload {
   email?: string;
 }
 
+export interface ResponseBucket {
+  /** null = wouldn't pay */
+  tierId: string | null;
+  count: number;
+}
+
+export interface RespondStats {
+  responses: number;
+  wouldPay: number;
+  buckets: ResponseBucket[];
+}
+
 export interface RespondResult {
   ok: true;
   responseId: string;
-  stats: { responses: number; wouldPay: number };
+  stats: RespondStats;
 }
 
 export async function submitResponse(payload: RespondPayload): Promise<RespondResult> {
@@ -31,11 +43,12 @@ export async function submitResponse(payload: RespondPayload): Promise<RespondRe
   return res.json();
 }
 
-export async function submitReason(responseId: string, reason: string): Promise<void> {
+/** Attach a reason and/or email to an answer already recorded. */
+export async function updateResponse(responseId: string, details: { reason?: string; email?: string }): Promise<void> {
   const res = await fetch("/api/respond", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ responseId, reason }),
+    body: JSON.stringify({ responseId, ...details }),
   });
   if (!res.ok) throw new Error(`Request failed (${res.status})`);
 }

@@ -5,7 +5,7 @@ import { VpButton } from "../../primitives/Button";
 import { Container, SectionShell } from "../../primitives/Container";
 import type { SectionProps } from "../../types";
 import { SectionHeader } from "../SectionHeader";
-import { ConfirmPanel, DonePanel, FollowUpPanel, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
+import { AfterChoice, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
 
 export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing-intent">) {
   const p = section.props;
@@ -14,7 +14,7 @@ export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing
   const tier = p.tiers.find((t) => t.id === p.highlightedTierId) ?? p.tiers[0];
 
   return (
-    <SectionShell id={section.id} className="scroll-mt-16 bg-vp-surface-2/50">
+    <SectionShell id={section.id} className="bg-vp-surface-2/50">
       <Container size="md">
         <SectionHeader eyebrow="Pre-launch pricing" title={p.title} subtitle={p.subtitle} />
         <div className="mt-12 min-h-[20rem]">
@@ -37,31 +37,17 @@ export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing
                     </li>
                   ))}
                 </ul>
-                <VpButton size="lg" className="mt-8 w-full" onClick={() => w.choose("would_pay", tier)} disabled={w.busy}>
+                <VpButton size="lg" className="mt-8 w-full" onClick={() => void w.choose("would_pay", tier)} disabled={w.busy}>
                   {p.ctaLabel}
                 </VpButton>
                 <div className="mt-4 text-center">
-                  <NoPayLink label={p.noPayLabel} onClick={() => w.choose("would_not_pay")} />
+                  <NoPayLink label={p.noPayLabel} onClick={() => void w.choose("would_not_pay")} />
                 </div>
                 {w.error && <p className="mt-3 text-center text-sm vp-negative">{w.error}</p>}
               </div>
             </div>
           )}
-          {step.name === "confirm" && (
-            <ConfirmPanel
-              kind={step.kind}
-              tier={step.tier}
-              props={p}
-              busy={w.busy}
-              error={w.error}
-              onSubmit={(email) => w.send(step.kind, step.tier, email)}
-              onBack={w.reset}
-            />
-          )}
-          {step.name === "followup" && (
-            <FollowUpPanel kind={step.kind} question={p.followUpQuestion} busy={w.busy} live={w.live} onSubmit={(t) => w.reason(step.responseId, t)} />
-          )}
-          {step.name === "done" && <DonePanel productName={ctx.doc.meta.productName} />}
+          {step.name !== "choose" && <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />}
         </div>
       </Container>
     </SectionShell>

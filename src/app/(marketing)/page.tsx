@@ -24,9 +24,11 @@ const EXAMPLE: AnswerExample = {
   median: "$39",
   days: 9,
   buckets: [
-    { label: "Solo", price: "$19", count: 9 },
-    { label: "Pro", price: "$39", count: 15, highlight: true },
+    { label: "Hobby", price: "$9", count: 2 },
+    { label: "Solo", price: "$19", count: 8 },
+    { label: "Pro", price: "$39", count: 13, highlight: true },
     { label: "With accountant", price: "$79", count: 4 },
+    { label: "Studio", price: "$149", count: 1 },
     { label: "Wouldn't pay", count: 13, no: true },
   ],
   reasons: [

@@ -88,11 +88,16 @@ export function mockBrief(input: IdeaInput): IdeaBrief {
   const dark = /dev|api|infra|deploy|kubernetes|database|security|ai|agent|crypto|terminal|cli/i.test(input.idea);
   const priceNum = Number((input.priceHint ?? "").replace(/[^\d.]/g, "")) || pick([9, 19, 29, 49], seed, 1);
   const oneTime = /one[- ]time|lifetime|once/i.test(input.priceHint ?? "");
+  // Price points bracket the hint: two below, the hint, two above.
+  const nice = (n: number) => (n < 20 ? Math.max(1, Math.round(n)) : n < 100 ? Math.round(n / 5) * 5 : Math.round(n / 10) * 10);
   const tiers = oneTime
     ? [{ name: "Lifetime", price: priceNum, blurb: "One payment, every update" }]
     : [
-        { name: "Starter", price: priceNum, blurb: `For one person handling ${stem}` },
-        { name: "Team", price: Math.round(priceNum * 2.6), blurb: "For a small team, shared workspace" },
+        { name: "Hobby", price: nice(priceNum / 4), blurb: `Personal use, occasional ${stem}` },
+        { name: "Solo", price: nice(priceNum / 2), blurb: `One person handling ${stem}` },
+        { name: "Pro", price: nice(priceNum), blurb: `Daily ${stem} for one professional` },
+        { name: "Team", price: nice(priceNum * 2), blurb: "A small team, shared workspace" },
+        { name: "Business", price: nice(priceNum * 4), blurb: "A company that depends on it" },
       ];
   return {
     productName: names[0],
@@ -214,7 +219,7 @@ export function buildDocument(input: IdeaInput, brief: IdeaBrief): PageDocument 
       {
         id: "pricing",
         type: "pricing-intent",
-        variant: brief.suggestedTiers.length === 1 ? "single-price" : "tiers",
+        variant: brief.suggestedTiers.length === 1 ? "single-price" : brief.suggestedTiers.length <= 3 ? "tiers" : "price-ladder",
         hidden: false,
         props: {
           title: `What would you pay for ${stem} that does itself?`,
@@ -226,9 +231,11 @@ export function buildDocument(input: IdeaInput, brief: IdeaBrief): PageDocument 
             name: t.name,
             price: t.price,
             blurb: t.blurb,
-            features: i === 0 ? ["Core automation", "Weekly summary", "Email support"] : ["Everything in the first tier", "Shared workspace", "Priority questions", "Export"],
+            features:
+              brief.suggestedTiers.length > 3 ? [] : i === 0 ? ["Core automation", "Weekly summary", "Email support"] : ["Everything in the first tier", "Shared workspace", "Priority questions", "Export"],
           })),
-          highlightedTierId: brief.suggestedTiers[Math.min(1, brief.suggestedTiers.length - 1)].name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          whatYouGet: [`Handles ${stem} without you touching it`, "Flags the one thing that needs your decision", "Sends a clear summary when it's done"],
+          highlightedTierId: brief.suggestedTiers[Math.min(2, brief.suggestedTiers.length - 1)].name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
           ctaLabel: "I'd pay this",
           noPayLabel: "I wouldn't pay for this",
           askEmail: true,

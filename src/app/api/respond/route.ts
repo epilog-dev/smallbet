@@ -18,10 +18,13 @@ const PostSchema = z.object({
   utm: z.record(z.string(), z.string().max(200)).optional(),
 });
 
-const PatchSchema = z.object({
-  responseId: z.string().uuid(),
-  reason: z.string().min(1).max(1000),
-});
+const PatchSchema = z
+  .object({
+    responseId: z.string().uuid(),
+    reason: z.string().min(1).max(1000).optional(),
+    email: z.string().email().max(254).optional(),
+  })
+  .refine((v) => v.reason || v.email, { message: "Nothing to update" });
 
 function limited(req: Request) {
   const r = rateLimit(`respond:${clientIp(req)}`);
@@ -54,7 +57,10 @@ export async function POST(req: Request) {
   }
   const row = data?.[0];
   if (!row) return NextResponse.json({ error: "Couldn't record your answer." }, { status: 500 });
-  return NextResponse.json({ ok: true, responseId: row.id, stats: { responses: row.responses, wouldPay: row.would_pay } });
+  // Per-option counts power the "here's how everyone else answered" reveal.
+  const { data: bucketRows } = await db.rpc("project_public_buckets", { p_slug: b.slug });
+  const buckets = (bucketRows ?? []).map((r) => ({ tierId: r.tier_id, count: r.n }));
+  return NextResponse.json({ ok: true, responseId: row.id, stats: { responses: row.responses, wouldPay: row.would_pay, buckets } });
 }
 
 export async function PATCH(req: Request) {
@@ -64,7 +70,12 @@ export async function PATCH(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid reason" }, { status: 422 });
   const visitor = await getOrCreateVisitorId();
   const db = await createClient();
-  const { error } = await db.rpc("set_response_reason", { p_id: parsed.data.responseId, p_visitor: visitor, p_reason: parsed.data.reason });
+  const { error } = await db.rpc("set_response_details", {
+    p_id: parsed.data.responseId,
+    p_visitor: visitor,
+    p_reason: parsed.data.reason ?? null,
+    p_email: parsed.data.email ?? null,
+  });
   if (error) return NextResponse.json({ error: "Couldn't save that." }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

@@ -3,12 +3,16 @@
 import { Check } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import type { PriceTier, PricingIntentProps } from "@/lib/page-schema";
-import { submitReason, submitResponse, type ResponseKind } from "@/lib/respond-client";
+import { submitResponse, updateResponse, type RespondStats, type ResponseKind } from "@/lib/respond-client";
 import { cn } from "@/lib/utils";
 import { VpButton } from "../../primitives/Button";
 import type { PageContextValue } from "../../types";
 
-type Step = { name: "choose" } | { name: "confirm"; kind: ResponseKind; tier?: PriceTier } | { name: "followup"; responseId: string; kind: ResponseKind } | { name: "done" };
+type Step =
+  | { name: "choose" }
+  | { name: "reveal"; responseId: string; kind: ResponseKind; tier?: PriceTier; stats: RespondStats }
+  | { name: "followup"; responseId: string; kind: ResponseKind }
+  | { name: "done" };
 
 export function formatPrice(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol", maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
@@ -18,9 +22,9 @@ export const intervalLabel = (interval: PricingIntentProps["interval"]) =>
   interval === "month" ? "/mo" : interval === "year" ? "/yr" : " once";
 
 /**
- * The validation widget. Drives a small state machine:
- * choose tier or "wouldn't pay" → optional email → thank-you + follow-up question → done.
- * In preview/editor mode nothing is sent.
+ * The validation widget. Answer first, then give something back:
+ * choose → reveal how others answered (+ optional email) → one-tap reason → done.
+ * In preview/editor mode nothing is sent and the reveal uses sample numbers.
  */
 export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValue) {
   const [step, setStep] = useState<Step>({ name: "choose" });
@@ -28,30 +32,30 @@ export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValu
   const [error, setError] = useState<string | null>(null);
   const live = ctx.mode === "live" && !!ctx.slug;
 
-  const choose = (kind: ResponseKind, tier?: PriceTier) => {
-    setError(null);
-    if (props.askEmail) setStep({ name: "confirm", kind, tier });
-    else void send(kind, tier);
-  };
-
-  const send = async (kind: ResponseKind, tier?: PriceTier, email?: string) => {
+  const choose = async (kind: ResponseKind, tier?: PriceTier) => {
     setBusy(true);
     setError(null);
     try {
       const result = live
-        ? await submitResponse({
-            slug: ctx.slug!,
-            kind,
-            tierId: tier?.id,
-            amount: tier?.price,
-            currency: props.currency,
-            interval: props.interval,
-            email: email || undefined,
-          })
-        : { ok: true as const, responseId: "preview", stats: { responses: 0, wouldPay: 0 } };
-      setStep({ name: "followup", responseId: result.responseId, kind });
+        ? await submitResponse({ slug: ctx.slug!, kind, tierId: tier?.id, amount: tier?.price, currency: props.currency, interval: props.interval })
+        : { ok: true as const, responseId: "preview", stats: sampleStats(props, ctx, kind, tier) };
+      setStep({ name: "reveal", responseId: result.responseId, kind, tier, stats: result.stats });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const email = async (responseId: string, kind: ResponseKind, value: string) => {
+    if (!value.trim()) return setStep({ name: "followup", responseId, kind });
+    setBusy(true);
+    setError(null);
+    try {
+      if (live) await updateResponse(responseId, { email: value.trim() });
+      setStep({ name: "followup", responseId, kind });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't save that email.");
     } finally {
       setBusy(false);
     }
@@ -61,115 +65,180 @@ export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValu
     if (!text.trim()) return setStep({ name: "done" });
     setBusy(true);
     try {
-      if (live) await submitReason(responseId, text.trim());
-      setStep({ name: "done" });
+      if (live) await updateResponse(responseId, { reason: text.trim() });
     } catch {
-      setStep({ name: "done" });
+      /* the answer itself is already recorded; a lost reason isn't worth an error screen */
     } finally {
       setBusy(false);
+      setStep({ name: "done" });
     }
   };
 
-  return { step, busy, error, live, choose, send, reason, reset: () => setStep({ name: "choose" }) };
+  return { step, busy, error, live, choose, email, reason, reset: () => setStep({ name: "choose" }) };
 }
 
-export function ConfirmPanel({
+/** Plausible numbers for previews: the page's sample stats spread over the options, plus this answer. */
+function sampleStats(props: PricingIntentProps, ctx: PageContextValue, kind: ResponseKind, tier?: PriceTier): RespondStats {
+  const { responses, wouldPay } = ctx.stats;
+  const n = props.tiers.length;
+  const hi = Math.max(0, props.tiers.findIndex((t) => t.id === props.highlightedTierId));
+  // Bell-ish around the highlighted option.
+  const weights = props.tiers.map((_, i) => 1 / (1 + Math.abs(i - hi)));
+  const total = weights.reduce((a, b) => a + b, 0);
+  const buckets = props.tiers.map((t, i) => ({ tierId: t.id as string | null, count: Math.round((wouldPay * weights[i]) / total) }));
+  buckets.push({ tierId: null, count: Math.max(0, responses - wouldPay) });
+  const mine = buckets.find((b) => b.tierId === (kind === "would_pay" ? (tier?.id ?? props.tiers[n - 1].id) : null));
+  if (mine) mine.count += 1;
+  return { responses: responses + 1, wouldPay: wouldPay + (kind === "would_pay" ? 1 : 0), buckets };
+}
+
+/* ---------------- Reveal: how everyone else answered, then an optional email ---------------- */
+
+export function RevealPanel({
   kind,
   tier,
+  stats,
   props,
   busy,
   error,
-  onSubmit,
-  onBack,
+  live,
+  onContinue,
 }: {
   kind: ResponseKind;
   tier?: PriceTier;
+  stats: RespondStats;
   props: PricingIntentProps;
   busy: boolean;
   error: string | null;
-  onSubmit: (email: string) => void;
-  onBack: () => void;
+  live: boolean;
+  onContinue: (email: string) => void;
 }) {
   const [email, setEmail] = useState("");
+  const count = (id: string | null) => stats.buckets.find((b) => b.tierId === id)?.count ?? 0;
+  const rows = [...props.tiers.map((t) => ({ key: t.id as string | null, label: formatPrice(t.price, props.currency) + intervalLabel(props.interval), count: count(t.id) })), { key: null, label: props.noPayLabel, count: count(null) }];
+  const max = Math.max(1, ...rows.map((r) => r.count));
+  const mineKey = kind === "would_pay" ? (tier?.id ?? null) : null;
+  const enough = stats.responses >= 5;
+  const pct = Math.round((stats.wouldPay / Math.max(1, stats.responses)) * 100);
   const handle = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(email);
+    onContinue(email);
   };
+
   return (
     <form onSubmit={handle} className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
-      <p className="text-sm font-semibold text-vp-accent-ink">
-        {kind === "would_pay" && tier
-          ? `You picked ${tier.name} · ${formatPrice(tier.price, props.currency)}${intervalLabel(props.interval)}`
-          : "You said you wouldn't pay — that's useful too."}
-      </p>
-      <h3 className="vp-display mt-2 text-2xl text-vp-fg">Want to hear if this launches?</h3>
-      <p className="mt-2 text-sm text-vp-muted">Optional. One email when there&apos;s news, nothing else.</p>
-      <label className="sr-only" htmlFor="vp-email">
-        Email
-      </label>
-      <input
-        id="vp-email"
-        type="email"
-        inputMode="email"
-        autoComplete="email"
-        placeholder="you@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="mt-5 h-12 w-full rounded-vp-md border border-vp-border bg-vp-bg px-4 text-vp-fg placeholder:text-vp-muted/70 focus:outline-none focus:ring-2 focus:ring-vp-accent"
-      />
-      {error && <p className="mt-3 text-sm vp-negative">{error}</p>}
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-        <VpButton type="submit" size="lg" disabled={busy} className="flex-1">
-          {busy ? "Sending…" : email ? "Send my answer" : "Skip & send my answer"}
-        </VpButton>
-        <VpButton type="button" variant="ghost" size="lg" onClick={onBack} disabled={busy}>
-          Back
-        </VpButton>
+      <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-vp-accent text-vp-accent-fg">
+        <Check className="size-5" strokeWidth={3} aria-hidden />
       </div>
+      <h3 className="vp-display text-2xl text-vp-fg">
+        {kind === "would_pay" && tier ? `You'd pay ${formatPrice(tier.price, props.currency)}${intervalLabel(props.interval)}.` : "You wouldn't pay. Noted — that counts too."}
+      </h3>
+      <p className="mt-1 text-sm text-vp-muted">
+        {!live
+          ? "Sample numbers — nothing is recorded in a preview."
+          : enough
+            ? kind === "would_pay"
+              ? `You're with the ${pct}% who'd pay. Here's how ${stats.responses} people answered:`
+              : `${100 - pct}% of ${stats.responses} people said the same. Here's the spread:`
+            : `You're answer #${stats.responses}. Early days — the picture fills in as more people answer.`}
+      </p>
+
+      <ul className="mt-5 space-y-2" aria-label="How others answered">
+        {rows.map((r) => {
+          const mine = r.key === mineKey;
+          return (
+            <li key={r.key ?? "no"} className="grid grid-cols-[6.5rem_1fr_2rem] items-center gap-3 text-sm">
+              <span className={cn("truncate tabular-nums", mine ? "font-semibold text-vp-fg" : "text-vp-muted")}>{r.label}</span>
+              <span className="h-2.5 overflow-hidden rounded-full bg-vp-fg/10">
+                <span
+                  className={cn("block h-full rounded-full transition-[width] duration-700", mine ? "bg-vp-accent" : "bg-vp-fg/35")}
+                  style={{ width: `${(r.count / max) * 100}%` }}
+                />
+              </span>
+              <span className={cn("text-right tabular-nums", mine ? "font-semibold text-vp-fg" : "text-vp-muted")}>{r.count}</span>
+            </li>
+          );
+        })}
+      </ul>
+
+      {props.askEmail && (
+        <div className="mt-6 border-t border-vp-border pt-5">
+          <label htmlFor="vp-email" className="block text-sm font-semibold text-vp-fg">
+            Want to know where the price lands?
+          </label>
+          <p className="mt-1 text-xs text-vp-muted">Optional. One email when there&apos;s news, nothing else.</p>
+          <input
+            id="vp-email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-3 h-11 w-full rounded-vp-md border border-vp-border bg-vp-bg px-4 text-vp-fg placeholder:text-vp-muted/70 focus:outline-none focus:ring-2 focus:ring-vp-accent"
+          />
+        </div>
+      )}
+      {error && <p className="mt-3 text-sm vp-negative">{error}</p>}
+      <VpButton type="submit" size="lg" disabled={busy} className="mt-5 w-full">
+        {busy ? "Saving…" : email.trim() ? "Keep me posted" : "Continue"}
+      </VpButton>
     </form>
   );
 }
+
+/* ---------------- Follow-up: one-tap reasons ---------------- */
+
+const NO_CHIPS = ["Too expensive", "I already have a tool for this", "I don't have this problem", "Not right now", "I'd need to try it first"];
+const YES_CHIPS = ["Nothing — I'd pay today", "It needs to work with my tools", "I'd want a trial first", "Depends on the details"];
 
 export function FollowUpPanel({
   kind,
   question,
   busy,
   onSubmit,
-  live = true,
 }: {
   kind: ResponseKind;
   question: string;
   busy: boolean;
   onSubmit: (text: string) => void;
-  /** false in previews: say so instead of claiming the answer was recorded */
-  live?: boolean;
 }) {
+  const [chip, setChip] = useState<string | null>(null);
   const [text, setText] = useState("");
+  const chips = kind === "would_pay" ? YES_CHIPS : NO_CHIPS;
+  const answer = [chip, text.trim()].filter(Boolean).join(" — ");
   return (
     <div className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
-      <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-emerald-500/15 vp-positive">
-        <Check className="size-5" strokeWidth={3} aria-hidden />
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-vp-muted">One more thing</p>
+      <h3 className="vp-display mt-2 text-2xl text-vp-fg">{kind === "would_pay" ? question : "What would have to change?"}</h3>
+      <div className="mt-5 flex flex-wrap gap-2">
+        {chips.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setChip((cur) => (cur === c ? null : c))}
+            aria-pressed={chip === c}
+            className={cn(
+              "rounded-full border px-3.5 py-2 text-sm transition-colors",
+              chip === c ? "border-vp-accent bg-vp-accent text-vp-accent-fg" : "border-vp-border bg-vp-bg text-vp-fg hover:border-vp-border-strong",
+            )}
+          >
+            {c}
+          </button>
+        ))}
       </div>
-      <h3 className="vp-display text-2xl text-vp-fg">{live ? "Thank you — recorded." : "Thank you — that's the whole flow."}</h3>
-      <p className="mt-2 text-sm text-vp-muted">
-        {kind === "would_pay" ? "One more thing, if you have 10 seconds:" : "Mind telling us why? It genuinely helps:"}
-      </p>
-      <label htmlFor="vp-reason" className="mt-5 block text-sm font-semibold text-vp-fg">
-        {kind === "would_pay" ? question : "What would have to be true for you to pay?"}
-      </label>
       <textarea
         id="vp-reason"
-        rows={3}
+        rows={2}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className="mt-2 w-full resize-none rounded-vp-md border border-vp-border bg-vp-bg px-4 py-3 text-vp-fg placeholder:text-vp-muted/70 focus:outline-none focus:ring-2 focus:ring-vp-accent"
-        placeholder="Type a sentence or two…"
+        aria-label="Anything else?"
+        className="mt-4 w-full resize-none rounded-vp-md border border-vp-border bg-vp-bg px-4 py-3 text-sm text-vp-fg placeholder:text-vp-muted/70 focus:outline-none focus:ring-2 focus:ring-vp-accent"
+        placeholder="Anything else? (optional)"
       />
-      <div className="mt-4 flex gap-2">
-        <VpButton size="lg" disabled={busy} onClick={() => onSubmit(text)} className="flex-1">
-          {busy ? "Sending…" : text.trim() ? "Send" : "Skip"}
-        </VpButton>
-      </div>
+      <VpButton size="lg" disabled={busy} onClick={() => onSubmit(answer)} className="mt-4 w-full">
+        {busy ? "Sending…" : answer ? "Send" : "Skip"}
+      </VpButton>
     </div>
   );
 }
@@ -198,4 +267,26 @@ export function NoPayLink({ label, onClick, className }: { label: string; onClic
       {label}
     </button>
   );
+}
+
+/** Shared tail of every variant: everything after the visitor has chosen. */
+export function AfterChoice({ w, props, productName }: { w: ReturnType<typeof usePricingIntent>; props: PricingIntentProps; productName: string }) {
+  const { step } = w;
+  if (step.name === "reveal") {
+    return (
+      <RevealPanel
+        kind={step.kind}
+        tier={step.tier}
+        stats={step.stats}
+        props={props}
+        busy={w.busy}
+        error={w.error}
+        live={w.live}
+        onContinue={(email) => void w.email(step.responseId, step.kind, email)}
+      />
+    );
+  }
+  if (step.name === "followup") return <FollowUpPanel kind={step.kind} question={props.followUpQuestion} busy={w.busy} onSubmit={(t) => void w.reason(step.responseId, t)} />;
+  if (step.name === "done") return <DonePanel productName={productName} />;
+  return null;
 }
