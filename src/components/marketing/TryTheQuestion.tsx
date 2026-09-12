@@ -18,7 +18,7 @@ export function TryTheQuestion({ doc }: { doc: PageDocument }) {
   };
   return (
     <PageProvider value={ctx}>
-      <ThemeScope id="try-question" theme={{ ...doc.theme, mode: "light" }} persistMode={false} className="rounded-xl border border-border">
+      <ThemeScope id="try-question" theme={doc.theme} persistMode={false} followApp className="rounded-xl border border-border">
         <div className="[&_section]:!border-t-0 [&_section]:!py-10 sm:[&_section]:!py-12">
           <PricingIntentPriceLadder section={{ ...section, props: { ...section.props, title: "What would you pay for a month-end that closes itself?" } }} ctx={ctx} />
         </div>

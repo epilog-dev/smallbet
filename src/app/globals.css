@@ -200,7 +200,9 @@ html:has(.vp[data-live]) {
   -webkit-font-smoothing: antialiased;
   color-scheme: light;
 }
-.vp[data-mode="dark"] {
+/* data-mode="app": follow the host site's theme (used for the demo embedded on the landing page). */
+.vp[data-mode="dark"],
+.dark .vp[data-mode="app"] {
   --vp-bg: oklch(0.145 0.003 260);
   --vp-surface: oklch(0.185 0.003 260);
   --vp-surface-2: oklch(0.225 0.003 260);
@@ -266,10 +268,34 @@ html:has(.vp[data-live]) {
 .vp .vp-negative {
   color: oklch(0.55 0.2 20);
 }
-.vp[data-mode="dark"] .vp-positive {
+.vp[data-mode="app"] {
+  --vp-accent-hue: var(--vp-accent-hue-light);
+  --vp-accent: var(--vp-accent-light);
+  --vp-accent-hover: var(--vp-accent-hover-light);
+  --vp-accent-fg: var(--vp-accent-fg-light);
+  --vp-accent-soft: var(--vp-accent-soft-light);
+  --vp-accent-ink: var(--vp-accent-ink-light);
+  --vp-btn-bg: var(--vp-btn-bg-light);
+  --vp-btn-fg: var(--vp-btn-fg-light);
+  --vp-btn-hover: var(--vp-btn-hover-light);
+}
+.dark .vp[data-mode="app"] {
+  --vp-accent-hue: var(--vp-accent-hue-dark);
+  --vp-accent: var(--vp-accent-dark);
+  --vp-accent-hover: var(--vp-accent-hover-dark);
+  --vp-accent-fg: var(--vp-accent-fg-dark);
+  --vp-accent-soft: var(--vp-accent-soft-dark);
+  --vp-accent-ink: var(--vp-accent-ink-dark);
+  --vp-btn-bg: var(--vp-btn-bg-dark);
+  --vp-btn-fg: var(--vp-btn-fg-dark);
+  --vp-btn-hover: var(--vp-btn-hover-dark);
+}
+.vp[data-mode="dark"] .vp-positive,
+.dark .vp[data-mode="app"] .vp-positive {
   color: oklch(0.8 0.14 163);
 }
-.vp[data-mode="dark"] .vp-negative {
+.vp[data-mode="dark"] .vp-negative,
+.dark .vp[data-mode="app"] .vp-negative {
   color: oklch(0.8 0.12 20);
 }
 
