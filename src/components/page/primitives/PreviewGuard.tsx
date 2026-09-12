@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 
 /**
- * In preview/editor mode the page is a real document inside an iframe. Block anything that
- * would navigate that document away (external links, the footer link, form submits) while
- * still letting same-page anchors scroll. Without this, clicking a link inside a dashboard
- * preview loads the whole app inside the preview.
+ * In preview/editor mode the page is a real document inside an iframe. Make it inert for
+ * navigation: links (external *and* in-page anchors — a hash jump inside the iframe scrolls
+ * the host editor/dashboard too) and form submits do nothing. Clicks still bubble, so the
+ * editor's click-to-select keeps working when the click lands on a link inside a section.
  */
 export function PreviewGuard({ rootId }: { rootId: string }) {
   const marker = useRef<HTMLSpanElement>(null);
@@ -15,12 +15,7 @@ export function PreviewGuard({ rootId }: { rootId: string }) {
     const root = marker.current?.ownerDocument.getElementById(rootId);
     if (!root) return;
     const onClick = (e: MouseEvent) => {
-      const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
-      if (!a) return;
-      const href = a.getAttribute("href") ?? "";
-      if (href.startsWith("#")) return; // in-page anchor: fine
-      e.preventDefault();
-      e.stopPropagation();
+      if ((e.target as Element | null)?.closest?.("a[href]")) e.preventDefault();
     };
     const onSubmit = (e: Event) => {
       e.preventDefault();
