@@ -59,7 +59,7 @@ export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing
             />
           )}
           {step.name === "followup" && (
-            <FollowUpPanel kind={step.kind} question={p.followUpQuestion} busy={w.busy} onSubmit={(t) => w.reason(step.responseId, t)} />
+            <FollowUpPanel kind={step.kind} question={p.followUpQuestion} busy={w.busy} live={w.live} onSubmit={(t) => w.reason(step.responseId, t)} />
           )}
           {step.name === "done" && <DonePanel productName={ctx.doc.meta.productName} />}
         </div>

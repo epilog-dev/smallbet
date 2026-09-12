@@ -70,7 +70,7 @@ export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValu
     }
   };
 
-  return { step, busy, error, choose, send, reason, reset: () => setStep({ name: "choose" }) };
+  return { step, busy, error, live, choose, send, reason, reset: () => setStep({ name: "choose" }) };
 }
 
 export function ConfirmPanel({
@@ -135,11 +135,14 @@ export function FollowUpPanel({
   question,
   busy,
   onSubmit,
+  live = true,
 }: {
   kind: ResponseKind;
   question: string;
   busy: boolean;
   onSubmit: (text: string) => void;
+  /** false in previews: say so instead of claiming the answer was recorded */
+  live?: boolean;
 }) {
   const [text, setText] = useState("");
   return (
@@ -147,7 +150,7 @@ export function FollowUpPanel({
       <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
         <Check className="size-5" strokeWidth={3} aria-hidden />
       </div>
-      <h3 className="vp-display text-2xl text-vp-fg">Thank you — recorded.</h3>
+      <h3 className="vp-display text-2xl text-vp-fg">{live ? "Thank you — recorded." : "Thank you — that's the whole flow."}</h3>
       <p className="mt-2 text-sm text-vp-muted">
         {kind === "would_pay" ? "One more thing, if you have 10 seconds:" : "Mind telling us why? It genuinely helps:"}
       </p>
