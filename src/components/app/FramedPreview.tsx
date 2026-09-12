@@ -103,17 +103,30 @@ export const FramedPreview = forwardRef<
     return () => ro.disconnect();
   }, [wideWidth, narrowWidth, narrowBelow, maxScale]);
 
-  // Follow the content's height. Watch both body and <html>: an absolutely positioned or
-  // margin-collapsed child can grow the document without changing the body's box.
+  // Follow the body's content height. (Not <html>'s scrollHeight: it ignores clipping inside the
+  // body — a thumbnail capped with max-height would report the full page and the frame would balloon.)
+  // The body's own box rarely changes, so also watch its children, and re-measure once the copied
+  // stylesheets load — before that, `overflow-hidden` isn't in effect and the height reads far too big.
   useEffect(() => {
     if (!mount) return;
-    const root = mount.ownerDocument.documentElement;
-    const update = () => setContentHeight(Math.max(minHeight, mount.scrollHeight, root.scrollHeight));
+    const doc = mount.ownerDocument;
+    const update = () => setContentHeight(Math.max(minHeight, mount.scrollHeight));
     update();
     const ro = new ResizeObserver(update);
     ro.observe(mount);
-    ro.observe(root);
-    return () => ro.disconnect();
+    const watchChildren = () => Array.from(mount.children).forEach((c) => ro.observe(c));
+    watchChildren();
+    const mo = new MutationObserver(watchChildren);
+    mo.observe(mount, { childList: true });
+    const onSheet = (e: Event) => {
+      if ((e.target as Element)?.tagName === "LINK") update();
+    };
+    doc.head.addEventListener("load", onSheet, true);
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+      doc.head.removeEventListener("load", onSheet, true);
+    };
   }, [mount, minHeight]);
 
   // Keep stylesheets and the <html> class (app theme, font vars) in sync with the parent.
@@ -130,7 +143,9 @@ export const FramedPreview = forwardRef<
   }, [mount]);
 
   return (
-    <div ref={outer} className={cn("relative w-full overflow-hidden", className)} style={{ height: contentHeight * scale }}>
+    // contain: inline-size — the unscaled 1280px iframe must never set this box's intrinsic width,
+    // or a grid/flex column on a phone stretches to fit it and the page scrolls sideways.
+    <div ref={outer} className={cn("relative w-full min-w-0 overflow-hidden [contain:inline-size]", className)} style={{ height: contentHeight * scale }}>
       <iframe
         ref={iframeRef}
         title={title}
