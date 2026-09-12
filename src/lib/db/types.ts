@@ -308,7 +308,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      published_pages: {
+        Row: {
+          created_at: string
+          document: Json
+          id: string
+          name: string
+          published_at: string | null
+          slug: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       project_public_buckets: {
@@ -328,6 +338,10 @@ export type Database = {
       record_view: {
         Args: { p_slug: string; p_visitor: string; p_referrer?: string | null; p_utm?: Json | null }
         Returns: undefined
+      }
+      slug_taken: {
+        Args: { p_slug: string; p_exclude?: string | null }
+        Returns: boolean
       }
       set_response_details: {
         Args: { p_id: string; p_visitor: string; p_reason?: string | null; p_email?: string | null }

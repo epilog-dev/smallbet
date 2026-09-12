@@ -4,13 +4,14 @@ import { ArrowRight, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { listProjects } from "@/lib/db/projects";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Your ideas" };
 
 export default async function ProjectsPage() {
   const db = await createClient();
-  const [projects, archived] = await Promise.all([listProjects(db), listProjects(db, { archived: true })]);
+  const user = (await getUser())!; // the (app) layout already redirected anonymous visitors
+  const [projects, archived] = await Promise.all([listProjects(db, user.id), listProjects(db, user.id, { archived: true })]);
 
   if (projects.length === 0 && archived.length === 0) {
     return (

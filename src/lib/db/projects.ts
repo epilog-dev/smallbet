@@ -39,10 +39,12 @@ function parseProject(row: ProjectRow): Project {
   };
 }
 
-export async function listProjects(db: Db, opts: { archived?: boolean } = {}): Promise<ProjectSummary[]> {
+/** Every read of `projects` from the app is owner-scoped here, on top of RLS — belt and braces. */
+export async function listProjects(db: Db, ownerId: string, opts: { archived?: boolean } = {}): Promise<ProjectSummary[]> {
   let q = db
     .from("projects")
     .select("id,name,slug,status,created_at,updated_at,published_at,document,responses(kind),page_views(count)")
+    .eq("owner_id", ownerId)
     .order("updated_at", { ascending: false });
   q = opts.archived ? q.eq("status", "archived") : q.neq("status", "archived");
   const { data, error } = await q;
@@ -66,16 +68,26 @@ export async function listProjects(db: Db, opts: { archived?: boolean } = {}): P
   });
 }
 
-export async function getProject(db: Db, id: string): Promise<Project | null> {
-  const { data, error } = await db.from("projects").select("*").eq("id", id).maybeSingle();
+export async function getProject(db: Db, ownerId: string, id: string): Promise<Project | null> {
+  const { data, error } = await db.from("projects").select("*").eq("id", id).eq("owner_id", ownerId).maybeSingle();
   if (error) throw error;
   return data ? parseProject(data) : null;
 }
 
-export async function getPublishedProjectBySlug(db: Db, slug: string): Promise<Project | null> {
-  const { data, error } = await db.from("projects").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
+/** What a public page is allowed to know. Read through the `published_pages` view — never the table. */
+export interface PublishedPage {
+  id: string;
+  slug: string;
+  name: string;
+  document: PageDocument;
+  published_at: string | null;
+  created_at: string;
+}
+
+export async function getPublishedProjectBySlug(db: Db, slug: string): Promise<PublishedPage | null> {
+  const { data, error } = await db.from("published_pages").select("*").eq("slug", slug).maybeSingle();
   if (error) throw error;
-  return data ? parseProject(data) : null;
+  return data ? { ...data, document: repairDocument(data.document) } : null;
 }
 
 /** Picks a free slug from the product name, appending a short suffix on collision. */
@@ -83,9 +95,10 @@ export async function uniqueSlug(db: Db, base: string, excludeId?: string): Prom
   let candidate = slugify(base);
   if (RESERVED_SLUGS.has(candidate)) candidate = `${candidate}-page`;
   for (let attempt = 0; attempt < 6; attempt++) {
-    const q = db.from("projects").select("id").eq("slug", candidate).limit(1);
-    const { data } = excludeId ? await q.neq("id", excludeId) : await q;
-    if (!data?.length) return candidate;
+    // Definer RPC: owners can't see each other's rows, but slugs are unique across everyone.
+    const { data: taken, error } = await db.rpc("slug_taken", { p_slug: candidate, p_exclude: excludeId ?? null });
+    if (error) throw error;
+    if (!taken) return candidate;
     candidate = `${slugify(base).slice(0, 34)}-${randomSuffix()}`;
   }
   return `${slugify(base).slice(0, 30)}-${randomSuffix(6)}`;

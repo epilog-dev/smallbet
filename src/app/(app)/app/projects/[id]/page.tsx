@@ -12,19 +12,21 @@ import { ProjectSettings } from "@/components/app/dashboard/ProjectSettings";
 import { computePricingStats } from "@/lib/analytics/pricing-stats";
 import { getProject } from "@/lib/db/projects";
 import { countViews, listResponses } from "@/lib/db/responses";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUser } from "@/lib/supabase/server";
 
 export async function generateMetadata({ params }: PageProps<"/app/projects/[id]">): Promise<Metadata> {
   const { id } = await params;
   const db = await createClient();
-  const p = await getProject(db, id);
+  const user = await getUser();
+  const p = user ? await getProject(db, user.id, id) : null;
   return { title: p?.name ?? "Project" };
 }
 
 export default async function ProjectPage({ params }: PageProps<"/app/projects/[id]">) {
   const { id } = await params;
   const db = await createClient();
-  const project = await getProject(db, id);
+  const user = (await getUser())!; // layout redirects anonymous visitors
+  const project = await getProject(db, user.id, id);
   if (!project) notFound();
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/p/${project.slug}`;
   const published = project.status === "published";
