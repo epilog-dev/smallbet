@@ -18,7 +18,7 @@ export function AppShell({ email, children }: { email: string; children: React.R
             validate
           </Link>
           <div className="flex items-center gap-2">
-            <Button size="sm" render={<Link href="/app/new" />}>
+            <Button size="sm" render={<Link href="/app/new" />} nativeButton={false}>
               <Plus /> New idea
             </Button>
             <UserMenu email={email} />

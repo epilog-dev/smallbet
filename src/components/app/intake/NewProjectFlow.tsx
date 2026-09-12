@@ -80,7 +80,7 @@ export function NewProjectFlow() {
               document: ev.doc,
               usage: { generator: ev.generator, inputTokens: ev.usage.inputTokens, outputTokens: ev.usage.outputTokens, ms: ev.usage.ms },
             });
-            router.push(`/app/projects/${id}`); // TODO(phase 4): /edit
+            router.push(`/app/projects/${id}/edit`);
           } catch (e) {
             setSaving(false);
             fail(e);

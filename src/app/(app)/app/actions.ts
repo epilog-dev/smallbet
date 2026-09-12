@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { IdeaBriefSchema, IdeaInputSchema } from "@/lib/ai/types";
 import { createProject as dbCreateProject, logGeneration, saveDocument as dbSaveDocument, setStatus, setSlug, uniqueSlug, VersionConflictError } from "@/lib/db/projects";
-import { PageDocumentSchema } from "@/lib/page-schema";
+import { PageDocumentSchema, repairDocument } from "@/lib/page-schema";
 import { RESERVED_SLUGS, SLUG_RE } from "@/lib/slug";
 import { createClient, getUser } from "@/lib/supabase/server";
 
@@ -38,7 +38,7 @@ export async function saveDocumentAction(id: string, rawDoc: unknown, expectedVe
   await requireUser();
   const db = await createClient();
   try {
-    const r = await dbSaveDocument(db, id, PageDocumentSchema.parse(rawDoc), expectedVersion);
+    const r = await dbSaveDocument(db, id, repairDocument(rawDoc), expectedVersion);
     revalidatePath(`/app/projects/${id}`);
     return { ok: true, version: r.version };
   } catch (e) {

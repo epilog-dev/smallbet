@@ -45,7 +45,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" render={<Link href={`/app/projects/${project.id}/edit`} />}>
+          <Button variant="outline" render={<Link href={`/app/projects/${project.id}/edit`} />} nativeButton={false}>
             <Pencil /> Edit page
           </Button>
           <PublishControls id={project.id} status={project.status} slug={project.slug} publicUrl={publicUrl} />

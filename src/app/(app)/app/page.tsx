@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
       <div className="mx-auto max-w-md py-20 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Nothing here yet</h1>
         <p className="mt-2 text-sm text-muted-foreground">Describe an idea and we&apos;ll build a page that asks people what they&apos;d pay for it.</p>
-        <Button size="lg" className="mt-6" render={<Link href="/app/new" />}>
+        <Button size="lg" className="mt-6" render={<Link href="/app/new" />} nativeButton={false}>
           <Plus /> Describe your idea
         </Button>
       </div>

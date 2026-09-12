@@ -5,3 +5,4 @@ export * from "./document";
 export * from "./defaults";
 export * from "./repair";
 export * from "./partial";
+export * from "./brief-from-doc";
