@@ -282,6 +282,33 @@ export type Database = {
           would_pay: number
         }[]
       }
+      record_view: {
+        Args: { p_slug: string; p_visitor: string; p_referrer?: string | null; p_utm?: Json | null }
+        Returns: undefined
+      }
+      set_response_reason: {
+        Args: { p_id: string; p_visitor: string; p_reason: string }
+        Returns: undefined
+      }
+      submit_response: {
+        Args: {
+          p_slug: string
+          p_visitor: string
+          p_kind: string
+          p_tier_id?: string | null
+          p_amount_cents?: number | null
+          p_currency?: string | null
+          p_interval?: string | null
+          p_email?: string | null
+          p_referrer?: string | null
+          p_utm?: Json | null
+        }
+        Returns: {
+          id: string
+          responses: number
+          would_pay: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
