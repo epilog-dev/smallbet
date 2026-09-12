@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Container, SectionShell } from "../../primitives/Container";
 import type { SectionProps } from "../../types";
 import { SectionHeader } from "../SectionHeader";
-import { AfterChoice, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
+import { AfterChoice, AnsweredNote, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
 
 /**
  * One product, one question: which of these prices would you pay?
@@ -15,7 +15,6 @@ import { AfterChoice, formatPrice, intervalLabel, usePricingIntent } from "./Wid
 export function PricingIntentPriceLadder({ section, ctx }: SectionProps<"pricing-intent">) {
   const p = section.props;
   const w = usePricingIntent(p, ctx);
-  const { step } = w;
   const what = p.whatYouGet?.length ? p.whatYouGet : (p.tiers.find((t) => t.id === p.highlightedTierId) ?? p.tiers[0]).features;
   const per = p.interval === "month" ? "per month" : p.interval === "year" ? "per year" : "one-time";
   const { responses } = ctx.stats;
@@ -24,9 +23,9 @@ export function PricingIntentPriceLadder({ section, ctx }: SectionProps<"pricing
     <SectionShell id={section.id}>
       <Container size="md">
         <SectionHeader eyebrow="Pre-launch pricing" title={p.title} subtitle={p.subtitle} />
-        <div className="mt-12 min-h-[22rem]">
-          {step.name === "choose" ? (
-            <div data-reveal className="vp-ladder mx-auto max-w-2xl overflow-hidden">
+        {/* relative: the dialog anchors to this box inside preview frames */}
+        <div className="relative mt-12">
+          <div data-reveal className="vp-ladder mx-auto max-w-2xl overflow-hidden">
               {/* what they're pricing */}
               <div className="border-b border-vp-border bg-vp-surface-2/60 p-6 sm:p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-vp-muted">{ctx.doc.meta.productName}</p>
@@ -54,8 +53,12 @@ export function PricingIntentPriceLadder({ section, ctx }: SectionProps<"pricing
                       key={t.id}
                       type="button"
                       disabled={w.busy}
+                      aria-pressed={w.answered?.tierId === t.id}
                       onClick={() => void w.choose("would_pay", t)}
-                      className="group/opt flex h-16 flex-col items-center justify-center rounded-vp-md border border-vp-border-strong bg-vp-surface text-vp-fg transition-[transform,background-color,border-color,color] hover:-translate-y-0.5 hover:border-vp-accent hover:bg-vp-accent hover:text-vp-accent-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vp-accent focus-visible:ring-offset-2 focus-visible:ring-offset-vp-bg active:translate-y-0 disabled:opacity-60"
+                      className={cn(
+                        "group/opt flex h-16 flex-col items-center justify-center rounded-vp-md border transition-[transform,background-color,border-color,color] hover:-translate-y-0.5 hover:border-vp-accent hover:bg-vp-accent hover:text-vp-accent-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vp-accent focus-visible:ring-offset-2 focus-visible:ring-offset-vp-bg active:translate-y-0 disabled:opacity-60",
+                        w.answered?.tierId === t.id ? "border-vp-accent bg-vp-accent text-vp-accent-fg" : "border-vp-border-strong bg-vp-surface text-vp-fg",
+                      )}
                     >
                       <span className="vp-display text-xl tabular-nums sm:text-2xl">{formatPrice(t.price, p.currency)}</span>
                       <span className="text-[11px] opacity-70">{intervalLabel(p.interval).trim()}</span>
@@ -65,20 +68,26 @@ export function PricingIntentPriceLadder({ section, ctx }: SectionProps<"pricing
                 <button
                   type="button"
                   disabled={w.busy}
+                  aria-pressed={w.answered?.kind === "would_not_pay"}
                   onClick={() => void w.choose("would_not_pay")}
-                  className="mt-2 flex h-12 w-full items-center justify-center rounded-vp-md border border-dashed border-vp-border-strong text-sm font-medium text-vp-muted transition-colors hover:border-vp-fg hover:text-vp-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vp-accent focus-visible:ring-offset-2 focus-visible:ring-offset-vp-bg disabled:opacity-60"
+                  className={cn(
+                    "mt-2 flex h-12 w-full items-center justify-center rounded-vp-md border border-dashed text-sm font-medium transition-colors hover:border-vp-fg hover:text-vp-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vp-accent focus-visible:ring-offset-2 focus-visible:ring-offset-vp-bg disabled:opacity-60",
+                    w.answered?.kind === "would_not_pay" ? "border-vp-fg text-vp-fg" : "border-vp-border-strong text-vp-muted",
+                  )}
                 >
                   {p.noPayLabel}
                 </button>
-                <p className="mt-4 text-center text-xs text-vp-muted">
-                  {responses > 0 ? `${responses} ${responses === 1 ? "person has" : "people have"} answered · ` : ""}Nothing is charged. You&apos;ll see how others answered next.
-                </p>
+                {w.answered ? (
+                  <AnsweredNote w={w} props={p} />
+                ) : (
+                  <p className="mt-4 text-center text-xs text-vp-muted">
+                    {responses > 0 ? `${responses} ${responses === 1 ? "person has" : "people have"} answered · ` : ""}Nothing is charged. You&apos;ll see how others answered next.
+                  </p>
+                )}
                 {w.error && <p className="mt-3 text-center text-sm vp-negative">{w.error}</p>}
               </div>
             </div>
-          ) : (
-            <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />
-          )}
+          <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />
         </div>
       </Container>
     </SectionShell>

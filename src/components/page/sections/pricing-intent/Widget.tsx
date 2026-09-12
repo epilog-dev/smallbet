@@ -6,6 +6,7 @@ import type { PriceTier, PricingIntentProps } from "@/lib/page-schema";
 import { submitResponse, updateResponse, type RespondStats, type ResponseKind } from "@/lib/respond-client";
 import { cn } from "@/lib/utils";
 import { VpButton } from "../../primitives/Button";
+import { VpModal } from "../../primitives/Modal";
 import type { PageContextValue } from "../../types";
 
 type Step =
@@ -30,6 +31,8 @@ export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValu
   const [step, setStep] = useState<Step>({ name: "choose" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** The recorded answer, kept after the dialog closes so the options can show it. */
+  const [answered, setAnswered] = useState<{ kind: ResponseKind; tierId?: string } | null>(null);
   const live = ctx.mode === "live" && !!ctx.slug;
 
   const choose = async (kind: ResponseKind, tier?: PriceTier) => {
@@ -39,6 +42,7 @@ export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValu
       const result = live
         ? await submitResponse({ slug: ctx.slug!, kind, tierId: tier?.id, amount: tier?.price, currency: props.currency, interval: props.interval })
         : { ok: true as const, responseId: "preview", stats: sampleStats(props, ctx, kind, tier) };
+      setAnswered({ kind, tierId: tier?.id });
       setStep({ name: "reveal", responseId: result.responseId, kind, tier, stats: result.stats });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
@@ -74,7 +78,7 @@ export function usePricingIntent(props: PricingIntentProps, ctx: PageContextValu
     }
   };
 
-  return { step, busy, error, live, choose, email, reason, reset: () => setStep({ name: "choose" }) };
+  return { step, busy, error, live, answered, choose, email, reason, reset: () => setStep({ name: "choose" }) };
 }
 
 /** Plausible numbers for previews: the page's sample stats spread over the options, plus this answer. */
@@ -126,7 +130,7 @@ export function RevealPanel({
   };
 
   return (
-    <form onSubmit={handle} className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
+    <form onSubmit={handle} className="p-6 sm:p-8">
       <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-vp-accent text-vp-accent-fg">
         <Check className="size-5" strokeWidth={3} aria-hidden />
       </div>
@@ -208,7 +212,7 @@ export function FollowUpPanel({
   const chips = kind === "would_pay" ? YES_CHIPS : NO_CHIPS;
   const answer = [chip, text.trim()].filter(Boolean).join(" — ");
   return (
-    <div className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
+    <div className="p-6 sm:p-8">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-vp-muted">One more thing</p>
       <h3 className="vp-display mt-2 text-2xl text-vp-fg">{kind === "would_pay" ? question : "What would have to change?"}</h3>
       <div className="mt-5 flex flex-wrap gap-2">
@@ -245,7 +249,7 @@ export function FollowUpPanel({
 
 export function DonePanel({ productName }: { productName: string }) {
   return (
-    <div className="vp-ladder mx-auto max-w-md p-8 text-center">
+    <div className="p-8 text-center">
       <div className="mx-auto mb-4 inline-flex size-12 items-center justify-center rounded-full bg-vp-accent text-vp-accent-fg">
         <Check className="size-6" strokeWidth={3} aria-hidden />
       </div>
@@ -269,24 +273,48 @@ export function NoPayLink({ label, onClick, className }: { label: string; onClic
   );
 }
 
-/** Shared tail of every variant: everything after the visitor has chosen. */
+/** Shared tail of every variant, in a dialog over the options: reveal → reason → done. Closing at any point keeps the recorded answer. */
 export function AfterChoice({ w, props, productName }: { w: ReturnType<typeof usePricingIntent>; props: PricingIntentProps; productName: string }) {
   const { step } = w;
-  if (step.name === "reveal") {
-    return (
-      <RevealPanel
-        kind={step.kind}
-        tier={step.tier}
-        stats={step.stats}
-        props={props}
-        busy={w.busy}
-        error={w.error}
-        live={w.live}
-        onContinue={(email) => void w.email(step.responseId, step.kind, email)}
-      />
-    );
-  }
-  if (step.name === "followup") return <FollowUpPanel kind={step.kind} question={props.followUpQuestion} busy={w.busy} onSubmit={(t) => void w.reason(step.responseId, t)} />;
-  if (step.name === "done") return <DonePanel productName={productName} />;
-  return null;
+  const title = step.name === "reveal" ? "How others answered" : step.name === "followup" ? "One more thing" : "Thank you";
+  return (
+    <VpModal open={step.name !== "choose"} onClose={w.reset} title={title}>
+      {step.name === "reveal" && (
+        <RevealPanel
+          kind={step.kind}
+          tier={step.tier}
+          stats={step.stats}
+          props={props}
+          busy={w.busy}
+          error={w.error}
+          live={w.live}
+          onContinue={(email) => void w.email(step.responseId, step.kind, email)}
+        />
+      )}
+      {step.name === "followup" && <FollowUpPanel kind={step.kind} question={props.followUpQuestion} busy={w.busy} onSubmit={(t) => void w.reason(step.responseId, t)} />}
+      {step.name === "done" && (
+        <div>
+          <DonePanel productName={productName} />
+          <div className="px-8 pb-8 text-center">
+            <VpButton variant="secondary" size="md" onClick={w.reset}>
+              Close
+            </VpButton>
+          </div>
+        </div>
+      )}
+    </VpModal>
+  );
+}
+
+/** Small line under the options once an answer is in. */
+export function AnsweredNote({ w, props }: { w: ReturnType<typeof usePricingIntent>; props: PricingIntentProps }) {
+  if (!w.answered) return null;
+  const tier = props.tiers.find((t) => t.id === w.answered?.tierId);
+  return (
+    <p className="mt-4 text-center text-sm text-vp-muted">
+      You answered{" "}
+      <span className="font-medium text-vp-fg">{w.answered.kind === "would_pay" && tier ? `${formatPrice(tier.price, props.currency)}${intervalLabel(props.interval)}` : "you wouldn't pay"}</span>. Pick
+      again to change it.
+    </p>
+  );
 }

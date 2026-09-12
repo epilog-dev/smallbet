@@ -6,7 +6,7 @@ import { VpButton } from "../../primitives/Button";
 import { Container, SectionShell } from "../../primitives/Container";
 import type { SectionProps } from "../../types";
 import { SectionHeader } from "../SectionHeader";
-import { AfterChoice, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
+import { AfterChoice, AnsweredNote, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
 
 /**
  * Price ladder: one connected container, tiers as columns divided by rules.
@@ -15,7 +15,6 @@ import { AfterChoice, NoPayLink, formatPrice, intervalLabel, usePricingIntent } 
 export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-intent">) {
   const p = section.props;
   const w = usePricingIntent(p, ctx);
-  const { step } = w;
   const n = p.tiers.length;
   const cols = n === 1 ? "max-w-md" : n === 2 ? "max-w-3xl sm:grid-cols-2" : "sm:grid-cols-3";
 
@@ -23,18 +22,20 @@ export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-inten
     <SectionShell id={section.id}>
       <Container>
         <SectionHeader eyebrow="Pre-launch pricing" title={p.title} subtitle={p.subtitle} />
-        <div className="mt-12 min-h-[22rem]">
-          {step.name === "choose" && (
+        <div className="relative mt-12">
+          {(
             <>
               <div data-reveal className={cn("vp-ladder mx-auto grid divide-y divide-vp-border sm:divide-x sm:divide-y-0", cols)}>
                 {p.tiers.map((t) => {
                   const hi = t.id === p.highlightedTierId;
+                  const mine = w.answered?.tierId === t.id;
                   return (
                     <div
                       key={t.id}
                       className={cn(
                         "relative flex flex-col p-7 sm:p-8",
                         hi ? "bg-vp-surface-2 shadow-[inset_0_2px_0_0_var(--vp-accent)]" : "",
+                        mine && "ring-2 ring-inset ring-vp-accent",
                       )}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -70,11 +71,12 @@ export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-inten
               </div>
               <div data-reveal className="mt-8 text-center">
                 <NoPayLink label={p.noPayLabel} onClick={() => void w.choose("would_not_pay")} />
+                <AnsweredNote w={w} props={p} />
                 {w.error && <p className="mt-3 text-sm vp-negative">{w.error}</p>}
               </div>
             </>
           )}
-          {step.name !== "choose" && <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />}
+          <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />
         </div>
       </Container>
     </SectionShell>

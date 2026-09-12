@@ -5,20 +5,19 @@ import { VpButton } from "../../primitives/Button";
 import { Container, SectionShell } from "../../primitives/Container";
 import type { SectionProps } from "../../types";
 import { SectionHeader } from "../SectionHeader";
-import { AfterChoice, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
+import { AfterChoice, AnsweredNote, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
 
 export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing-intent">) {
   const p = section.props;
   const w = usePricingIntent(p, ctx);
-  const { step } = w;
   const tier = p.tiers.find((t) => t.id === p.highlightedTierId) ?? p.tiers[0];
 
   return (
     <SectionShell id={section.id} className="bg-vp-surface-2/50">
       <Container size="md">
         <SectionHeader eyebrow="Pre-launch pricing" title={p.title} subtitle={p.subtitle} />
-        <div className="mt-12 min-h-[20rem]">
-          {step.name === "choose" && (
+        <div className="relative mt-12">
+          {(
             <div data-reveal className="vp-ladder mx-auto grid max-w-3xl sm:grid-cols-[1fr_1.1fr]">
               <div className="bg-vp-accent p-8 text-vp-accent-fg sm:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] opacity-80">{tier.name}</p>
@@ -42,12 +41,13 @@ export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing
                 </VpButton>
                 <div className="mt-4 text-center">
                   <NoPayLink label={p.noPayLabel} onClick={() => void w.choose("would_not_pay")} />
+                  <AnsweredNote w={w} props={p} />
                 </div>
                 {w.error && <p className="mt-3 text-center text-sm vp-negative">{w.error}</p>}
               </div>
             </div>
           )}
-          {step.name !== "choose" && <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />}
+          <AfterChoice w={w} props={p} productName={ctx.doc.meta.productName} />
         </div>
       </Container>
     </SectionShell>
