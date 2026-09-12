@@ -46,8 +46,8 @@ export function PublishControls({ id, status, slug, publicUrl }: { id: string; s
   if (published) {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="outline" onClick={copy}>
-          {copied ? <Check /> : <Copy />} {copied ? "Copied" : "Copy link"}
+        <Button variant="outline" onClick={copy} aria-label={copied ? "Copied" : "Copy link"}>
+          {copied ? <Check /> : <Copy />} <span className="hidden sm:inline">{copied ? "Copied" : "Copy link"}</span>
         </Button>
         <Button variant="ghost" onClick={unpublish} disabled={pending}>
           {pending && <Loader2 className="animate-spin" />} Unpublish
