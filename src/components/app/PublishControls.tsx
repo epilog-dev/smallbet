@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, Copy, Globe, Loader2 } from "lucide-react";
+import { Check, Copy, Globe, GlobeLock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { changeSlugAction, publishAction } from "@/app/(app)/app/actions";
 import { Button } from "@/components/ui/button";
@@ -45,12 +45,12 @@ export function PublishControls({ id, status, slug, publicUrl }: { id: string; s
 
   if (published) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="outline" onClick={copy} aria-label={copied ? "Copied" : "Copy link"}>
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <Button variant="outline" onClick={copy} aria-label={copied ? "Copied" : "Copy link"} title="Copy link">
           {copied ? <Check /> : <Copy />} <span className="hidden sm:inline">{copied ? "Copied" : "Copy link"}</span>
         </Button>
-        <Button variant="ghost" onClick={unpublish} disabled={pending}>
-          {pending && <Loader2 className="animate-spin" />} Unpublish
+        <Button variant="ghost" onClick={unpublish} disabled={pending} aria-label="Unpublish" title="Unpublish">
+          {pending ? <Loader2 className="animate-spin" /> : <GlobeLock className="sm:hidden" />} <span className="hidden sm:inline">Unpublish</span>
         </Button>
       </div>
     );
@@ -68,9 +68,9 @@ export function PublishControls({ id, status, slug, publicUrl }: { id: string; s
         </DialogHeader>
         <div className="space-y-2">
           <Label htmlFor="slug">Address</Label>
-          <div className="flex items-center gap-1 text-sm">
-            <span className="text-muted-foreground">{origin.replace(/^https?:\/\//, "")}/p/</span>
-            <Input id="slug" value={wanted} onChange={(e) => setWanted(e.target.value.toLowerCase())} className="flex-1" />
+          <div className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1.5 text-sm">
+            <span className="min-w-0 break-all text-muted-foreground">{origin.replace(/^https?:\/\//, "")}/p/</span>
+            <Input id="slug" value={wanted} onChange={(e) => setWanted(e.target.value.toLowerCase())} className="min-w-[10rem] flex-1" />
           </div>
         </div>
         <DialogFooter>

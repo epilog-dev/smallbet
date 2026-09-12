@@ -118,11 +118,11 @@ export function Editor({ project, publicUrl }: EditorProps) {
     <div className="flex h-dvh flex-col overflow-hidden bg-background">
       {/* top bar */}
       <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border px-2 sm:gap-3 sm:px-3">
-        <div className="flex min-w-0 items-center gap-1 sm:gap-2">
-          <Button variant="ghost" size="icon-sm" render={<Link href={`/app/projects/${project.id}`} aria-label="Back to project" />} nativeButton={false}>
+        <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
+          <Button variant="ghost" size="icon-sm" className="shrink-0" render={<Link href={`/app/projects/${project.id}`} aria-label="Back to project" />} nativeButton={false}>
             <ArrowLeft />
           </Button>
-          <span className="truncate text-sm font-semibold tracking-tight">{doc.meta.productName}</span>
+          <span className="min-w-0 truncate text-sm font-semibold tracking-tight">{doc.meta.productName}</span>
           <SaveIndicator state={saveState} />
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -238,8 +238,8 @@ function SaveIndicator({ state }: { state: SaveState }) {
   };
   const m = map[state];
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs", m.cls)}>
-      {m.icon} {m.label}
+    <span className={cn("inline-flex shrink-0 items-center gap-1 text-xs", m.cls)} title={m.label} aria-label={m.label}>
+      {m.icon} <span className={cn(state === "saved" || state === "saving" ? "hidden sm:inline" : "")}>{m.label}</span>
     </span>
   );
 }
