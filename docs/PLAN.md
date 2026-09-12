@@ -225,6 +225,8 @@ Server component: fetch published project by slug (anon client, RLS), render `Pa
 
 ## 9. Implementation order
 
+**Status (2026-09-12): Phases 0–7 complete.** Remaining polish is tracked in §11.
+
 | # | Phase | Output | Verify |
 |---|---|---|---|
 | 0 | Scaffold | `create-next-app@latest validate --ts --tailwind --eslint --app --src-dir --turbopack --use-npm`; `shadcn init` + button/input/textarea/select/switch/dialog/dropdown/tabs/card/badge/table/tooltip/sonner; deps: `ai @ai-sdk/google @ai-sdk/anthropic zod @supabase/ssr @supabase/supabase-js @dnd-kit/core @dnd-kit/sortable recharts nanoid lucide-react`; `.env.example`; git init | `npm run dev` boots |
@@ -243,3 +245,17 @@ Phase 1 is where "specific styling and components" gets settled — I'll pause a
 ## 10. Out of scope for v1 (schema leaves room)
 
 Stripe refundable deposits (`responses.kind` extensible, `amount_cents` already there), A/B variants (a `variants` table pointing at alternate documents), traffic/promotion tools, community showcase & leaderboard, AI summary of "why not" reasons, custom domains, team members.
+
+
+---
+
+## 11. Follow-ups after v1
+
+- Real-provider run: set `GOOGLE_GENERATIVE_AI_API_KEY` and generate 5 varied ideas; log schema-failure rate; tune `DOCUMENT_SYSTEM` if needed.
+- Enable "Confirm email" flow copy on the login page once SMTP/sender is configured; consider Google OAuth.
+- Supabase Auth: turn on leaked-password protection in the dashboard (advisor warning).
+- Rate limiting is in-memory; move to Upstash/Redis before running more than one instance.
+- Public page is `force-dynamic`; add tag-based caching once traffic warrants it.
+- Editor: keyboard shortcuts, undo, duplicate section, image upload for hero visual.
+- Dashboard: AI summary of "why not" reasons; referrer breakdown; time series of answers.
+- Product: refundable deposits (Stripe), A/B variants, custom domains, team seats.
