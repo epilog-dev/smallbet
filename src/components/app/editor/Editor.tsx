@@ -12,7 +12,7 @@ import { requestSection } from "@/lib/generate-client";
 import { briefFromDocument, defaultSection, type PageDocument, type Section, type SectionType } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import { PublishControls } from "../PublishControls";
-import { ScaledPreview } from "../ScaledPreview";
+import { FramedPreview } from "../FramedPreview";
 import { DeviceSelect, PagePanel, SectionPanel, ThemePanel } from "./Panels";
 import { SectionList, SINGLETONS } from "./SectionList";
 import { useAutosave, type SaveState } from "./useAutosave";
@@ -137,9 +137,9 @@ export function Editor({ project, publicUrl }: EditorProps) {
         {/* centre: preview */}
         <main className="min-w-0 flex-1 overflow-y-auto bg-muted/40 p-4">
           <div className={cn("mx-auto overflow-hidden rounded-lg border border-border bg-background shadow-sm", device === "mobile" ? "max-w-[390px]" : "max-w-[1200px]")}>
-            <ScaledPreview width={previewWidth} maxScale={1}>
+            <FramedPreview width={previewWidth} maxScale={1} title="Page editor preview">
               <PageRenderer doc={doc} mode="editor" selectedId={selectedId} onSelect={select} noReveal />
-            </ScaledPreview>
+            </FramedPreview>
           </div>
         </main>
 

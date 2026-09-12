@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Pencil } from "lucide-react";
 import { PageRenderer } from "@/components/page/PageRenderer";
-import { ScaledPreview } from "@/components/app/ScaledPreview";
+import { FramedPreview } from "@/components/app/FramedPreview";
 import { PublishControls } from "@/components/app/PublishControls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,9 +64,9 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
       <section>
         <h2 className="mb-3 text-sm font-medium">Page</h2>
         <div className="overflow-hidden rounded-lg border border-border bg-background">
-          <ScaledPreview width={1280}>
+          <FramedPreview width={1280}>
             <PageRenderer doc={project.document} mode="preview" noReveal />
-          </ScaledPreview>
+          </FramedPreview>
         </div>
       </section>
     </div>

@@ -11,7 +11,7 @@ import type { IdeaBrief, IdeaInput } from "@/lib/ai/types";
 import { GenerateClientError, requestBrief, streamDocument } from "@/lib/generate-client";
 import { coercePartialDocument, SECTION_LABELS, type PageDocument } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
-import { ScaledPreview } from "../ScaledPreview";
+import { FramedPreview } from "../FramedPreview";
 import { BriefCard } from "./BriefCard";
 import { IdeaForm } from "./IdeaForm";
 
@@ -208,9 +208,9 @@ export function NewProjectFlow() {
         <main className="relative flex-1 overflow-y-auto bg-muted/40 p-4 sm:p-6">
           {doc ? (
             <div className="mx-auto max-w-[1100px] overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-              <ScaledPreview width={1280}>
+              <FramedPreview width={1280}>
                 <PageRenderer doc={doc} mode="preview" noReveal />
-              </ScaledPreview>
+              </FramedPreview>
             </div>
           ) : (
             <div className="flex h-full min-h-[50vh] items-center justify-center text-center">
