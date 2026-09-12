@@ -64,7 +64,10 @@ export const FramedPreview = forwardRef<
     if (!doc?.body || doc.location.href !== "about:srcdoc" || doc.readyState !== "complete") return false;
     doc.documentElement.className = document.documentElement.className;
     doc.body.style.margin = "0";
-    doc.body.style.overflowX = "hidden";
+    // The frame is sized to its content, so it must never scroll itself — otherwise a transient
+    // height mismatch (panel swap, streaming section) shows a stray scrollbar inside the preview.
+    doc.documentElement.style.overflow = "hidden";
+    doc.body.style.overflow = "hidden";
     syncStyles(document, doc);
     setMount((prev) => (prev === doc.body ? prev : doc.body));
     return true;
@@ -100,13 +103,16 @@ export const FramedPreview = forwardRef<
     return () => ro.disconnect();
   }, [wideWidth, narrowWidth, narrowBelow, maxScale]);
 
-  // Follow the content's height.
+  // Follow the content's height. Watch both body and <html>: an absolutely positioned or
+  // margin-collapsed child can grow the document without changing the body's box.
   useEffect(() => {
     if (!mount) return;
-    const update = () => setContentHeight(Math.max(minHeight, mount.scrollHeight));
+    const root = mount.ownerDocument.documentElement;
+    const update = () => setContentHeight(Math.max(minHeight, mount.scrollHeight, root.scrollHeight));
     update();
     const ro = new ResizeObserver(update);
     ro.observe(mount);
+    ro.observe(root);
     return () => ro.disconnect();
   }, [mount, minHeight]);
 
