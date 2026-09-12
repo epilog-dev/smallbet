@@ -39,12 +39,13 @@ function parseProject(row: ProjectRow): Project {
   };
 }
 
-export async function listProjects(db: Db): Promise<ProjectSummary[]> {
-  const { data, error } = await db
+export async function listProjects(db: Db, opts: { archived?: boolean } = {}): Promise<ProjectSummary[]> {
+  let q = db
     .from("projects")
     .select("id,name,slug,status,created_at,updated_at,published_at,document,responses(kind),page_views(count)")
-    .neq("status", "archived")
     .order("updated_at", { ascending: false });
+  q = opts.archived ? q.eq("status", "archived") : q.neq("status", "archived");
+  const { data, error } = await q;
   if (error) throw error;
   return (data ?? []).map((r) => {
     const responses = (r.responses as Array<{ kind: string }>) ?? [];
@@ -145,4 +146,27 @@ export async function logGeneration(db: Db, ownerId: string, args: { projectId?:
     output_tokens: args.outputTokens ?? null,
     ms: args.ms,
   });
+}
+
+export async function renameProject(db: Db, id: string, name: string): Promise<void> {
+  const { error } = await db.from("projects").update({ name }).eq("id", id);
+  if (error) throw error;
+}
+
+/** A fresh draft with the same idea, brief and document; nothing else carries over. */
+export async function duplicateProject(db: Db, ownerId: string, source: Project, name: string): Promise<Project> {
+  const slug = await uniqueSlug(db, name);
+  const { data, error } = await db
+    .from("projects")
+    .insert({ owner_id: ownerId, name, slug, idea: source.idea, brief: source.brief, document: { ...source.document, meta: { ...source.document.meta, productName: name } } })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return parseProject(data);
+}
+
+/** Permanent. Responses, views and generation logs go with it (FK cascade). */
+export async function deleteProject(db: Db, id: string): Promise<void> {
+  const { error } = await db.from("projects").delete().eq("id", id);
+  if (error) throw error;
 }

@@ -16,3 +16,10 @@ export async function countViews(db: Db, projectId: string): Promise<number> {
   if (error) throw error;
   return count ?? 0;
 }
+
+/** Wipes every answer for a project. Owners only have read access on responses, so this takes the service-role client. */
+export async function clearResponses(admin: Db, projectId: string): Promise<number> {
+  const { count, error } = await admin.from("responses").delete({ count: "exact" }).eq("project_id", projectId);
+  if (error) throw error;
+  return count ?? 0;
+}

@@ -8,6 +8,7 @@ import { PublishControls } from "@/components/app/PublishControls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dashboard } from "@/components/app/dashboard/Dashboard";
+import { ProjectSettings } from "@/components/app/dashboard/ProjectSettings";
 import { computePricingStats } from "@/lib/analytics/pricing-stats";
 import { getProject } from "@/lib/db/projects";
 import { countViews, listResponses } from "@/lib/db/responses";
@@ -56,9 +57,13 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
           <Button variant="outline" render={<Link href={`/app/projects/${project.id}/edit`} />} nativeButton={false}>
             <Pencil /> Edit page
           </Button>
-          <PublishControls id={project.id} status={project.status} slug={project.slug} publicUrl={publicUrl} />
+          {project.status !== "archived" && <PublishControls id={project.id} status={project.status} slug={project.slug} publicUrl={publicUrl} />}
         </div>
       </div>
+
+      {project.status === "archived" && (
+        <p className="rounded-md border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">This page is archived: it&apos;s off the air and hidden from your list. Restore it below to work on it again.</p>
+      )}
 
       <Dashboard stats={stats} rows={rows} tierNames={tierNames} projectName={project.name} published={project.status === "published"} />
 
@@ -94,6 +99,8 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
           </div>
         </div>
       </section>
+
+      <ProjectSettings id={project.id} name={project.name} status={project.status} responses={rows.length} />
     </div>
   );
 }

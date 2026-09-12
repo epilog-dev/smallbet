@@ -4,7 +4,21 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { IdeaBriefSchema, IdeaInputSchema } from "@/lib/ai/types";
-import { createProject as dbCreateProject, logGeneration, saveDocument as dbSaveDocument, setStatus, setSlug, uniqueSlug, VersionConflictError } from "@/lib/db/projects";
+import {
+  createProject as dbCreateProject,
+  deleteProject as dbDeleteProject,
+  duplicateProject as dbDuplicateProject,
+  getProject,
+  logGeneration,
+  renameProject as dbRenameProject,
+  saveDocument as dbSaveDocument,
+  setStatus,
+  setSlug,
+  uniqueSlug,
+  VersionConflictError,
+} from "@/lib/db/projects";
+import { clearResponses as dbClearResponses } from "@/lib/db/responses";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PageDocumentSchema, repairDocument } from "@/lib/page-schema";
 import { RESERVED_SLUGS, SLUG_RE } from "@/lib/slug";
 import { createClient, getUser } from "@/lib/supabase/server";
@@ -58,7 +72,61 @@ export async function publishAction(id: string, publish: boolean): Promise<void>
 export async function archiveAction(id: string): Promise<void> {
   await requireUser();
   const db = await createClient();
+  // An archived page is off the air as well as out of the list.
   await setStatus(db, id, "archived");
+  revalidatePath("/app");
+  redirect("/app");
+}
+
+export async function restoreAction(id: string): Promise<void> {
+  await requireUser();
+  const db = await createClient();
+  await setStatus(db, id, "draft");
+  revalidatePath("/app");
+  revalidatePath(`/app/projects/${id}`);
+}
+
+export async function renameProjectAction(id: string, wanted: string): Promise<{ ok: true; name: string } | { ok: false; message: string }> {
+  await requireUser();
+  const name = wanted.trim().slice(0, 60);
+  if (name.length < 2) return { ok: false, message: "Give it a name of at least two characters." };
+  const db = await createClient();
+  await dbRenameProject(db, id, name);
+  revalidatePath("/app");
+  revalidatePath(`/app/projects/${id}`);
+  return { ok: true, name };
+}
+
+export async function duplicateProjectAction(id: string): Promise<{ id: string }> {
+  const user = await requireUser();
+  const db = await createClient();
+  const source = await getProject(db, id);
+  if (!source) throw new Error("Project not found");
+  const copy = await dbDuplicateProject(db, user.id, source, `${source.name} copy`);
+  revalidatePath("/app");
+  return { id: copy.id };
+}
+
+/** Wipes every answer. The page stays as it is. */
+export async function clearResponsesAction(id: string): Promise<{ removed: number }> {
+  await requireUser();
+  const db = await createClient();
+  const project = await getProject(db, id); // RLS: only the owner can see it
+  if (!project) throw new Error("Project not found");
+  const removed = await dbClearResponses(createAdminClient(), project.id);
+  revalidatePath("/app");
+  revalidatePath(`/app/projects/${id}`);
+  return { removed };
+}
+
+/** Permanent. The caller must type the page's name to confirm; verified again here. */
+export async function deleteProjectAction(id: string, confirmName: string): Promise<{ ok: false; message: string } | never> {
+  await requireUser();
+  const db = await createClient();
+  const project = await getProject(db, id);
+  if (!project) return { ok: false, message: "Project not found." };
+  if (confirmName.trim() !== project.name) return { ok: false, message: "The name didn't match." };
+  await dbDeleteProject(db, project.id);
   revalidatePath("/app");
   redirect("/app");
 }

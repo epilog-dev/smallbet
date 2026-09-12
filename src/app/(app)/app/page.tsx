@@ -10,9 +10,9 @@ export const metadata: Metadata = { title: "Your ideas" };
 
 export default async function ProjectsPage() {
   const db = await createClient();
-  const projects = await listProjects(db);
+  const [projects, archived] = await Promise.all([listProjects(db), listProjects(db, { archived: true })]);
 
-  if (projects.length === 0) {
+  if (projects.length === 0 && archived.length === 0) {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Nothing here yet</h1>
@@ -26,6 +26,15 @@ export default async function ProjectsPage() {
 
   return (
     <div>
+      {projects.length === 0 && (
+        <div className="mb-10 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          Everything is archived.{" "}
+          <Link href="/app/new" className="font-medium text-foreground underline-offset-4 hover:underline">
+            Describe a new idea
+          </Link>{" "}
+          or restore one below.
+        </div>
+      )}
       <div className="mb-6 flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Your ideas</h1>
@@ -70,6 +79,26 @@ export default async function ProjectsPage() {
           );
         })}
       </ul>
+
+      {archived.length > 0 && (
+        <details className="mt-10">
+          <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            Archived · {archived.length}
+          </summary>
+          <ul className="mt-3 divide-y divide-border rounded-lg border border-border">
+            {archived.map((p) => (
+              <li key={p.id}>
+                <Link href={`/app/projects/${p.id}`} className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:bg-muted/50">
+                  <span className="truncate font-medium">{p.name}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {p.responses} {p.responses === 1 ? "answer" : "answers"}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </div>
   );
 }
