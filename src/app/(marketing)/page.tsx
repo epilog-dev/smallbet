@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AnswerCard, type AnswerExample } from "@/components/marketing/AnswerCard";
 import { PageThumb } from "@/components/marketing/PageThumb";
 import { TryTheQuestion } from "@/components/marketing/TryTheQuestion";
@@ -78,9 +78,6 @@ export default async function LandingPage() {
             <a href="#how" className="hover:text-foreground">
               How it works
             </a>
-            <a href="#pricing" className="hover:text-foreground">
-              Pricing
-            </a>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -124,7 +121,7 @@ export default async function LandingPage() {
                 <span className="size-2.5 rounded-[2px] bg-muted-foreground/50" /> Try the question
               </a>
             </div>
-            <p className="mt-4 text-[13px] text-muted-foreground">Free to build and publish · Pay only when the answer is yes</p>
+            <p className="mt-4 text-[13px] text-muted-foreground">Free in early access · Your first page takes about a minute</p>
           </div>
           <AnswerCard ex={EXAMPLE} />
         </div>
@@ -263,57 +260,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ---------- pricing: the model is the demo ---------- */}
-      <section id="pricing" className="border-b border-border py-20 sm:py-24">
-        <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <p className="text-[13px] font-medium text-muted-foreground">Pricing</p>
-          <h2 className="mt-2 max-w-[22ch] text-3xl font-semibold tracking-[-0.03em] text-balance sm:text-4xl">You only pay when the answer is yes.</h2>
-          <p className="mt-4 max-w-[36rem] text-[15px] leading-relaxed text-muted-foreground">
-            Building and publishing a page is free. When ten people have answered, your result — the defensible price, every reason, and the emails of everyone who&apos;d
-            pay — unlocks for <span className="font-medium text-foreground">one month of the price your visitors picked</span>. If they said no, it&apos;s free. We don&apos;t charge for a no.
-          </p>
-
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            <PriceCard
-              name="Free"
-              price="$0"
-              blurb="Build it, publish it, share it."
-              items={["Unlimited pages and AI rewrites", "Live URL, views, answers, would-pay share", "The distribution of what people picked", "\"Built with smallbet\" on the page"]}
-            />
-            <PriceCard
-              name="The unlock"
-              price="$9–$99"
-              per="once, per page"
-              blurb="One month of your defensible price. Free if the market said no."
-              highlight
-              items={["Defensible price and the demand curve", "Every reason, in their words", "Emails of everyone who'd pay — your first customers", "CSV export"]}
-            />
-            <PriceCard
-              name="Serial"
-              price="$29"
-              per="/mo"
-              blurb="For people who test ideas for a living."
-              items={["Every unlock included", "Remove \"Built with smallbet\"", "Team seats", "Webhooks and integrations"]}
-              soon
-            />
-          </div>
-
-          <div className="mt-10 grid gap-6 border-t border-border pt-8 text-sm text-muted-foreground sm:grid-cols-3">
-            <p>
-              <span className="font-medium text-foreground">Why this way?</span> Every other tool charges you before anyone has answered. We ask at the moment you&apos;re looking at eighteen people who&apos;d pay $39 — and
-              their email addresses.
-            </p>
-            <p>
-              <span className="font-medium text-foreground">Who sets the price?</span> Your visitors. The unlock is one month of the price the most people would pay, the same number your dashboard shows. Capped at $99, never
-              below $9.
-            </p>
-            <p>
-              <span className="font-medium text-foreground">What if it&apos;s a no?</span> Fewer than a quarter would pay — the result opens for free, so you can read why and try the next idea. That&apos;s the small bet.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* ---------- cta ---------- */}
       <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
@@ -347,31 +293,6 @@ export default async function LandingPage() {
           </p>
         </div>
       </footer>
-    </div>
-  );
-}
-
-function PriceCard({ name, price, per, blurb, items, highlight, soon }: { name: string; price: string; per?: string; blurb: string; items: string[]; highlight?: boolean; soon?: boolean }) {
-  return (
-    <div className={highlight ? "rounded-xl border border-foreground bg-card p-6 shadow-[0_1px_0_rgba(0,0,0,0.03)]" : "rounded-xl border border-border bg-card p-6"}>
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">{name}</p>
-        {soon && <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">Coming soon</span>}
-        {highlight && <span className="rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background">Pay on yes</span>}
-      </div>
-      <p className="mt-3 flex items-baseline gap-1">
-        <span className="text-3xl font-semibold tracking-tight tabular-nums">{price}</span>
-        {per && <span className="text-sm text-muted-foreground">{per}</span>}
-      </p>
-      <p className="mt-1 text-sm text-muted-foreground">{blurb}</p>
-      <ul className="mt-5 space-y-2 text-sm">
-        {items.map((it) => (
-          <li key={it} className="flex gap-2.5">
-            <Check className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} aria-hidden />
-            {it}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

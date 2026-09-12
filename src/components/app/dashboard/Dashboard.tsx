@@ -1,32 +1,13 @@
 import { formatMoney, type PricingStats } from "@/lib/analytics/pricing-stats";
-import type { UnlockState } from "@/lib/billing/unlock";
 import type { ResponseRow } from "@/lib/db/responses";
 import { cn } from "@/lib/utils";
 import { DistributionChart } from "./DistributionChart";
 import { ResponsesTable } from "./ResponsesTable";
-import { UnlockCard } from "./UnlockCard";
 
 const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 const per = (interval: string) => (interval === "month" ? "/mo" : interval === "year" ? "/yr" : "");
 
-export function Dashboard({
-  stats,
-  rows,
-  tierNames,
-  projectName,
-  published,
-  projectId,
-  unlock,
-}: {
-  stats: PricingStats;
-  rows: ResponseRow[];
-  tierNames: Record<string, string>;
-  projectName: string;
-  published: boolean;
-  projectId: string;
-  unlock: UnlockState;
-}) {
-  const unlocked = unlock.kind === "unlocked";
+export function Dashboard({ stats, rows, tierNames, projectName, published }: { stats: PricingStats; rows: ResponseRow[]; tierNames: Record<string, string>; projectName: string; published: boolean }) {
   return (
     <div className="space-y-8">
       {/* headline numbers */}
@@ -53,9 +34,6 @@ export function Dashboard({
 
         {/* signal + goal */}
         <div className="space-y-6">
-          {!unlocked ? (
-            <UnlockCard projectId={projectId} state={unlock} responses={stats.responses} interval={stats.interval} />
-          ) : (
           <section className="rounded-lg border border-border bg-card p-5">
             <h2 className="text-sm font-medium">Defensible price</h2>
             {stats.defensible ? (
@@ -76,7 +54,6 @@ export function Dashboard({
               <p className="mt-3 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">Fewer than 10 answers — treat this as a hint, not a result.</p>
             )}
           </section>
-          )}
 
           <section className="rounded-lg border border-border bg-card p-5">
             <div className="flex items-baseline justify-between">
@@ -98,7 +75,7 @@ export function Dashboard({
 
       <section>
         <h2 className="mb-3 text-sm font-medium">Answers</h2>
-        <ResponsesTable rows={rows} tierNames={tierNames} projectName={projectName} unlocked={unlocked} />
+        <ResponsesTable rows={rows} tierNames={tierNames} projectName={projectName} />
       </section>
     </div>
   );
