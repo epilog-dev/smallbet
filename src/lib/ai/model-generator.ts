@@ -1,10 +1,28 @@
-import { generateText, NoObjectGeneratedError, Output, streamText, type FlexibleSchema } from "ai";
+import { generateText, NoObjectGeneratedError, Output, streamText, zodSchema, type FlexibleSchema } from "ai";
 import { AiPageDocumentSchema, PageDocumentSchema, SECTION_SCHEMAS, repairDocument, type Section } from "@/lib/page-schema";
 import { resolveModel, type ProviderName } from "./client";
 import { BRIEF_SYSTEM, DOCUMENT_SYSTEM, SECTION_SYSTEM, briefUserMessage, documentUserMessage, sectionUserMessage } from "./prompts";
 import { IdeaBriefSchema, type DocumentStream, type GenerationUsage, type IdeaBrief, type IdeaInput, type PageGenerator, type SectionContext } from "./types";
 
-const MAX_OUTPUT_TOKENS = 8192;
+const MAX_OUTPUT_TOKENS = 16384;
+
+/**
+ * Gemini's native `responseSchema` (an OpenAPI subset) rejects the full PageDocument schema
+ * as too large (400 INVALID_ARGUMENT once ~5 section variants are in the union). For Gemini
+ * we keep JSON mode on but disable the native schema and embed the JSON Schema in the prompt;
+ * the AI SDK still validates the parsed output against Zod. Anthropic uses native structured output.
+ */
+function providerOptionsFor(provider: ProviderName, opts: { thinking: "minimal" | "low" | "medium"; nativeSchema: boolean }) {
+  if (provider === "google") {
+    return { google: { structuredOutputs: opts.nativeSchema, thinkingConfig: { thinkingLevel: opts.thinking } } };
+  }
+  return undefined;
+}
+
+function schemaPromptBlock(schema: FlexibleSchema<unknown>): string {
+  const json = JSON.stringify(zodSchema(schema as never).jsonSchema);
+  return `\n\nRespond with a single JSON object and nothing else. It must validate against this JSON Schema exactly (respect every enum, minLength/maxLength, minItems/maxItems and required list):\n${json}`;
+}
 
 export class GenerationError extends Error {
   constructor(
@@ -38,23 +56,33 @@ export class ModelGenerator implements PageGenerator {
   readonly name: string;
   private readonly model;
   private readonly id: string;
+  private readonly provider: Exclude<ProviderName, "mock">;
 
   constructor(provider: Exclude<ProviderName, "mock">) {
     const r = resolveModel(provider);
     this.model = r.model;
     this.id = r.id;
+    this.provider = provider;
     this.name = `${provider}:${r.id}`;
+  }
+
+  /** Native schema is fine for small schemas (brief, single section); the full document needs the prompt route on Gemini. */
+  private systemFor(base: string, schema: FlexibleSchema<unknown>, large: boolean) {
+    const native = !(this.provider === "google" && large);
+    return { system: native ? base : base + schemaPromptBlock(schema), providerOptions: providerOptionsFor(this.provider, { thinking: "low", nativeSchema: native }) };
   }
 
   async brief(input: IdeaInput) {
     const t0 = Date.now();
     try {
+      const cfg = this.systemFor(BRIEF_SYSTEM, IdeaBriefSchema, false);
       const r = await generateText({
         model: this.model,
-        system: BRIEF_SYSTEM,
+        system: cfg.system,
+        providerOptions: cfg.providerOptions,
         prompt: briefUserMessage(input),
         output: Output.object({ schema: IdeaBriefSchema, name: "IdeaBrief" }),
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
       });
       return { brief: r.output, usage: this.usage(r.usage, t0) };
     } catch (e) {
@@ -64,9 +92,11 @@ export class ModelGenerator implements PageGenerator {
 
   document(input: IdeaInput, brief: IdeaBrief): DocumentStream {
     const t0 = Date.now();
+    const cfg = this.systemFor(DOCUMENT_SYSTEM, AiPageDocumentSchema, true);
     const result = streamText({
       model: this.model,
-      system: DOCUMENT_SYSTEM,
+      system: cfg.system,
+      providerOptions: cfg.providerOptions,
       prompt: documentUserMessage(input, brief),
       output: Output.object({ schema: AiPageDocumentSchema, name: "PageDocument" }),
       maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -93,9 +123,11 @@ export class ModelGenerator implements PageGenerator {
 
   private async retryDocument(input: IdeaInput, brief: IdeaBrief, issues: string, t0: number) {
     try {
+      const cfg = this.systemFor(DOCUMENT_SYSTEM, AiPageDocumentSchema, true);
       const r = await generateText({
         model: this.model,
-        system: DOCUMENT_SYSTEM,
+        system: cfg.system,
+        providerOptions: cfg.providerOptions,
         prompt: `${documentUserMessage(input, brief)}\n\nYour previous attempt failed schema validation with these issues — fix them:\n${issues.slice(0, 2000)}`,
         output: Output.object({ schema: AiPageDocumentSchema, name: "PageDocument" }),
         maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -117,12 +149,14 @@ export class ModelGenerator implements PageGenerator {
       .map((s) => `- ${s.type} (${s.variant}): ${summarize(s)}`)
       .join("\n");
     try {
+      const cfg = this.systemFor(SECTION_SYSTEM, schema, false);
       const r = await generateText({
         model: this.model,
-        system: SECTION_SYSTEM,
+        system: cfg.system,
+        providerOptions: cfg.providerOptions,
         prompt: sectionUserMessage({ brief: ctx.brief, sectionJson: JSON.stringify(current, null, 2), others, instruction: ctx.instruction }),
         output: Output.object({ schema, name: `Section_${current.type.replace("-", "_")}` }),
-        maxOutputTokens: 3000,
+        maxOutputTokens: 6000,
       });
       const section = { ...r.output, id: current.id, type: current.type } as Section;
       // Round-trip through the document validator so invariants (highlight substring, tier ids) hold.

@@ -5,7 +5,7 @@ import type { LanguageModel } from "ai";
 export type ProviderName = "google" | "anthropic" | "mock";
 
 const DEFAULT_MODEL: Record<Exclude<ProviderName, "mock">, string> = {
-  google: "gemini-2.5-flash",
+  google: "gemini-3.6-flash",
   anthropic: "claude-sonnet-5",
 };
 
