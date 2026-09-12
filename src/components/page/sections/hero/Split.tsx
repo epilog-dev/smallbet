@@ -12,7 +12,7 @@ export function HeroSplit({ section, ctx }: SectionProps<"hero">) {
       <Container className="relative grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
         <div>
           <div data-reveal>
-            <Eyebrow pill>{p.eyebrow}</Eyebrow>
+            <Eyebrow>{p.eyebrow}</Eyebrow>
           </div>
           <Heading as="h1" size="hero" className="mt-6 max-w-[16ch] lg:text-[3.9rem]">
             <span data-reveal className="block">

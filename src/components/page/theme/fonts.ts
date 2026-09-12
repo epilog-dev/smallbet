@@ -1,8 +1,7 @@
-import { Bricolage_Grotesque, DM_Sans, Fraunces, Inter, Nunito } from "next/font/google";
+import { Bricolage_Grotesque, DM_Sans, Fraunces, Inter, Nunito, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 
 /**
  * Every font any preset can use, loaded once and exposed as CSS variables.
- * Geist is provided by the root layout (`--font-geist-sans`).
  */
 export const fraunces = Fraunces({
   subsets: ["latin"],
@@ -18,5 +17,7 @@ export const bricolage = Bricolage_Grotesque({
 });
 export const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap" });
 export const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap" });
+export const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
+export const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-vp-mono", weight: ["400", "500", "600"], display: "swap" });
 
-export const pageFontClassName = [fraunces.variable, inter.variable, bricolage.variable, nunito.variable, dmSans.variable].join(" ");
+export const pageFontClassName = [fraunces.variable, inter.variable, bricolage.variable, nunito.variable, dmSans.variable, jakarta.variable, mono.variable].join(" ");

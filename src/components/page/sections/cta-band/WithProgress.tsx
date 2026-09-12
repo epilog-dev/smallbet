@@ -9,7 +9,7 @@ export function CtaBandWithProgress({ section, ctx }: SectionProps<"cta-band">) 
   return (
     <SectionShell id={section.id} tight>
       <Container size="md">
-        <div data-reveal className="grid items-center gap-8 rounded-vp-xl border border-vp-border bg-vp-surface p-8 shadow-vp sm:grid-cols-[1.3fr_1fr] sm:p-10">
+        <div data-reveal className="vp-ladder grid items-center gap-8 p-8 sm:grid-cols-[1.3fr_1fr] sm:p-10">
           <div>
             <h2 className="vp-display text-3xl text-vp-fg">{p.headline}</h2>
             {p.subheadline && <p className="mt-3 text-vp-muted">{p.subheadline}</p>}

@@ -96,7 +96,7 @@ export function ConfirmPanel({
     onSubmit(email);
   };
   return (
-    <form onSubmit={handle} className="mx-auto max-w-md rounded-vp-xl border border-vp-border bg-vp-surface p-6 shadow-vp sm:p-8">
+    <form onSubmit={handle} className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
       <p className="text-sm font-semibold text-vp-accent-ink">
         {kind === "would_pay" && tier
           ? `You picked ${tier.name} · ${formatPrice(tier.price, props.currency)}${intervalLabel(props.interval)}`
@@ -143,7 +143,7 @@ export function FollowUpPanel({
 }) {
   const [text, setText] = useState("");
   return (
-    <div className="mx-auto max-w-md rounded-vp-xl border border-vp-border bg-vp-surface p-6 shadow-vp sm:p-8">
+    <div className="vp-ladder mx-auto max-w-md p-6 sm:p-8">
       <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
         <Check className="size-5" strokeWidth={3} aria-hidden />
       </div>
@@ -173,7 +173,7 @@ export function FollowUpPanel({
 
 export function DonePanel({ productName }: { productName: string }) {
   return (
-    <div className="mx-auto max-w-md rounded-vp-xl border border-vp-border bg-vp-surface p-8 text-center shadow-vp">
+    <div className="vp-ladder mx-auto max-w-md p-8 text-center">
       <div className="mx-auto mb-4 inline-flex size-12 items-center justify-center rounded-full bg-vp-accent text-vp-accent-fg">
         <Check className="size-6" strokeWidth={3} aria-hidden />
       </div>

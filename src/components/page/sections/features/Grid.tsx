@@ -6,16 +6,16 @@ import { SectionHeader } from "../SectionHeader";
 export function FeaturesGrid({ section }: SectionProps<"features">) {
   const p = section.props;
   return (
-    <SectionShell id={section.id} className="bg-vp-surface-2/50">
+    <SectionShell id={section.id}>
       <Container>
         <SectionHeader eyebrow="What you get" title={p.title} subtitle={p.subtitle} />
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="vp-grid mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {p.items.map((f, i) => (
             <div
               key={i}
               data-reveal
               style={{ transitionDelay: `${i * 50}ms` }}
-              className="group rounded-vp-lg border border-vp-border bg-vp-surface p-6 transition-shadow hover:shadow-vp"
+              className="vp-card group rounded-vp-lg border border-vp-border bg-vp-surface p-6 transition-shadow hover:shadow-vp"
             >
               <div className="mb-5 inline-flex size-10 items-center justify-center rounded-vp-md bg-vp-accent-soft text-vp-accent-ink">
                 <Icon name={f.icon} className="size-5" />

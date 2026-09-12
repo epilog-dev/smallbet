@@ -9,7 +9,7 @@ export function ProblemChecklist({ section }: SectionProps<"problem">) {
     <SectionShell id={section.id}>
       <Container size="md" className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
         <SectionHeader eyebrow="Sound familiar?" title={p.title} align="start" />
-        <ul className="divide-y divide-vp-border rounded-vp-lg border border-vp-border bg-vp-surface">
+        <ul className="vp-ladder divide-y divide-vp-border">
           {p.items.map((it, i) => (
             <li key={i} data-reveal style={{ transitionDelay: `${i * 60}ms` }} className="flex gap-4 p-5">
               <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-rose-500/12 text-rose-600 dark:text-rose-300">

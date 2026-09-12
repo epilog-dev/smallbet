@@ -19,7 +19,7 @@ export function PricingIntentSinglePrice({ section, ctx }: SectionProps<"pricing
         <SectionHeader eyebrow="Pre-launch pricing" title={p.title} subtitle={p.subtitle} />
         <div className="mt-12 min-h-[20rem]">
           {step.name === "choose" && (
-            <div data-reveal className="mx-auto grid max-w-3xl overflow-hidden rounded-vp-xl border border-vp-border bg-vp-surface shadow-vp sm:grid-cols-[1fr_1.1fr]">
+            <div data-reveal className="vp-ladder mx-auto grid max-w-3xl sm:grid-cols-[1fr_1.1fr]">
               <div className="bg-vp-accent p-8 text-vp-accent-fg sm:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] opacity-80">{tier.name}</p>
                 <p className="mt-4 flex items-baseline gap-1">

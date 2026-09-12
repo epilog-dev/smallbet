@@ -8,11 +8,16 @@ import type { SectionProps } from "../../types";
 import { SectionHeader } from "../SectionHeader";
 import { ConfirmPanel, DonePanel, FollowUpPanel, NoPayLink, formatPrice, intervalLabel, usePricingIntent } from "./Widget";
 
+/**
+ * Price ladder: one connected container, tiers as columns divided by rules.
+ * The highlighted tier is a tinted column with an accent top bar — no floating badge.
+ */
 export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-intent">) {
   const p = section.props;
   const w = usePricingIntent(p, ctx);
   const { step } = w;
-  const cols = p.tiers.length === 1 ? "max-w-sm" : p.tiers.length === 2 ? "max-w-3xl sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
+  const n = p.tiers.length;
+  const cols = n === 1 ? "max-w-md" : n === 2 ? "max-w-3xl sm:grid-cols-2" : "sm:grid-cols-3";
 
   return (
     <SectionShell id={section.id} className="scroll-mt-16">
@@ -21,31 +26,27 @@ export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-inten
         <div className="mt-12 min-h-[22rem]">
           {step.name === "choose" && (
             <>
-              <div className={cn("mx-auto grid gap-4", cols)}>
-                {p.tiers.map((t, i) => {
+              <div data-reveal className={cn("vp-ladder mx-auto grid divide-y divide-vp-border sm:divide-x sm:divide-y-0", cols)}>
+                {p.tiers.map((t) => {
                   const hi = t.id === p.highlightedTierId;
                   return (
                     <div
                       key={t.id}
-                      data-reveal
-                      style={{ transitionDelay: `${i * 60}ms` }}
                       className={cn(
-                        "relative flex flex-col rounded-vp-xl border bg-vp-surface p-6",
-                        hi ? "border-vp-accent shadow-vp ring-1 ring-vp-accent" : "border-vp-border",
+                        "relative flex flex-col p-7 sm:p-8",
+                        hi ? "bg-vp-accent-soft/60 shadow-[inset_0_3px_0_0_var(--vp-accent)]" : "",
                       )}
                     >
-                      {hi && (
-                        <span className="absolute -top-3 left-6 rounded-full bg-vp-accent px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-vp-accent-fg">
-                          Most likely
-                        </span>
-                      )}
-                      <h3 className="vp-display text-lg text-vp-fg">{t.name}</h3>
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="vp-display text-lg text-vp-fg">{t.name}</h3>
+                        {hi && <span className="vp-num !text-vp-accent-ink">Most likely</span>}
+                      </div>
                       <p className="mt-1 text-sm text-vp-muted">{t.blurb}</p>
-                      <p className="mt-5 flex items-baseline gap-1">
-                        <span className="vp-display text-4xl text-vp-fg tabular-nums">{formatPrice(t.price, p.currency)}</span>
+                      <p className="mt-6 flex items-baseline gap-1">
+                        <span className="vp-display text-5xl text-vp-fg tabular-nums">{formatPrice(t.price, p.currency)}</span>
                         <span className="text-sm text-vp-muted">{intervalLabel(p.interval)}</span>
                       </p>
-                      <ul className="mt-5 space-y-2.5 text-sm text-vp-fg/85">
+                      <ul className="mt-6 space-y-2.5 text-sm text-vp-fg/85">
                         {t.features.map((f, k) => (
                           <li key={k} className="flex gap-2.5">
                             <Check className="mt-0.5 size-4 shrink-0 text-vp-accent" strokeWidth={3} aria-hidden />
@@ -53,10 +54,11 @@ export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-inten
                           </li>
                         ))}
                       </ul>
+                      <div className="flex-1" />
                       <VpButton
                         variant={hi ? "primary" : "secondary"}
                         size="lg"
-                        className="mt-7 w-full"
+                        className="mt-8 w-full"
                         onClick={() => w.choose("would_pay", t)}
                         disabled={w.busy}
                       >

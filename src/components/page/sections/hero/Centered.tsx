@@ -12,7 +12,7 @@ export function HeroCentered({ section, ctx }: SectionProps<"hero">) {
       <HeroDoodles ctx={ctx} />
       <Container className="relative flex flex-col items-center text-center">
         <div data-reveal>
-          <Eyebrow pill>{p.eyebrow}</Eyebrow>
+          <Eyebrow>{p.eyebrow}</Eyebrow>
         </div>
         <Heading as="h1" size="hero" className="mt-6 max-w-[19ch]" >
           <span data-reveal className="block">

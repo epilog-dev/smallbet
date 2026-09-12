@@ -9,7 +9,7 @@ export function FaqAccordion({ section }: SectionProps<"faq">) {
     <SectionShell id={section.id}>
       <Container size="sm">
         <SectionHeader eyebrow="FAQ" title={p.title} />
-        <div className="mt-10 divide-y divide-vp-border rounded-vp-lg border border-vp-border bg-vp-surface">
+        <div className="vp-ladder mt-10 divide-y divide-vp-border">
           {p.items.map((it, i) => (
             <details key={i} data-reveal style={{ transitionDelay: `${i * 40}ms` }} className="group px-6" open={i === 0}>
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 font-semibold text-vp-fg [&::-webkit-details-marker]:hidden">
