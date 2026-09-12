@@ -36,7 +36,7 @@ export function BriefCard({
     <div className="space-y-6">
       <div>
         <p className="text-xs font-medium text-muted-foreground">
-          Step 2 of 3 · {generatorName === "mock" ? "Mock generator (no API key set)" : `Generated with ${generatorName ?? "AI"}`}
+          Step 2 of 3 · {generatorName === "mock" ? "Built from a template, not AI — edit freely" : `Generated with ${generatorName ?? "AI"}`}
         </p>
         <h2 className="mt-1 text-lg font-semibold tracking-tight">Here&apos;s how we read it</h2>
         <p className="mt-1 text-sm text-muted-foreground">Fix anything that&apos;s off — the page is written from this.</p>

@@ -16,11 +16,13 @@ async function readError(res: Response): Promise<GenerateClientError> {
   return new GenerateClientError(body.error ?? `Request failed (${res.status})`, res.status, body.retryable ?? res.status >= 500);
 }
 
-export async function requestBrief(input: IdeaInput, signal?: AbortSignal) {
+export type Engine = "ai" | "template";
+
+export async function requestBrief(input: IdeaInput, signal?: AbortSignal, engine: Engine = "ai") {
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ step: "brief", input }),
+    body: JSON.stringify({ step: "brief", input, engine }),
     signal,
   });
   if (!res.ok) throw await readError(res);
@@ -44,11 +46,11 @@ export type DocumentEvent =
   | { type: "error"; message: string; retryable: boolean };
 
 /** Streams NDJSON events from the document step. */
-export async function* streamDocument(input: IdeaInput, brief: IdeaBrief, signal?: AbortSignal): AsyncGenerator<DocumentEvent> {
+export async function* streamDocument(input: IdeaInput, brief: IdeaBrief, signal?: AbortSignal, engine: Engine = "ai"): AsyncGenerator<DocumentEvent> {
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ step: "document", input, brief }),
+    body: JSON.stringify({ step: "document", input, brief, engine }),
     signal,
   });
   if (!res.ok || !res.body) throw await readError(res);

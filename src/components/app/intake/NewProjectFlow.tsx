@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProjectAction } from "@/app/(app)/app/actions";
-import { AlertCircle, Check, Loader2, RotateCcw } from "lucide-react";
+import { AlertCircle, Check, Loader2, PenLine, RotateCcw } from "lucide-react";
 import { PageRenderer } from "@/components/page/PageRenderer";
 import { Button } from "@/components/ui/button";
 import type { IdeaBrief, IdeaInput } from "@/lib/ai/types";
-import { GenerateClientError, requestBrief, streamDocument } from "@/lib/generate-client";
+import { GenerateClientError, requestBrief, streamDocument, type Engine } from "@/lib/generate-client";
 import { coercePartialDocument, SECTION_LABELS, type PageDocument } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -28,7 +28,8 @@ export function NewProjectFlow() {
   const [generatorName, setGeneratorName] = useState<string | undefined>();
   const [doc, setDoc] = useState<PageDocument | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<{ message: string; retryable: boolean } | null>(null);
+  /** `step` says what to redo; `offerTemplate` is false when the failure wasn't the model's (e.g. saving). */
+  const [error, setError] = useState<{ message: string; retryable: boolean; step: "brief" | "document"; offerTemplate: boolean } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const previewRef = useRef<FramedPreviewHandle>(null);
   const isMobile = useIsMobile();
@@ -44,13 +45,13 @@ export function NewProjectFlow() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionCount, isMobile, phase]);
 
-  const fail = (e: unknown) => {
+  const fail = (e: unknown, step: "brief" | "document") => {
     if (e instanceof DOMException && e.name === "AbortError") return;
     const err = e instanceof GenerateClientError ? e : null;
-    setError({ message: err?.message ?? (e instanceof Error ? e.message : "Something went wrong"), retryable: err?.retryable ?? true });
+    setError({ message: err?.message ?? (e instanceof Error ? e.message : "Something went wrong"), retryable: err?.retryable ?? true, step, offerTemplate: true });
   };
 
-  const analyse = useCallback(async (next: IdeaInput) => {
+  const analyse = useCallback(async (next: IdeaInput, engine: Engine = "ai") => {
     setInput(next);
     setBusy(true);
     setError(null);
@@ -58,18 +59,18 @@ export function NewProjectFlow() {
     const ac = new AbortController();
     abortRef.current = ac;
     try {
-      const r = await requestBrief(next, ac.signal);
+      const r = await requestBrief(next, ac.signal, engine);
       setBrief(r.brief);
       setGeneratorName(r.generator);
       setPhase("brief");
     } catch (e) {
-      fail(e);
+      fail(e, "brief");
     } finally {
       setBusy(false);
     }
   }, []);
 
-  const build = useCallback(async () => {
+  const build = useCallback(async (engine: Engine = "ai") => {
     if (!input || !brief) return;
     setBusy(true);
     setError(null);
@@ -79,7 +80,7 @@ export function NewProjectFlow() {
     const ac = new AbortController();
     abortRef.current = ac;
     try {
-      for await (const ev of streamDocument(input, brief, ac.signal)) {
+      for await (const ev of streamDocument(input, brief, ac.signal, engine)) {
         const withBrand = (d: PageDocument): PageDocument => (brief.theme.accentHex ? { ...d, theme: { ...d.theme, accentHex: brief.theme.accentHex } } : d);
         if (ev.type === "partial") {
           const partial = coercePartialDocument(ev.doc, brief.productName);
@@ -100,16 +101,17 @@ export function NewProjectFlow() {
             progress.start();
             router.push(isMobile ? `/app/projects/${id}` : `/app/projects/${id}/edit`);
           } catch (e) {
+            // The page was written; only saving failed. That's not an AI problem, so no template offer.
             setSaving(false);
-            fail(e);
+            setError({ message: e instanceof Error ? e.message : "Couldn't save the page.", retryable: true, step: "document", offerTemplate: false });
           }
         } else {
-          setError({ message: ev.message, retryable: ev.retryable });
+          setError({ message: ev.message, retryable: ev.retryable, step: "document", offerTemplate: true });
           setPhase("brief");
         }
       }
     } catch (e) {
-      fail(e);
+      fail(e, "document");
       setPhase("brief");
     } finally {
       setBusy(false);
@@ -159,11 +161,24 @@ export function NewProjectFlow() {
             <div className="mb-5 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
               <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
               <div className="flex-1">
-                <p>{error.message}</p>
-                {error.retryable && phase === "brief" && (
-                  <Button size="sm" variant="outline" className="mt-2" onClick={build}>
-                    <RotateCcw /> Try again
-                  </Button>
+                <p className="font-medium">{!error.offerTemplate ? "Couldn't save the page." : error.step === "brief" ? "The AI couldn't read your idea." : "The AI couldn't write the page."}</p>
+                <p className="mt-0.5 text-muted-foreground">{error.message}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {error.retryable && (
+                    <Button size="sm" variant="outline" disabled={busy} onClick={() => (error.step === "brief" && input ? void analyse(input) : void build())}>
+                      <RotateCcw /> Try again
+                    </Button>
+                  )}
+                  {error.offerTemplate && (
+                    <Button size="sm" variant="outline" disabled={busy} onClick={() => (error.step === "brief" && input ? void analyse(input, "template") : void build("template"))}>
+                      <PenLine /> Continue without AI
+                    </Button>
+                  )}
+                </div>
+                {error.offerTemplate && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Without AI you get a sensible template built from what you typed — every line is editable, and you can ask the AI to rewrite any section later.
+                  </p>
                 )}
               </div>
             </div>
@@ -175,12 +190,12 @@ export function NewProjectFlow() {
                 <h1 className="text-xl font-semibold tracking-tight">Describe your idea</h1>
                 <p className="mt-1 text-sm text-muted-foreground">We&apos;ll turn it into a page that asks people what they&apos;d pay.</p>
               </div>
-              <IdeaForm initial={input ?? undefined} busy={busy} onSubmit={analyse} />
+              <IdeaForm initial={input ?? undefined} busy={busy} onSubmit={(next) => void analyse(next)} />
             </>
           )}
 
           {phase === "brief" && brief && (
-            <BriefCard brief={brief} onChange={setBrief} onBack={() => setPhase("idea")} onBuild={build} busy={busy} generatorName={generatorName} />
+            <BriefCard brief={brief} onChange={setBrief} onBack={() => setPhase("idea")} onBuild={() => void build()} busy={busy} generatorName={generatorName} />
           )}
 
           {(phase === "building" || phase === "done") && brief && (
@@ -220,7 +235,7 @@ export function NewProjectFlow() {
                     {saving ? "Saving…" : isMobile ? "Opening…" : "Opening editor…"}
                   </Button>
                   {!saving && (
-                    <Button variant="outline" onClick={build}>
+                    <Button variant="outline" onClick={() => void build()}>
                       <RotateCcw /> Regenerate
                     </Button>
                   )}

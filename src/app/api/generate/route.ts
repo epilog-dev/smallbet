@@ -6,15 +6,19 @@ import { PageDocumentSchema } from "@/lib/page-schema";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
+/** "template" skips the model and uses the deterministic builder — the founder's way through when AI is down. */
+const Engine = z.enum(["ai", "template"]).optional();
+
 const BodySchema = z.discriminatedUnion("step", [
-  z.object({ step: z.literal("brief"), input: IdeaInputSchema }),
-  z.object({ step: z.literal("document"), input: IdeaInputSchema, brief: IdeaBriefSchema }),
+  z.object({ step: z.literal("brief"), input: IdeaInputSchema, engine: Engine }),
+  z.object({ step: z.literal("document"), input: IdeaInputSchema, brief: IdeaBriefSchema, engine: Engine }),
   z.object({
     step: z.literal("section"),
     brief: IdeaBriefSchema,
     doc: PageDocumentSchema,
     sectionId: z.string().min(1),
     instruction: z.string().max(400).optional(),
+    engine: Engine,
   }),
 ]);
 
@@ -32,7 +36,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request", issues: parsed.error.issues }, { status: 422 });
   }
   const body = parsed.data;
-  const gen = createGenerator();
+  const gen = createGenerator({ template: body.engine === "template" });
 
   if (body.step === "brief") {
     try {
