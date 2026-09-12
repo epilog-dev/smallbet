@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
@@ -11,26 +11,47 @@ import { cn } from "@/lib/utils";
  * actually a phone layout — unlike a transform-scaled div, whose breakpoints follow
  * the browser window.
  */
-export function FramedPreview({
-  width,
-  children,
-  className,
-  maxScale = 1,
-  minHeight = 480,
-  title = "Page preview",
-}: {
-  width: number;
-  children: ReactNode;
-  className?: string;
-  maxScale?: number;
-  minHeight?: number;
-  title?: string;
-}) {
+export interface FramedPreviewHandle {
+  /** Scrolls the nearest scrollable ancestor so the first element matching `selector` (inside the frame) is in view. */
+  scrollToSelector: (selector: string, offset?: number) => void;
+}
+
+export const FramedPreview = forwardRef<
+  FramedPreviewHandle,
+  {
+    width: number;
+    children: ReactNode;
+    className?: string;
+    maxScale?: number;
+    minHeight?: number;
+    title?: string;
+  }
+>(function FramedPreview({ width, children, className, maxScale = 1, minHeight = 480, title = "Page preview" }, ref) {
   const outer = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [mount, setMount] = useState<HTMLElement | null>(null);
   const [scale, setScale] = useState(1);
   const [contentHeight, setContentHeight] = useState(minHeight);
+  const scaleRef = useRef(1);
+  scaleRef.current = scale;
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToSelector(selector, offset = 16) {
+        const el = iframeRef.current?.contentDocument?.querySelector(selector);
+        const o = outer.current;
+        if (!el || !o) return;
+        const scroller = scrollParent(o);
+        // Element top in the (unscaled) frame → scaled position in the parent viewport.
+        const topInFrame = el.getBoundingClientRect().top;
+        const topInParent = o.getBoundingClientRect().top + topInFrame * scaleRef.current;
+        const scrollerTop = scroller === document.scrollingElement ? 0 : (scroller as HTMLElement).getBoundingClientRect().top;
+        scroller.scrollBy({ top: topInParent - scrollerTop - offset, behavior: "smooth" });
+      },
+    }),
+    [],
+  );
 
   const attach = useCallback(() => {
     const doc = iframeRef.current?.contentDocument;
@@ -91,6 +112,16 @@ export function FramedPreview({
       {mount && createPortal(children, mount)}
     </div>
   );
+});
+
+function scrollParent(el: HTMLElement): Element {
+  let node: HTMLElement | null = el.parentElement;
+  while (node) {
+    const { overflowY } = getComputedStyle(node);
+    if ((overflowY === "auto" || overflowY === "scroll") && node.scrollHeight > node.clientHeight) return node;
+    node = node.parentElement;
+  }
+  return document.scrollingElement ?? document.documentElement;
 }
 
 const SYNC_ATTR = "data-preview-sync";

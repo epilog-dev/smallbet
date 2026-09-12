@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, CloudOff, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageRenderer } from "@/components/page/PageRenderer";
@@ -12,7 +12,7 @@ import { requestSection } from "@/lib/generate-client";
 import { briefFromDocument, defaultSection, type PageDocument, type Section, type SectionType } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import { PublishControls } from "../PublishControls";
-import { FramedPreview } from "../FramedPreview";
+import { FramedPreview, type FramedPreviewHandle } from "../FramedPreview";
 import { DeviceSelect, PagePanel, SectionPanel, ThemePanel } from "./Panels";
 import { SectionList, SINGLETONS } from "./SectionList";
 import { useAutosave, type SaveState } from "./useAutosave";
@@ -29,6 +29,7 @@ export function Editor({ project, publicUrl }: EditorProps) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
   const { state: saveState } = useAutosave(project.id, doc, project.version);
+  const previewRef = useRef<FramedPreviewHandle>(null);
   const brief = useMemo(() => project.brief ?? briefFromDocument(project.document), [project.brief, project.document]);
 
   const selected = doc.sections.find((s) => s.id === selectedId) ?? null;
@@ -40,6 +41,12 @@ export function Editor({ project, publicUrl }: EditorProps) {
   const select = (id: string) => {
     setSelectedId(id);
     setTab("section");
+  };
+
+  /** Select from the list: also bring the section into view in the preview. */
+  const selectAndReveal = (id: string) => {
+    select(id);
+    requestAnimationFrame(() => previewRef.current?.scrollToSelector(`[data-section="${CSS.escape(id)}"]`));
   };
 
   const reorder = (from: number, to: number) =>
@@ -78,6 +85,7 @@ export function Editor({ project, publicUrl }: EditorProps) {
       sections.splice(idx === -1 ? sections.length : idx, 0, section);
       setSelectedId(section.id);
       setTab("section");
+      setTimeout(() => previewRef.current?.scrollToSelector(`[data-section="${CSS.escape(section.id)}"]`), 80);
       return { ...d, sections };
     });
 
@@ -124,7 +132,7 @@ export function Editor({ project, publicUrl }: EditorProps) {
           <SectionList
             sections={doc.sections}
             selectedId={selectedId}
-            onSelect={select}
+            onSelect={selectAndReveal}
             onReorder={reorder}
             onToggleHidden={toggleHidden}
             onDelete={remove}
@@ -137,7 +145,7 @@ export function Editor({ project, publicUrl }: EditorProps) {
         {/* centre: preview */}
         <main className="min-w-0 flex-1 overflow-y-auto bg-muted/40 p-4">
           <div className={cn("mx-auto overflow-hidden rounded-lg border border-border bg-background shadow-sm", device === "mobile" ? "max-w-[390px]" : "max-w-[1200px]")}>
-            <FramedPreview width={previewWidth} maxScale={1} title="Page editor preview">
+            <FramedPreview ref={previewRef} width={previewWidth} maxScale={1} title="Page editor preview">
               <PageRenderer doc={doc} mode="editor" selectedId={selectedId} onSelect={select} noReveal />
             </FramedPreview>
           </div>
