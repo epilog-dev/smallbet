@@ -7,7 +7,10 @@ import { ScaledPreview } from "@/components/app/ScaledPreview";
 import { PublishControls } from "@/components/app/PublishControls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dashboard } from "@/components/app/dashboard/Dashboard";
+import { computePricingStats } from "@/lib/analytics/pricing-stats";
 import { getProject } from "@/lib/db/projects";
+import { countViews, listResponses } from "@/lib/db/responses";
 import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({ params }: PageProps<"/app/projects/[id]">): Promise<Metadata> {
@@ -23,6 +26,10 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
   const project = await getProject(db, id);
   if (!project) notFound();
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/p/${project.slug}`;
+  const [rows, views] = await Promise.all([listResponses(db, project.id), countViews(db, project.id)]);
+  const stats = computePricingStats(project.document, rows, views, project.published_at);
+  const pricing = project.document.sections.find((s) => s.type === "pricing-intent");
+  const tierNames = Object.fromEntries(pricing?.type === "pricing-intent" ? pricing.props.tiers.map((t) => [t.id, t.name]) : []);
 
   return (
     <div className="space-y-8">
@@ -52,8 +59,10 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
         </div>
       </div>
 
+      <Dashboard stats={stats} rows={rows} tierNames={tierNames} projectName={project.name} published={project.status === "published"} />
+
       <section>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">Preview</h2>
+        <h2 className="mb-3 text-sm font-medium">Page</h2>
         <div className="overflow-hidden rounded-lg border border-border bg-background">
           <ScaledPreview width={1280}>
             <PageRenderer doc={project.document} mode="preview" noReveal />
