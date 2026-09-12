@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const THEME_PRESETS = ["editorial", "clean", "bold", "playful"] as const;
+export const THEME_PRESETS = ["haze", "paper", "aurora", "editorial"] as const;
 export const ThemePresetSchema = z.enum(THEME_PRESETS);
 export type ThemePreset = z.infer<typeof ThemePresetSchema>;
 
@@ -23,9 +23,9 @@ export type AccentHue = z.infer<typeof AccentHueSchema>;
 
 export const ThemeSchema = z.object({
   preset: ThemePresetSchema.describe(
-    "editorial: warm, literary B2B/creator feel. clean: crisp neutral SaaS. bold: dark, high-contrast, dev/infra tools. playful: friendly pastel consumer apps.",
+    "haze: light neutral canvas with a soft accent wash — default for most B2B/consumer SaaS. paper: off-white, grain, hairlines — analytics, dev tools, writing tools. aurora: near-black with an accent aurora — AI, infra, developer platforms, fintech. editorial: warm cream + light serif — healthcare, finance for individuals, wellness, services, premium consumer.",
   ),
-  accent: AccentHueSchema.describe("Brand accent hue used for buttons, highlights and doodles."),
+  accent: AccentHueSchema.describe("Brand accent hue used for buttons, highlights and the background wash."),
   rationale: z
     .string()
     .max(200)

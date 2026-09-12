@@ -1,11 +1,16 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Hero eyebrow. Its look is preset-driven (pill / label / bracket / sticker) via `.vp-eyebrow` CSS. */
+/** Small, quiet pill above the headline ("For product teams shipping from Figma"). */
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span className={cn("vp-eyebrow", className)}>
-      <span aria-hidden className="vp-eyebrow-dot size-1.5 rounded-full bg-vp-accent" />
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border border-vp-border bg-vp-surface px-3 py-1.5 text-xs font-medium text-vp-muted",
+        className,
+      )}
+    >
+      <span aria-hidden className="size-1.5 rounded-full bg-vp-accent" />
       {children}
     </span>
   );

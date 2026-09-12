@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const sizes = {
-  hero: "text-[2.6rem] leading-[1.04] sm:text-6xl sm:leading-[1.02] lg:text-[4.25rem]",
-  section: "text-3xl leading-[1.1] sm:text-[2.6rem]",
-  sub: "text-xl sm:text-2xl leading-snug",
+  hero: "text-[calc(2.5rem*var(--vp-display-scale))] leading-[1.08] sm:text-[calc(3.5rem*var(--vp-display-scale))] sm:leading-[1.06] lg:text-[calc(4.25rem*var(--vp-display-scale))] lg:leading-[1.04]",
+  section: "text-[calc(1.9rem*var(--vp-display-scale))] leading-[1.15] sm:text-[calc(2.5rem*var(--vp-display-scale))]",
+  sub: "text-[calc(1.25rem*var(--vp-display-scale))] sm:text-[calc(1.5rem*var(--vp-display-scale))] leading-snug",
 };
 
 export function Heading({
@@ -21,42 +21,19 @@ export function Heading({
   return <Tag className={cn("vp-display text-vp-fg", sizes[size], className)}>{children}</Tag>;
 }
 
-/** Renders `text` with `highlight` wrapped in a squiggle-underlined (or accent-coloured) span. */
-export function HighlightedText({
-  text,
-  highlight,
-  squiggle,
-}: {
-  text: string;
-  highlight?: string;
-  squiggle: boolean;
-}) {
+/** Renders `text` with `highlight` wrapped in a quiet secondary tone (styled per preset via `.vp-highlight`). */
+export function HighlightedText({ text, highlight }: { text: string; highlight?: string }) {
   if (!highlight || !text.includes(highlight)) return <>{text}</>;
   const [before, after] = text.split(highlight, 2);
-  // A squiggle only works under a short run that stays on one line; longer highlights get accent colour instead.
-  const useSquiggle = squiggle && highlight.trim().split(/\s+/).length <= 3;
   return (
     <>
       {before}
-      <span className={cn("relative", useSquiggle ? "whitespace-nowrap" : "text-vp-accent")}>
-        {highlight}
-        {useSquiggle && (
-          <svg
-            className="squiggle absolute -bottom-[0.08em] left-0 h-[0.22em] w-full text-vp-accent"
-            viewBox="0 0 220 14"
-            fill="none"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path d="M3 8c26-9 52 5 79-1s52-8 79-1 39 7 56 2" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-          </svg>
-        )}
-      </span>
+      <span className="vp-highlight">{highlight}</span>
       {after}
     </>
   );
 }
 
 export function Lead({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cn("text-lg leading-relaxed text-vp-muted text-pretty", className)}>{children}</p>;
+  return <p className={cn("text-[1.05rem] leading-relaxed text-vp-muted text-pretty sm:text-lg", className)}>{children}</p>;
 }

@@ -10,7 +10,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Ledgerly — bookkeeping that closes itself",
       seoDescription: "Tell us what you'd pay for month-end that finishes without you. Pre-launch, nothing charged.",
     },
-    theme: { preset: "editorial", accent: "violet", rationale: "Calm, trustworthy finance for independent professionals." },
+    theme: { preset: "editorial", accent: "amber", rationale: "Warm, trustworthy finance for independent professionals." },
     nav: { logoText: "Ledgerly", ctaLabel: "See pricing" },
     goal: { targetResponses: 25, deadlineDays: 30 },
     sections: [
@@ -145,7 +145,7 @@ const raw: Record<string, PageDocument> = {
       },
     ],
   },
-  clean: {
+  paper: {
     version: 1,
     meta: {
       productName: "Handoff",
@@ -153,7 +153,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Handoff — design to dev, without the thread",
       seoDescription: "Would you pay for handoff notes that write themselves from Figma? Pre-launch.",
     },
-    theme: { preset: "clean", accent: "blue" },
+    theme: { preset: "paper", accent: "blue" },
     nav: { logoText: "Handoff", ctaLabel: "Pricing" },
     goal: { targetResponses: 30, deadlineDays: 21 },
     sections: [
@@ -269,7 +269,7 @@ const raw: Record<string, PageDocument> = {
       },
     ],
   },
-  bold: {
+  aurora: {
     version: 1,
     meta: {
       productName: "Tracepoint",
@@ -277,7 +277,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Tracepoint — replay production bugs locally",
       seoDescription: "Would you pay to replay any production request on your laptop? Pre-launch.",
     },
-    theme: { preset: "bold", accent: "lime" },
+    theme: { preset: "aurora", accent: "violet" },
     nav: { logoText: "tracepoint", ctaLabel: "Pricing" },
     goal: { targetResponses: 40, deadlineDays: 30 },
     sections: [
@@ -394,7 +394,7 @@ const raw: Record<string, PageDocument> = {
       },
     ],
   },
-  playful: {
+  haze: {
     version: 1,
     meta: {
       productName: "Pantry",
@@ -402,7 +402,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Pantry — dinner from what you already have",
       seoDescription: "Would you pay for an app that plans dinner from your actual fridge? Pre-launch.",
     },
-    theme: { preset: "playful", accent: "orange" },
+    theme: { preset: "haze", accent: "orange" },
     nav: { logoText: "Pantry", ctaLabel: "Pricing" },
     goal: { targetResponses: 50, deadlineDays: 30 },
     sections: [

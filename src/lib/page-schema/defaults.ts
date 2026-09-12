@@ -146,7 +146,7 @@ export function emptyDocument(productName = "Untitled"): PageDocument {
       seoTitle: productName,
       seoDescription: "Tell us what you would pay for this before it is built.",
     },
-    theme: { preset: "clean", accent: "indigo" },
+    theme: { preset: "haze", accent: "indigo" },
     nav: { logoText: productName, ctaLabel: "See pricing" },
     goal: { targetResponses: 25, deadlineDays: 30 },
     sections: [

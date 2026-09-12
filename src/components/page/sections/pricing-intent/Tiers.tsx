@@ -34,12 +34,12 @@ export function PricingIntentTiers({ section, ctx }: SectionProps<"pricing-inten
                       key={t.id}
                       className={cn(
                         "relative flex flex-col p-7 sm:p-8",
-                        hi ? "bg-vp-accent-soft/60 shadow-[inset_0_3px_0_0_var(--vp-accent)]" : "",
+                        hi ? "bg-vp-surface-2 shadow-[inset_0_2px_0_0_var(--vp-accent)]" : "",
                       )}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="vp-display text-lg text-vp-fg">{t.name}</h3>
-                        {hi && <span className="vp-num !text-vp-accent-ink">Most likely</span>}
+                        {hi && <span className="rounded-full bg-vp-accent-soft px-2 py-0.5 text-[11px] font-medium text-vp-accent-ink">Most likely</span>}
                       </div>
                       <p className="mt-1 text-sm text-vp-muted">{t.blurb}</p>
                       <p className="mt-6 flex items-baseline gap-1">

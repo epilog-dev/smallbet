@@ -132,18 +132,20 @@ Section types → variants → props (discriminated union on `type`; `variant` i
 `--vp-bg, --vp-surface, --vp-surface-2, --vp-border, --vp-fg, --vp-fg-muted, --vp-accent, --vp-accent-fg, --vp-accent-soft, --vp-accent-ink, --vp-radius-sm/md/lg/xl, --vp-shadow, --vp-font-display, --vp-font-body`.
 Tailwind v4 `@theme` maps these to utilities (`bg-vp-surface`, `text-vp-fg-muted`, `rounded-vp-lg`, `font-vp-display`…) so section components use ordinary Tailwind classes and are theme-agnostic.
 
-**Presets (`theme/presets.ts`)** — each defines surfaces, radius scale, shadow, font pairing, and decorative flags:
+**Presets (`theme/presets.ts`)** — direction set by the reference set in `~/Workspace/Resources/saas-designs` (Mercury, Gladia, Joyful Health, Peec, Strut, Outchat, Bonsai, Laravel Cloud, Spark, Midnight, Limitless, Studio Rodeo): calm and premium, light-weight display type (400–500), atmospheric backgrounds, pill buttons, quiet eyebrows, a big product frame doing the visual work. No doodles, squiggles, stickers, hard shadows or mono brackets.
 
-| preset | feel | fonts (display / body) | notes |
-|---|---|---|---|
-| `editorial` | warm, Mercury × Tally | Fraunces / Inter | cream canvas, soft gradient wash, squiggle underline on `headlineHighlight`, doodles on |
-| `clean` | crisp SaaS | Geist / Geist | white, hairline borders, tight radius, no doodles |
-| `bold` | dark, high-contrast | Bricolage Grotesque / Inter | near-black surface, oversized headline, accent glow |
-| `playful` | friendly consumer | Nunito / DM Sans | pastel surfaces, radius-2xl, soft shadows, blob shapes |
+| preset | drawn from | canvas / backdrop | display / body | primary button |
+|---|---|---|---|---|
+| `haze` | Mercury, Midnight, Joyful | neutral canvas, radial accent wash dissolving into the page | Instrument Sans 500 | accent pill |
+| `paper` | Peec, Strut, Outchat, Bonsai | off-white, faint grain, hairline guide rails on the hero | Hanken Grotesk 400 | black pill |
+| `aurora` | Gladia, Laravel Cloud, Spark | near-black, two-hue aurora behind the hero, glass product frame | Inter 500 | white pill |
+| `editorial` | Joyful Health, Studio Rodeo | warm cream, peach/accent bloom low in the hero | Instrument Serif 400 / Inter | accent, rounded-md |
+
+Headline `headlineHighlight` renders as a quiet secondary tone (Peec-style), gradient text on `aurora`, italic accent on `editorial`.
 
 Accent hue → OKLCH ramp computed at runtime (`accent`, `accent-soft`, `accent-ink`, `accent-fg`) with per-preset lightness targets so violet on `bold` (dark) and on `editorial` (cream) both pass contrast. Fonts loaded once via `next/font/google` in `theme/fonts.ts` and exposed as CSS vars; `ThemeScope` sets `data-preset` + inline vars on the wrapper.
 
-**Primitives:** `Container` (max-w-6xl), `Eyebrow`, `Heading` (with optional `<Squiggle>` highlight), `Button` (primary/secondary/ghost), `Doodle` (arrow/star/loop SVGs, editorial+playful only), `MockUI` (fake product window built from `mockRows` so hero visuals never need images), `Icon`.
+**Primitives:** `Container` (max-w-6xl), `Eyebrow` (quiet pill), `Heading` (with `HighlightedText`), `Button` (primary/secondary/ghost), `MockUI` (fake product window built from `mockRows` so hero visuals never need images), `Icon`.
 
 **Sections:** one file per variant, each `({ props, theme, mode })` where `mode: 'live' | 'preview'`. Preview mode disables the response POST and shows sample progress. `registry.ts` = `{ hero: { centered: HeroCentered, … }, … }`; `PageRenderer` iterates `doc.sections`, skips `hidden`, looks up `registry[type][variant]`, wraps in `ThemeScope`, appends `Footer` ("Built with validate" + privacy line).
 
@@ -174,7 +176,7 @@ createGenerator() // AI_PROVIDER: google (default) | anthropic | mock — all us
 2. **Document**: `streamText` + `Output.object(PageDocumentSchema)`; `partialOutputStream` is forwarded as SSE from `/api/generate` so the preview fills in section by section. On completion: `safeParse` → `repair()` → save to `projects.document` + a row in `generations` (model, token usage).
 3. **Section regenerate**: `generateText` + `Output.object(SectionSchemaFor(type))` with brief + compact summary of other sections + founder instruction ("shorter", "more concrete").
 
-**Prompting (`prompts.ts`):** one stable system prompt (cacheable): role, the invariants from §3, copy rules (benefit headline ≤ 10 words, audience-named eyebrow, no "unlock/supercharge/seamless", pain points as plain statements, FAQ answers the pricing/refund/timeline objections, tiers anchored to `priceHint`/market norms, `headlineHighlight` is a literal substring), theme-selection guidance (dark `bold` for dev/infra tools, `editorial` for B2B SaaS/creators, `playful` for consumer, `clean` default). Volatile content (idea, brief) goes in the user message.
+**Prompting (`prompts.ts`):** one stable system prompt (cacheable): role, the invariants from §3, copy rules (benefit headline ≤ 10 words, audience-named eyebrow, no "unlock/supercharge/seamless", pain points as plain statements, FAQ answers the pricing/refund/timeline objections, tiers anchored to `priceHint`/market norms, `headlineHighlight` is a literal substring), theme-selection guidance (`aurora` for AI/infra/dev platforms, `paper` for analytics/dev/writing tools, `editorial` for health/personal finance/wellness/services, `haze` default). Volatile content (idea, brief) goes in the user message.
 
 **Model config (`client.ts`):** `resolveModel()` reads `AI_PROVIDER` (`google` default | `anthropic` | `mock`) and `AI_MODEL` → `google(AI_MODEL ?? 'gemini-2.5-flash')` or `anthropic(AI_MODEL ?? 'claude-sonnet-5')`. Structured output goes through the AI SDK's provider-native JSON-schema mode for both; Zod 4 schemas are kept Gemini-compatible (no `z.record` with dynamic keys, no unions except the `type` discriminator, enums as `z.enum`). `maxOutputTokens` 8k; on schema failure retry once with the Zod issues appended; if still failing, `repair()` the partial. Free-tier Gemini rate limits (RPM) → generation endpoint returns a friendly 429 and the UI offers retry.
 

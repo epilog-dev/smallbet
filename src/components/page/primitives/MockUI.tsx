@@ -20,11 +20,11 @@ export function MockUI({ title, rows, className }: { title?: string; rows?: Mock
   return (
     <div
       className={cn(
-        "@container relative w-full overflow-hidden rounded-vp-xl border border-vp-border bg-vp-surface shadow-vp",
+        "@container relative w-full overflow-hidden rounded-vp-xl bg-vp-surface shadow-vp-frame backdrop-blur-xl",
         className,
       )}
     >
-      <div className="flex items-center gap-2 border-b border-vp-border bg-vp-surface-2/60 px-4 py-2.5">
+      <div className="flex items-center gap-2 border-b border-vp-border bg-vp-surface-2 px-4 py-2.5">
         <span className="size-2.5 rounded-full bg-vp-fg/15" />
         <span className="size-2.5 rounded-full bg-vp-fg/15" />
         <span className="size-2.5 rounded-full bg-vp-fg/15" />

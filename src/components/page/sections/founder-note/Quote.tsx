@@ -4,7 +4,7 @@ import type { SectionProps } from "../../types";
 export function FounderNoteQuote({ section }: SectionProps<"founder-note">) {
   const p = section.props;
   return (
-    <SectionShell id={section.id} className="bg-vp-accent-soft/60">
+    <SectionShell id={section.id} className="bg-vp-surface-2/60">
       <Container size="md" className="text-center">
         <div data-reveal>
           <span aria-hidden className="vp-display block text-7xl leading-none text-vp-accent/50">“</span>
@@ -14,7 +14,7 @@ export function FounderNoteQuote({ section }: SectionProps<"founder-note">) {
               {para}
             </p>
           ))}
-          <p className="mt-8 text-sm font-semibold uppercase tracking-[0.14em] text-vp-accent-ink">{p.signature}</p>
+          <p className="mt-8 text-sm font-medium text-vp-muted">{p.signature}</p>
         </div>
       </Container>
     </SectionShell>

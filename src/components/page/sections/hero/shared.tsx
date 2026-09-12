@@ -1,5 +1,4 @@
 import { VpLinkButton } from "../../primitives/Button";
-import { Doodle } from "../../primitives/Doodle";
 import { AbstractVisual, MockUI } from "../../primitives/MockUI";
 import type { HeroProps } from "@/lib/page-schema";
 import type { PageContextValue } from "../../types";
@@ -17,7 +16,7 @@ export function HeroCtas({ props, ctx, align = "center" }: { props: HeroProps; c
           </VpLinkButton>
         )}
       </div>
-      <p className="mt-3 text-sm text-vp-muted">Takes 30 seconds · No card · No signup</p>
+      <p className="mt-4 text-[13px] text-vp-muted">Takes 30 seconds · No card · No signup</p>
     </div>
   );
 }
@@ -28,53 +27,71 @@ export function HeroVisual({ props, className }: { props: HeroProps; className?:
   return <MockUI title={props.visual.mockTitle} rows={props.visual.mockRows} className={className} />;
 }
 
-/** Soft gradient wash behind the hero (editorial) or accent glow (bold). */
+/**
+ * Atmospheric hero background, one per preset:
+ * aurora — two blurred hue blobs on black · wash — radial accent tint on a light canvas ·
+ * rails — hairline guide lines at the container edges · bloom — warm glow low in the hero.
+ */
 export function HeroBackdrop({ ctx }: { ctx: PageContextValue }) {
-  const { flags } = ctx.preset;
-  if (flags.wash) {
-    return (
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[760px] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-vp-accent-soft via-vp-accent-soft/30 to-transparent" />
-        <div className="absolute -top-40 left-1/2 size-[46rem] -translate-x-1/2 rounded-full bg-vp-accent/15 blur-3xl" />
-      </div>
-    );
+  switch (ctx.preset.backdrop) {
+    case "aurora":
+      return (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[820px] overflow-hidden">
+          <div
+            className="absolute left-1/2 top-[-22rem] h-[52rem] w-[80rem] -translate-x-1/2 rounded-[100%] opacity-70 blur-[90px]"
+            style={{
+              background:
+                "radial-gradient(closest-side, oklch(0.55 0.2 var(--vp-accent-hue) / 0.55), transparent 70%)",
+            }}
+          />
+          <div
+            className="absolute left-[62%] top-[-8rem] h-[36rem] w-[44rem] -translate-x-1/2 rounded-[100%] opacity-60 blur-[100px]"
+            style={{
+              background:
+                "radial-gradient(closest-side, oklch(0.6 0.18 var(--vp-accent-hue-2) / 0.5), transparent 70%)",
+            }}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-[linear-gradient(to_bottom,transparent,var(--vp-bg))]" />
+        </div>
+      );
+    case "wash":
+      return (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[780px] overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(70% 60% at 50% 0%, oklch(0.9 0.07 var(--vp-accent-hue) / 0.9), transparent 70%), radial-gradient(45% 45% at 78% 25%, oklch(0.92 0.06 var(--vp-accent-hue-2) / 0.6), transparent 70%)",
+            }}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(to_bottom,transparent,var(--vp-bg))]" />
+        </div>
+      );
+    case "bloom":
+      return (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[820px] overflow-hidden">
+          <div
+            className="absolute inset-x-0 bottom-0 h-[70%]"
+            style={{
+              background:
+                "radial-gradient(55% 60% at 50% 100%, oklch(0.82 0.12 var(--vp-accent-hue) / 0.75), transparent 72%), radial-gradient(35% 45% at 25% 100%, oklch(0.85 0.1 var(--vp-accent-hue-2) / 0.5), transparent 70%)",
+            }}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_bottom,transparent,var(--vp-bg))]" />
+        </div>
+      );
+    case "rails":
+    default:
+      return null;
   }
-  if (flags.glow) {
-    return (
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[640px] overflow-hidden">
-        <div className="absolute left-1/2 top-[-18rem] size-[40rem] -translate-x-1/2 rounded-full bg-vp-accent/20 blur-[120px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,var(--vp-bg))]" />
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "linear-gradient(var(--vp-fg) 1px, transparent 1px), linear-gradient(90deg, var(--vp-fg) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage: "radial-gradient(ellipse at top, black, transparent 70%)",
-          }}
-        />
-      </div>
-    );
-  }
-  if (flags.blobs) {
-    return (
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[700px] overflow-hidden">
-        <div className="absolute -left-20 top-10 size-72 rounded-full bg-vp-accent/20 blur-3xl" />
-        <div className="absolute right-[-4rem] top-32 size-80 rounded-full bg-vp-accent-soft blur-3xl" />
-      </div>
-    );
-  }
-  return null;
 }
 
-export function HeroDoodles({ ctx }: { ctx: PageContextValue }) {
-  if (!ctx.preset.flags.doodles) return null;
+/** Vertical hairlines at the container edges (paper preset only, shown via `.vp-rails` CSS). */
+export function Rails() {
   return (
-    <>
-      <Doodle kind="bubble" className="left-[4%] top-[22%] hidden w-14 -rotate-[8deg] text-vp-fg/25 lg:block" />
-      <Doodle kind="arrow" className="left-[13%] top-[54%] hidden w-16 text-vp-fg/25 xl:block" />
-      <Doodle kind="sparkle" className="right-[7%] top-[20%] hidden w-9 text-vp-accent lg:block" />
-      <Doodle kind="loop" className="right-[12%] top-[58%] hidden w-20 text-vp-fg/20 xl:block" />
-    </>
+    <div aria-hidden className="vp-rails pointer-events-none absolute inset-y-0 left-0 right-0 mx-auto max-w-6xl">
+      <div className="absolute inset-y-0 left-0 w-px bg-vp-border sm:left-4" />
+      <div className="absolute inset-y-0 right-0 w-px bg-vp-border sm:right-4" />
+    </div>
   );
 }

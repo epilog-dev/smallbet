@@ -8,15 +8,15 @@ export function ProblemCards({ section }: SectionProps<"problem">) {
     <SectionShell id={section.id}>
       <Container>
         <SectionHeader eyebrow="The problem" title={p.title} />
-        <div className="vp-grid mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {p.items.map((it, i) => (
             <div
               key={i}
               data-reveal
               style={{ transitionDelay: `${i * 60}ms` }}
-              className="vp-card rounded-vp-lg border border-vp-border bg-vp-surface p-6"
+              className="vp-card p-6"
             >
-              <p className="vp-num mb-4">Problem {i + 1}</p>
+              <p className="vp-num mb-4">{String(i + 1).padStart(2, "0")}</p>
               <h3 className="vp-display text-lg text-vp-fg">{it.title}</h3>
               <p className="mt-2 text-[15px] leading-relaxed text-vp-muted">{it.description}</p>
             </div>
