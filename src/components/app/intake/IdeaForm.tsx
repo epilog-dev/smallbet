@@ -38,9 +38,8 @@ export function IdeaForm({ initial, busy, onSubmit }: { initial?: IdeaInput; bus
           id="idea"
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
-          rows={5}
           placeholder="One to three sentences. What it does, who it's for, and what's different about it."
-          className="resize-none text-[15px] leading-relaxed"
+          className="h-36 resize-none overflow-y-auto text-[15px] leading-relaxed [field-sizing:fixed]"
           maxLength={1200}
           autoFocus
         />
