@@ -143,7 +143,7 @@ Tailwind v4 `@theme` maps these to utilities (`bg-vp-surface`, `text-vp-fg-muted
 
 **Primitives:** `Container` (max-w-6xl), `Eyebrow` (quiet pill), `Heading` (with `HighlightedText`), `Button` (primary/secondary/ghost), `MockUI` (fake product window built from `mockRows` so hero visuals never need images), `Icon`.
 
-**Sections:** one file per variant, each `({ props, theme, mode })` where `mode: 'live' | 'preview'`. Preview mode disables the response POST and shows sample progress. `registry.ts` = `{ hero: { centered: HeroCentered, … }, … }`; `PageRenderer` iterates `doc.sections`, skips `hidden`, looks up `registry[type][variant]`, wraps in `ThemeScope`, appends `Footer` ("Built with validate" + privacy line).
+**Sections:** one file per variant, each `({ props, theme, mode })` where `mode: 'live' | 'preview'`. Preview mode disables the response POST and shows sample progress. `registry.ts` = `{ hero: { centered: HeroCentered, … }, … }`; `PageRenderer` iterates `doc.sections`, skips `hidden`, looks up `registry[type][variant]`, wraps in `ThemeScope`, appends `Footer` ("Built with smallbet" + privacy line).
 
 **Pricing-intent widget** (`sections/pricing-intent/*`) is a client component: tier cards (or single price) + "I wouldn't pay for this" link → on select: optional email field + submit → thank-you state with follow-up textarea (`followUpQuestion`) → PATCH reason. Visitor id from a first-party cookie (`visitor.ts`) so one visitor = one response per project (upsert on change).
 

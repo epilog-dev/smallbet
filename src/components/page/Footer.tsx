@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SmallbetMark } from "@/components/brand/Logo";
 import { Container } from "./primitives/Container";
 import type { PageContextValue } from "./types";
 
@@ -12,11 +13,13 @@ export function Footer({ ctx }: { ctx: PageContextValue }) {
         <p className="flex items-center gap-1.5">
           Built with
           {ctx.mode === "live" ? (
-            <Link href="/" className="font-semibold text-vp-fg underline-offset-4 hover:underline">
-              validate
+            <Link href="/" className="inline-flex items-center gap-1.5 font-semibold text-vp-fg underline-offset-4 hover:underline">
+              <SmallbetMark className="size-3.5" /> smallbet
             </Link>
           ) : (
-            <span className="font-semibold text-vp-fg">validate</span>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-vp-fg">
+              <SmallbetMark className="size-3.5" /> smallbet
+            </span>
           )}
         </p>
       </Container>

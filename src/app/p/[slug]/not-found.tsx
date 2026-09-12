@@ -6,7 +6,7 @@ export default function PublicNotFound() {
       <h1 className="text-2xl font-semibold tracking-tight">This page isn&apos;t live</h1>
       <p className="max-w-sm text-sm text-muted-foreground">It may have been unpublished, or the link is wrong. If it&apos;s yours, publish it from your dashboard.</p>
       <Link href="/" className="text-sm underline underline-offset-4">
-        validate
+        smallbet
       </Link>
     </main>
   );

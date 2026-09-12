@@ -29,13 +29,7 @@ export function Nav({ ctx }: { ctx: PageContextValue }) {
       )}
     <header className="sticky top-0 z-30 border-b border-vp-border bg-vp-bg/80 backdrop-blur-md">
       <Container className="flex h-14 items-center justify-between">
-        <a href="#top" className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-vp-fg">
-          <span aria-hidden className="grid size-4 grid-cols-2 gap-px overflow-hidden rounded-[3px]">
-            <span className="bg-vp-fg" />
-            <span className="bg-vp-fg/40" />
-            <span className="bg-vp-fg/40" />
-            <span className="bg-vp-fg" />
-          </span>
+        <a href="#top" className="text-[15px] font-semibold tracking-tight text-vp-fg">
           {nav.logoText}
         </a>
         <nav className="hidden items-center gap-6 text-sm text-vp-muted md:flex">

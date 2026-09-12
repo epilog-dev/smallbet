@@ -1,4 +1,4 @@
-# validate
+# smallbet (repo: validate)
 
 AI idea-validation platform: founder describes an idea → AI builds a typed `PageDocument` → React renders it from a section registry → published page collects price-intent responses → dashboard.
 

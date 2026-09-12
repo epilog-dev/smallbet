@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/app/auth/LoginForm";
 import { ThemeToggle } from "@/components/app/ThemeToggle";
+import { SmallbetLogo } from "@/components/brand/Logo";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -12,8 +13,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex h-12 items-center justify-between px-6">
-        <Link href="/" className="text-sm font-semibold tracking-tight">
-          validate
+        <Link href="/" className="flex items-center text-sm">
+          <SmallbetLogo />
         </Link>
         <ThemeToggle />
       </header>

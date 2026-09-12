@@ -6,7 +6,7 @@ export default function NotFound() {
       <h1 className="text-2xl font-semibold tracking-tight">Page not found</h1>
       <p className="text-sm text-muted-foreground">Nothing lives at this address.</p>
       <Link href="/" className="text-sm underline underline-offset-4">
-        Back to validate
+        Back to smallbet
       </Link>
     </main>
   );

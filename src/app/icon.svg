@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <circle cx="12" cy="12" r="9.5" stroke="#18181b" stroke-width="3" stroke-dasharray="6.95 3" stroke-dashoffset="1.5" />
+  <circle cx="12" cy="12" r="3.75" fill="#18181b" />
+  <style>@media (prefers-color-scheme: dark) { circle { stroke: #f4f4f5; fill: #f4f4f5 } circle:first-child { fill: none } }</style>
+</svg>

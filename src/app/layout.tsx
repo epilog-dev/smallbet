@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "validate", template: "%s · validate" },
+  title: { default: "smallbet", template: "%s · smallbet" },
   description: "Find out what people would pay for your idea before you build it.",
 };
 
