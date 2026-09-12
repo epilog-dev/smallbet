@@ -3,7 +3,7 @@ import type { HeroProps } from "@/lib/page-schema";
 import { VpLinkButton } from "../../primitives/Button";
 import { Chip } from "../../primitives/Eyebrow";
 import { Lead } from "../../primitives/Heading";
-import { AbstractVisual, MockUI } from "../../primitives/MockUI";
+import { ProductVisual } from "../../primitives/MockUI";
 import type { PageContextValue } from "../../types";
 
 export function HeroCtas({ props, ctx, align = "center" }: { props: HeroProps; ctx: PageContextValue; align?: "center" | "start" }) {
@@ -50,9 +50,7 @@ export function HeroLead({ props, className }: { props: HeroProps; className?: s
 }
 
 export function HeroVisual({ props, className }: { props: HeroProps; className?: string }) {
-  if (props.visual.kind === "none") return null;
-  if (props.visual.kind === "abstract") return <AbstractVisual className={className} />;
-  return <MockUI title={props.visual.mockTitle} rows={props.visual.mockRows} className={className} />;
+  return <ProductVisual v={props.visual} className={className} />;
 }
 
 /** The fine hatched band that separates hero copy from the product frame. */

@@ -26,7 +26,7 @@ Structure rules:
 - Use only icon names from the schema enum.
 - headlineHighlight must be an exact substring of headline — usually the last 2-4 words.
 - hero.props.chips: include 2-3 short nouns ONLY if the subheadline can end mid-sentence so the chips complete it (e.g. "...covering" + ["Layout diffs","Spacing","States"]). Otherwise omit chips and write a complete subheadline.
-- visual.kind "mock-ui" for software products with mockTitle and 4-5 plausible mockRows (label/value/tone); "abstract" for services; "none" rarely.
+- hero.props.visual is a drawn product window, not a screenshot. Choose kind by product type: "dashboard" (analytics, ops, finance, B2B SaaS), "list" (inbox, queue, CRM, support, review/approval workflows, dev tools with traces or tickets), "mobile" (consumer apps, anything used on the go), "abstract" (services), "none" (rare). Fill EVERY field with the product's own nouns: title = product name; headline = a status line with a number ("Week 37 · 5 of 5 dinners planned"); nav = 4-5 objects the product manages ("Recipes","Pantry","Stores"); tabs = 2-3 views; series (dashboard) = 2-4 metric names; axis; actions = 1-2 real button labels; rows = 4-6 specific, plausible records (label/value/tone). Never reuse example words like Visibility/Sentiment/HubSpot unless the product is about them.
 
 Copy rules:
 - Headline: 10 words or fewer, plain English, benefit-led. Not clever. Not a question.

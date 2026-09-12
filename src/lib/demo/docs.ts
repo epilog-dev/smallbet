@@ -28,9 +28,15 @@ const raw: Record<string, PageDocument> = {
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
-            kind: "mock-ui",
-            mockTitle: "September — closed",
-            mockRows: [
+            kind: "dashboard",
+            title: "Ledgerly",
+            headline: "September · closed on 1 Oct, 0 lines to review",
+            nav: ["Overview", "Transactions", "Invoices", "Reports", "Accountant"],
+            tabs: ["Revenue", "Expenses", "Margin"],
+            series: ["Revenue", "Expenses", "Tax set aside"],
+            axis: "months",
+            actions: ["Export for accountant"],
+            rows: [
               { label: "Revenue", value: "$18,420", tone: "positive" },
               { label: "Uncategorised", value: "0 lines", tone: "accent" },
               { label: "Expenses", value: "$3,112", tone: "neutral" },
@@ -171,9 +177,13 @@ const raw: Record<string, PageDocument> = {
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
-            kind: "mock-ui",
-            mockTitle: "PROJ-142 · Checkout redesign",
-            mockRows: [
+            kind: "list",
+            title: "Handoff",
+            headline: "Checkout redesign · 14 changes since last handoff",
+            nav: ["Inbox", "Files", "Tickets", "Tokens", "Settings"],
+            tabs: ["Changed", "Specs", "States"],
+            actions: ["Post to Linear"],
+            rows: [
               { label: "Changed layers", value: "14", tone: "accent" },
               { label: "Spacing tokens", value: "8 / 12 / 16", tone: "neutral" },
               { label: "New states", value: "Error, loading", tone: "neutral" },
@@ -296,9 +306,13 @@ const raw: Record<string, PageDocument> = {
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
-            kind: "mock-ui",
-            mockTitle: "trace 9f2c · POST /checkout",
-            mockRows: [
+            kind: "list",
+            title: "Tracepoint",
+            headline: "Errors · last 24h · 6 traces ready to replay",
+            nav: ["Traces", "Services", "Replays", "Rules", "Settings"],
+            tabs: ["Failing", "Slow", "Replayed"],
+            actions: ["Replay locally"],
+            rows: [
               { label: "Status", value: "500 · 1.9s", tone: "neutral" },
               { label: "Captured deps", value: "pg, redis, stripe", tone: "accent" },
               { label: "Replay", value: "Ready", tone: "positive" },
@@ -421,9 +435,13 @@ const raw: Record<string, PageDocument> = {
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
-            kind: "mock-ui",
-            mockTitle: "This week",
-            mockRows: [
+            kind: "mobile",
+            title: "Pantry",
+            headline: "This week · 5 of 5 dinners planned",
+            nav: ["Fridge", "Plan", "Shop", "Saved"],
+            tabs: ["This week", "Saved"],
+            actions: ["Scan fridge"],
+            rows: [
               { label: "Meals planned", value: "5 of 5", tone: "positive" },
               { label: "Using up", value: "Spinach, feta", tone: "accent" },
               { label: "To buy", value: "3 items", tone: "neutral" },

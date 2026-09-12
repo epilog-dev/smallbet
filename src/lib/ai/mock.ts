@@ -147,9 +147,15 @@ export function buildDocument(input: IdeaInput, brief: IdeaBrief): PageDocument 
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
-            kind: "mock-ui",
-            mockTitle: `${titleCase(stem)} — this week`,
-            mockRows: [
+            kind: pick(["dashboard", "list", "mobile"] as const, seed, 4),
+            title: name,
+            headline: `${titleCase(stem)} · this week · 2 need a decision`,
+            nav: ["Overview", titleCase(kw[1] ?? "Items"), titleCase(kw[2] ?? "Activity"), "Reports", "Settings"],
+            tabs: ["This week", "Last 30 days"],
+            series: ["Completed", "Pending", "Errors"],
+            axis: "weeks",
+            actions: [`New ${stem.replace(/s$/, "")}`],
+            rows: [
               { label: "Completed", value: "42", tone: "positive" },
               { label: "Needs a decision", value: "2", tone: "accent" },
               { label: "Time saved", value: "6.5 h", tone: "positive" },

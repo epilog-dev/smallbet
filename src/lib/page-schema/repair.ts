@@ -50,10 +50,16 @@ export function repairDocument(input: unknown): PageDocument {
   // Per-section fixes.
   sections = sections.map((s) => {
     if (s.type === "hero") {
-      const { headline, headlineHighlight } = s.props;
-      if (headlineHighlight && !headline.includes(headlineHighlight)) {
-        return { ...s, props: { ...s.props, headlineHighlight: undefined } };
+      let props = s.props;
+      // Legacy visual shape: { kind: "mock-ui", mockTitle, mockRows } → { kind: "dashboard", title, rows }
+      const v = props.visual as unknown as Record<string, unknown> | undefined;
+      if (v && (v.kind === "mock-ui" || "mockRows" in v || "mockTitle" in v)) {
+        const { mockTitle, mockRows, kind, ...rest } = v;
+        props = { ...props, visual: { ...rest, kind: kind === "mock-ui" ? "dashboard" : (kind as "dashboard"), title: (rest.title as string | undefined) ?? (mockTitle as string | undefined), rows: (rest.rows as never) ?? (mockRows as never) } as typeof props.visual };
       }
+      const { headline, headlineHighlight } = props;
+      if (headlineHighlight && !headline.includes(headlineHighlight)) props = { ...props, headlineHighlight: undefined };
+      return props === s.props ? s : { ...s, props };
     }
     if (s.type === "pricing-intent") {
       const tierIds = new Set<string>();

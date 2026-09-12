@@ -26,7 +26,11 @@ export function HeroCentered({ section, ctx }: SectionProps<"hero">) {
         <>
           <HatchBand />
           <Container className="px-0 sm:px-0">
-            <div data-reveal style={{ transitionDelay: "160ms" }} className="border-b border-vp-border bg-vp-surface-2/60 p-2 sm:p-3">
+            <div
+              data-reveal
+              style={{ transitionDelay: "160ms" }}
+              className={p.visual.kind === "mobile" ? "border-b border-vp-border bg-vp-surface-2/60 px-4 pt-8 pb-0 [&>div]:mb-[-3.5rem]" : "border-b border-vp-border bg-vp-surface-2/60 p-2 sm:p-3"}
+            >
               <HeroVisual props={p} />
             </div>
           </Container>

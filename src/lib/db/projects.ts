@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { IdeaBrief, IdeaInput } from "@/lib/ai/types";
-import { PageDocumentSchema, type PageDocument } from "@/lib/page-schema";
+import { PageDocumentSchema, repairDocument, type PageDocument } from "@/lib/page-schema";
 import { randomSuffix, RESERVED_SLUGS, slugify } from "@/lib/slug";
 import type { Database, Tables } from "./types";
 
@@ -32,7 +32,8 @@ export interface Project extends Omit<ProjectRow, "document" | "brief" | "idea">
 function parseProject(row: ProjectRow): Project {
   return {
     ...row,
-    document: PageDocumentSchema.parse(row.document),
+    // repair() also migrates older document shapes (e.g. the pre-visual-kinds hero).
+    document: repairDocument(row.document),
     brief: (row.brief as IdeaBrief | null) ?? null,
     idea: row.idea as IdeaInput,
   };
@@ -59,7 +60,7 @@ export async function listProjects(db: Db): Promise<ProjectSummary[]> {
       responses: responses.length,
       would_pay: responses.filter((x) => x.kind === "would_pay").length,
       views,
-      document: PageDocumentSchema.parse(r.document),
+      document: repairDocument(r.document),
     };
   });
 }
