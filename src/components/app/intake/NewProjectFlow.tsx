@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createProjectAction } from "@/app/(app)/app/actions";
 import { AlertCircle, Check, Loader2, RotateCcw } from "lucide-react";
 import { PageRenderer } from "@/components/page/PageRenderer";
 import { Button } from "@/components/ui/button";
@@ -16,7 +18,9 @@ import { IdeaForm } from "./IdeaForm";
 type Phase = "idea" | "brief" | "building" | "done";
 
 export function NewProjectFlow() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idea");
+  const [saving, setSaving] = useState(false);
   const [input, setInput] = useState<IdeaInput | null>(null);
   const [brief, setBrief] = useState<IdeaBrief | null>(null);
   const [generatorName, setGeneratorName] = useState<string | undefined>();
@@ -68,6 +72,19 @@ export function NewProjectFlow() {
           setDoc(ev.doc);
           setGeneratorName(ev.generator);
           setPhase("done");
+          setSaving(true);
+          try {
+            const { id } = await createProjectAction({
+              idea: input,
+              brief,
+              document: ev.doc,
+              usage: { generator: ev.generator, inputTokens: ev.usage.inputTokens, outputTokens: ev.usage.outputTokens, ms: ev.usage.ms },
+            });
+            router.push(`/app/projects/${id}`); // TODO(phase 4): /edit
+          } catch (e) {
+            setSaving(false);
+            fail(e);
+          }
         } else {
           setError({ message: ev.message, retryable: ev.retryable });
           setPhase("brief");
@@ -79,7 +96,7 @@ export function NewProjectFlow() {
     } finally {
       setBusy(false);
     }
-  }, [input, brief]);
+  }, [input, brief, router]);
 
   const expectedSections = ["hero", "problem", "features", "steps", "pricing-intent", "faq", "cta-band"] as const;
   const haveTypes = new Set(doc?.sections.map((s) => s.type) ?? []);
@@ -134,7 +151,7 @@ export function NewProjectFlow() {
                 <p className="text-xs font-medium text-muted-foreground">Step 3 of 3</p>
                 <h2 className="mt-1 text-lg font-semibold tracking-tight">{phase === "done" ? "Your page is ready" : `Writing ${brief.productName}…`}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {phase === "done" ? "Next: edit the copy, then publish it and start collecting answers." : "Sections appear on the right as they're written."}
+                  {phase === "done" ? "Saving it to your account and opening the editor." : "Sections appear on the right as they're written."}
                 </p>
               </div>
               <ol className="space-y-1.5">
@@ -160,15 +177,15 @@ export function NewProjectFlow() {
               </ol>
               {phase === "done" && (
                 <div className="flex flex-col gap-2">
-                  <Button size="lg" disabled title="Editor arrives in the next phase">
-                    Open in editor
+                  <Button size="lg" disabled={saving}>
+                    {saving ? <Loader2 className="animate-spin" /> : null}
+                    {saving ? "Saving…" : "Opening editor…"}
                   </Button>
-                  <Button variant="outline" onClick={build}>
-                    <RotateCcw /> Regenerate
-                  </Button>
-                  <Button variant="ghost" onClick={() => setPhase("brief")}>
-                    Back to brief
-                  </Button>
+                  {!saving && (
+                    <Button variant="outline" onClick={build}>
+                      <RotateCcw /> Regenerate
+                    </Button>
+                  )}
                 </div>
               )}
               {phase === "building" && (
