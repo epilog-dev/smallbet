@@ -79,5 +79,5 @@ export async function changeSlugAction(id: string, wanted: string): Promise<{ ok
 export async function signOutAction() {
   const db = await createClient();
   await db.auth.signOut();
-  redirect("/login");
+  redirect("/");
 }
