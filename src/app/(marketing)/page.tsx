@@ -1,46 +1,59 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
-import { PageRenderer } from "@/components/page/PageRenderer";
-import { ScaledPreview } from "@/components/app/ScaledPreview";
+import { ArrowRight } from "lucide-react";
+import { AnswerCard, type AnswerExample } from "@/components/marketing/AnswerCard";
+import { PageThumb } from "@/components/marketing/PageThumb";
+import { TryTheQuestion } from "@/components/marketing/TryTheQuestion";
 import { DEMO_DOCS } from "@/lib/demo/docs";
 import { getUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: { absolute: "validate — find out what people would pay, before you build it" },
-  description: "Describe your idea. Get a landing page that asks visitors what they'd pay. Read the answer in numbers, not vibes.",
+  title: { absolute: "validate — get a price, not a waitlist" },
+  description: "Describe your idea. Get a page that asks visitors what they'd pay, and a number you can plan around.",
 };
 
-const STEPS = [
-  { t: "Describe the idea", d: "One to three sentences. The AI turns it into a brief you confirm: audience, problem, promise, price points." },
-  { t: "Get a page in a minute", d: "A finished validation page, written for your audience, on a design you don't have to fight. Edit anything." },
-  { t: "Share the link", d: "Visitors pick the price they'd pay or say they wouldn't. Thirty seconds, no signup, no card." },
-  { t: "Read the answer", d: "Answers, would-pay rate, median stated price and the tier that maximises revenue — with an honest sample-size warning." },
+const EXAMPLE: AnswerExample = {
+  product: "Ledgerly",
+  price: "$39",
+  per: "/mo",
+  tier: "Pro",
+  answers: 41,
+  wouldPay: 28,
+  median: "$39",
+  days: 9,
+  buckets: [
+    { label: "Solo", price: "$19", count: 9 },
+    { label: "Pro", price: "$39", count: 15, highlight: true },
+    { label: "With accountant", price: "$79", count: 4 },
+    { label: "Wouldn't pay", count: 13, no: true },
+  ],
+  reasons: [
+    { kind: "yes", text: "If it actually reconciles Stripe payouts I'd switch tomorrow." },
+    { kind: "no", text: "My accountant already does this for a flat fee." },
+    { kind: "yes", text: "$39 is less than one hour of my time each month." },
+  ],
+};
+
+const CONTRAST: Array<{ label: string; waitlist: string; price: string }> = [
+  { label: "What it costs the visitor", waitlist: "Nothing. An email they already give everyone.", price: "A small commitment: picking a number they'd stand behind." },
+  { label: "What it tells you", waitlist: "Someone was curious for a second.", price: "Whether there's demand, and roughly where it breaks." },
+  { label: "What a 'no' looks like", waitlist: "Silence. You never hear from the 95% who bounced.", price: "\"I wouldn't pay for this\" — and one line on why." },
+  { label: "What you do with it", waitlist: "Email a list that mostly won't open.", price: "Pick a price, or kill the idea, with numbers to point at." },
 ];
 
-const FEATURES = [
-  ["Price intent, not email intent", "Every visitor is asked a price. A stated price beats a waitlist signup as a signal — and 'I wouldn't pay' counts too."],
-  ["Written from a brief you approve", "The AI reads the idea, proposes audience, problem and tiers. You correct it before a word of copy is written."],
-  ["Pages that don't look generated", "One considered design system, light or dark. Real sections, real hierarchy, a product frame that carries the page."],
-  ["Editable to the word", "Every section is a form. Reorder, hide, switch layouts, or ask the AI to rewrite one section with an instruction."],
-  ["Reasons, not just counts", "After answering, visitors are asked what would make it a must-have — or why they wouldn't pay. That text is the real learning."],
-  ["A defensible number", "Median stated price, distribution by tier and the revenue-maximising tier, plus progress toward your goal and deadline."],
-];
-
-const FAQ = [
-  ["Is a stated price a real signal?", "It's a much stronger one than an email address. It isn't a purchase — deposits are on the roadmap — but combined with the 'why' answers it tells you far more than a waitlist does."],
-  ["Do I need a domain or a design?", "No. Your page lives at validate's address and comes out designed. Custom domains are planned."],
-  ["What does it cost?", "Free while we're in early access. We'll say clearly before anything changes."],
-  ["Who sees my idea?", "Only people you send the link to. Pages aren't listed anywhere and drafts are private to your account."],
+const NOT = [
+  ["Not a purchase.", "Nobody is charged. A stated price is a strong signal, not a contract — and we say so on every page."],
+  ["Not traffic.", "You bring the visitors. validate makes sure each one is asked the one question that matters, and that you can read the answers."],
+  ["Not a verdict.", "Under ten answers the dashboard tells you it's a hint, not a result. It never dresses up thin data."],
 ];
 
 export default async function LandingPage() {
   const user = await getUser();
   const demo = DEMO_DOCS.ledgerly;
+  const start = user ? "/app/new" : "/login?next=/app/new";
 
   return (
     <div className="relative min-h-dvh bg-background text-foreground">
-      {/* rails */}
       <div aria-hidden className="pointer-events-none absolute inset-0 mx-auto hidden max-w-5xl lg:block">
         <div className="absolute inset-y-0 left-0 w-px bg-border" />
         <div className="absolute inset-y-0 right-0 w-px bg-border" />
@@ -58,14 +71,14 @@ export default async function LandingPage() {
             validate
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
+            <a href="#try" className="hover:text-foreground">
+              Try the question
+            </a>
+            <a href="#why" className="hover:text-foreground">
+              Why a price
+            </a>
             <a href="#how" className="hover:text-foreground">
               How it works
-            </a>
-            <a href="#features" className="hover:text-foreground">
-              What you get
-            </a>
-            <a href="#faq" className="hover:text-foreground">
-              FAQ
             </a>
           </nav>
           <div className="flex items-center gap-2">
@@ -78,8 +91,8 @@ export default async function LandingPage() {
                 <Link href="/login" className="inline-flex h-9 items-center rounded-md border border-border bg-background px-3.5 text-sm font-medium hover:bg-muted">
                   Log in
                 </Link>
-                <Link href="/login" className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-medium text-background hover:bg-foreground/90">
-                  Start free
+                <Link href={start} className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-medium text-background hover:bg-foreground/90">
+                  Price my idea
                 </Link>
               </>
             )}
@@ -87,77 +100,159 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      {/* hero */}
-      <section className="relative pt-20 sm:pt-28">
-        <div className="mx-auto flex max-w-5xl flex-col items-center px-5 text-center sm:px-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-[13px] font-medium shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-            <span className="size-1.5 rounded-full bg-blue-600" /> Early access · free
-          </span>
-          <h1 className="mt-6 max-w-[20ch] text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.03em] text-balance sm:text-[3.25rem] sm:leading-[1.06] lg:text-[3.75rem] lg:leading-[1.05]">
-            Find out what people would pay <span className="text-muted-foreground/70">before you build it.</span>
-          </h1>
-          <p className="mt-6 max-w-[36rem] text-[1.05rem] leading-relaxed text-muted-foreground text-pretty sm:text-[1.1rem]">
-            Describe the idea. Get a landing page that asks visitors what they&apos;d pay. Read the answer as numbers and reasons — not signups.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
-            <a href="#how" className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-medium hover:bg-muted">
-              <span className="size-2.5 rounded-[2px] bg-muted-foreground/50" /> How it works
-            </a>
-            <Link href={user ? "/app/new" : "/login?next=/app/new"} className="inline-flex h-10 items-center gap-2 rounded-md bg-foreground px-4 text-sm font-medium text-background hover:bg-foreground/90">
-              Describe your idea <ArrowRight className="size-4" />
-            </Link>
+      {/* ---------- hero: the answer ---------- */}
+      <section className="relative pt-16 sm:pt-24">
+        <div className="mx-auto grid max-w-5xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1fr_1.05fr]">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-[13px] font-medium shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+              <span className="size-1.5 rounded-full bg-blue-600" /> For founders with an idea and no proof
+            </span>
+            <h1 className="mt-6 max-w-[14ch] text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.03em] text-balance sm:text-[3.25rem] sm:leading-[1.06] lg:text-[3.6rem] lg:leading-[1.05]">
+              Get a price, <span className="text-muted-foreground/70">not a waitlist.</span>
+            </h1>
+            <p className="mt-6 max-w-[32rem] text-[1.05rem] leading-relaxed text-muted-foreground text-pretty sm:text-[1.1rem]">
+              Describe your idea in a sentence. validate writes a page that asks visitors what they&apos;d pay — or whether they&apos;d pay at all — and turns the
+              answers into a number you can plan around.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-2.5">
+              <Link href={start} className="inline-flex h-10 items-center gap-2 rounded-md bg-foreground px-4 text-sm font-medium text-background hover:bg-foreground/90">
+                Price my idea <ArrowRight className="size-4" />
+              </Link>
+              <a href="#try" className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-medium hover:bg-muted">
+                <span className="size-2.5 rounded-[2px] bg-muted-foreground/50" /> Try the question
+              </a>
+            </div>
+            <p className="mt-4 text-[13px] text-muted-foreground">Free in early access · Your first page takes about a minute</p>
           </div>
-          <p className="mt-4 text-[13px] text-muted-foreground">A page in about a minute · No card</p>
+          <AnswerCard ex={EXAMPLE} />
         </div>
 
-        <div aria-hidden className="mt-12 h-14 w-full border-y border-border [background-image:repeating-linear-gradient(90deg,rgba(0,0,0,0.06)_0_1px,transparent_1px_6px)]" />
+        <div aria-hidden className="mt-16 h-14 w-full border-y border-border [background-image:repeating-linear-gradient(90deg,rgba(0,0,0,0.06)_0_1px,transparent_1px_6px)]" />
+      </section>
 
-        <div className="mx-auto max-w-5xl">
-          <div className="border-b border-border bg-muted/50 p-2 sm:p-3">
-            <div className="overflow-hidden rounded-lg border border-border bg-background shadow-[0_24px_60px_-36px_rgba(0,0,0,0.25)]">
-              <ScaledPreview width={1280}>
-                <div className="max-h-[720px] overflow-hidden">
-                  <PageRenderer doc={demo} mode="preview" noReveal />
-                </div>
-              </ScaledPreview>
-            </div>
-            <p className="px-2 pt-2 text-center text-xs text-muted-foreground">A page validate wrote from one sentence. Every word is editable.</p>
+      {/* ---------- try the question ---------- */}
+      <section id="try" className="border-b border-border py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm text-muted-foreground">Try the question</p>
+            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">Your visitors are asked exactly one thing.</h2>
+            <p className="mt-4 text-[1.05rem] leading-relaxed text-muted-foreground">
+              This is the whole ask, lifted from a real page. Click a price or say no — nothing here is recorded. Thirty seconds, no form, no signup.
+            </p>
+          </div>
+          <div className="mt-10">
+            <TryTheQuestion doc={demo} />
           </div>
         </div>
       </section>
 
-      {/* how */}
+      {/* ---------- why a price ---------- */}
+      <section id="why" className="border-b border-border py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+          <div className="max-w-2xl">
+            <p className="text-sm text-muted-foreground">Why a price</p>
+            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">A waitlist tells you people are curious. A price tells you if they&apos;re serious.</h2>
+          </div>
+          <div className="mt-12 overflow-hidden rounded-xl border border-border">
+            <div className="grid grid-cols-[1fr_1.2fr_1.2fr] border-b border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+              <div className="px-4 py-3" />
+              <div className="px-4 py-3">A waitlist signup</div>
+              <div className="px-4 py-3 text-foreground">A stated price</div>
+            </div>
+            {CONTRAST.map((row) => (
+              <div key={row.label} className="grid grid-cols-[1fr_1.2fr_1.2fr] border-b border-border text-sm last:border-b-0">
+                <div className="px-4 py-4 font-medium">{row.label}</div>
+                <div className="px-4 py-4 text-muted-foreground">{row.waitlist}</div>
+                <div className="px-4 py-4">{row.price}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- how: one sentence in, a number out ---------- */}
       <section id="how" className="border-b border-border py-20 sm:py-24">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm text-muted-foreground">How it works</p>
-            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">From idea to answer in four steps</h2>
+            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">One sentence in. A number out.</h2>
           </div>
-          <ol className="mt-14 grid gap-10 border-t border-border pt-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            {STEPS.map((s, i) => (
-              <li key={i} className="lg:border-l lg:border-border lg:pl-6 lg:first:border-l-0 lg:first:pl-0">
-                <span className="inline-flex size-7 items-center justify-center rounded-full border border-border bg-background text-xs font-medium tabular-nums">{i + 1}</span>
-                <h3 className="mt-5 text-xl font-semibold tracking-tight">{s.t}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{s.d}</p>
-              </li>
-            ))}
-          </ol>
+
+          <div className="mt-14 grid gap-6 lg:grid-cols-3">
+            {/* 1 */}
+            <div className="flex flex-col">
+              <div className="flex-1 rounded-xl border border-border bg-card p-5">
+                <p className="text-[11px] font-medium text-muted-foreground">What you type</p>
+                <p className="mt-3 text-[15px] leading-relaxed">
+                  “Bookkeeping that closes itself for solo consultants — reads the bank feed and invoices, categorises every line, sends a finished P&amp;L on the
+                  1st.”
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-md border border-border bg-background p-2.5">
+                    <p className="text-muted-foreground">Audience</p>
+                    <p className="mt-0.5 font-medium">Solo consultants who bill hourly</p>
+                  </div>
+                  <div className="rounded-md border border-border bg-background p-2.5">
+                    <p className="text-muted-foreground">Price points</p>
+                    <p className="mt-0.5 font-medium">$19 · $39 · $79 /mo</p>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">1 · Describe it.</span> You get a one-screen brief back — audience, problem, promise, price points — and
+                correct it before a word of copy is written.
+              </p>
+            </div>
+            {/* 2 */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <PageThumb doc={demo} maxHeight={300} />
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">2 · Get the page.</span> Written for your audience, on one considered design, light or dark. Every section
+                is a form; the AI will rewrite any one of them on request.
+              </p>
+            </div>
+            {/* 3 */}
+            <div className="flex flex-col">
+              <div className="flex-1 rounded-xl border border-border bg-card p-5">
+                <p className="text-[11px] font-medium text-muted-foreground">What you get back</p>
+                <p className="mt-3 text-4xl font-semibold tracking-[-0.03em] tabular-nums">
+                  $39<span className="text-base font-normal text-muted-foreground">/mo</span>
+                </p>
+                <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                  {[
+                    ["Answers", "41"],
+                    ["Would pay", "68%"],
+                    ["Median", "$39"],
+                  ].map(([k, v]) => (
+                    <div key={k} className="rounded-md border border-border bg-background p-2.5">
+                      <dt className="text-muted-foreground">{k}</dt>
+                      <dd className="mt-0.5 text-base font-semibold tabular-nums">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-4 text-xs text-muted-foreground">+ every reason, in the visitor&apos;s words, exportable.</p>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">3 · Share the link.</span> Answers land on your dashboard as they come in: distribution by tier, median stated
+                price, the revenue-maximising tier, and the reasons behind every no.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* features */}
-      <section id="features" className="border-b border-border py-20 sm:py-24">
+      {/* ---------- what this isn't ---------- */}
+      <section className="border-b border-border py-20 sm:py-24">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm text-muted-foreground">What you get</p>
-            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">Built to get you a number you can defend</h2>
+          <div className="max-w-2xl">
+            <p className="text-sm text-muted-foreground">Straight answers</p>
+            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">What this isn&apos;t.</h2>
           </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(([t, d]) => (
-              <div key={t} className="rounded-[10px] border border-border bg-card p-6">
-                <div className="mb-5 inline-flex size-9 items-center justify-center rounded-md border border-border bg-muted">
-                  <Check className="size-4" strokeWidth={1.75} />
-                </div>
+          <div className="mt-10 grid gap-8 border-t border-border pt-10 sm:grid-cols-3">
+            {NOT.map(([t, d]) => (
+              <div key={t}>
                 <h3 className="text-lg font-semibold tracking-tight">{t}</h3>
                 <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{d}</p>
               </div>
@@ -166,37 +261,16 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* faq */}
-      <section id="faq" className="border-b border-border py-20 sm:py-24">
-        <div className="mx-auto max-w-2xl px-5 sm:px-8">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">FAQ</p>
-            <h2 className="mt-2 text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem]">Questions</h2>
-          </div>
-          <div className="mt-10 divide-y divide-border rounded-xl border border-border bg-card">
-            {FAQ.map(([q, a], i) => (
-              <details key={q} className="group px-6" open={i === 0}>
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 font-medium [&::-webkit-details-marker]:hidden">
-                  {q}
-                  <span className="text-muted-foreground transition-transform group-open:rotate-45">+</span>
-                </summary>
-                <p className="pb-5 text-[15px] leading-relaxed text-muted-foreground">{a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* cta */}
+      {/* ---------- cta ---------- */}
       <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
           <div className="relative overflow-hidden rounded-xl bg-foreground px-8 py-14 text-center text-background sm:px-14">
             <div aria-hidden className="absolute -right-16 -top-16 size-72 rounded-full bg-blue-500/40 blur-3xl" />
-            <h2 className="relative text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Stop guessing. Ask.</h2>
-            <p className="relative mx-auto mt-3 max-w-xl text-base opacity-80">Your first page takes about a minute.</p>
+            <h2 className="relative text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Put a price on it.</h2>
+            <p className="relative mx-auto mt-3 max-w-xl text-base opacity-80">A week of answers beats a year of wondering. Your first page takes about a minute.</p>
             <div className="relative mt-8">
-              <Link href={user ? "/app/new" : "/login?next=/app/new"} className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-sm font-medium text-foreground hover:bg-background/90">
-                Describe your idea <ArrowRight className="size-4" />
+              <Link href={start} className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-sm font-medium text-foreground hover:bg-background/90">
+                Price my idea <ArrowRight className="size-4" />
               </Link>
             </div>
           </div>
@@ -210,8 +284,8 @@ export default async function LandingPage() {
             <Link href="/login" className="hover:text-foreground">
               Log in
             </Link>
-            <a href="#how" className="hover:text-foreground">
-              How it works
+            <a href="#try" className="hover:text-foreground">
+              Try the question
             </a>
           </p>
         </div>
