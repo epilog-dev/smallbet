@@ -10,7 +10,7 @@ import type { Section } from "./sections";
  *  - exactly one pricing-intent section (extras removed, missing one inserted before FAQ/CTA)
  *  - headlineHighlight is a literal substring of headline
  *  - unique tier ids; highlightedTierId points at a real tier
- *  - 4..8 sections (pads with FAQ / trims trailing non-essential sections)
+ *  - 4..9 sections (pads with FAQ / trims trailing non-essential sections)
  * Returns a fresh, schema-valid document. Throws only if the input is unrecoverable.
  */
 export function repairDocument(input: unknown): PageDocument {
@@ -80,7 +80,7 @@ export function repairDocument(input: unknown): PageDocument {
 
   // Size bounds.
   while (sections.length < 4) sections.push(defaultSection(sections.some((s) => s.type === "faq") ? "cta-band" : "faq"));
-  while (sections.length > 8) {
+  while (sections.length > 9) {
     const idx = [...sections].reverse().findIndex((s) => s.type !== "hero" && s.type !== "pricing-intent");
     if (idx === -1) break;
     sections.splice(sections.length - 1 - idx, 1);

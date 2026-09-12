@@ -14,7 +14,7 @@ export function FaqAccordion({ section }: SectionProps<"faq">) {
             <details key={i} data-reveal style={{ transitionDelay: `${i * 40}ms` }} className="group px-6" open={i === 0}>
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 font-semibold text-vp-fg [&::-webkit-details-marker]:hidden">
                 {it.question}
-                <ChevronDown className="size-4 shrink-0 text-vp-muted transition-transform group-open:rotate-180" aria-hidden />
+                <ChevronDown className="size-4 shrink-0 text-vp-muted transition-transform group-open:rotate-180 group-open:text-vp-accent-ink" aria-hidden />
               </summary>
               <p className="pb-5 text-[15px] leading-relaxed text-vp-muted">{it.answer}</p>
             </details>

@@ -74,8 +74,8 @@ export function Editor({ project, publicUrl }: EditorProps) {
 
   const add = (type: SectionType) =>
     setDoc((d) => {
-      if (d.sections.length >= 8) {
-        toast("A page can have at most eight sections.");
+      if (d.sections.length >= 9) {
+        toast("A page can have at most nine sections.");
         return d;
       }
       const section = defaultSection(type);

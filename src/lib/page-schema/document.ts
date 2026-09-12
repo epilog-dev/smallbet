@@ -14,6 +14,11 @@ export const PageMetaSchema = z.object({
 export const PageNavSchema = z.object({
   logoText: z.string().min(1).max(30),
   ctaLabel: z.string().min(1).max(24).describe("Top-right button; scrolls to pricing."),
+  banner: z
+    .string()
+    .max(90)
+    .optional()
+    .describe("Optional one-line announcement bar above the nav in the accent colour, e.g. 'Pre-launch · your answer decides whether this gets built'."),
 });
 
 export const PageGoalSchema = z.object({
@@ -30,7 +35,7 @@ export const PageDocumentSchema = z.object({
   sections: z
     .array(SectionSchema)
     .min(4)
-    .max(8)
+    .max(9)
     .describe("Ordered top to bottom. Must start with a hero and contain exactly one pricing-intent section."),
 });
 

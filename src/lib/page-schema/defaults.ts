@@ -120,6 +120,21 @@ export function defaultSection<T extends SectionType>(type: T, variant?: string)
             ],
           },
         };
+      case "stats":
+        return {
+          id,
+          type: "stats",
+          variant: (variant as "row") ?? "row",
+          hidden: false,
+          props: {
+            title: "The cost of doing this by hand",
+            items: [
+              { value: "6 h", label: "lost per month", note: "founder's own experience" },
+              { value: "3×", label: "the same number checked", note: "" },
+              { value: "$0", label: "charged until it exists" },
+            ],
+          },
+        };
       case "cta-band":
         return {
           id,

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { HUE_ANGLE } from "@/components/page/theme/tokens";
-import { ACCENT_HUES, COLOR_MODES, PageGoalSchema, PageMetaSchema, PageNavSchema, SECTION_LABELS, SECTION_SCHEMAS, SECTION_VARIANTS, type PageDocument, type Section } from "@/lib/page-schema";
+import { ACCENT_HUES, BUTTON_STYLES, COLOR_MODES, PageGoalSchema, PageMetaSchema, PageNavSchema, SECTION_LABELS, SECTION_SCHEMAS, SECTION_VARIANTS, type PageDocument, type Section } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import { SchemaForm } from "./SchemaForm";
 import { humanize } from "./schema-form-utils";
@@ -134,7 +134,25 @@ export function ThemePanel({ theme, onChange }: { theme: PageDocument["theme"]; 
             />
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Used for dots, chart lines, chips and the highlighted price tier.</p>
+        <p className="text-xs text-muted-foreground">Buttons, highlighted words, labels, icon tiles and chart lines.</p>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium">Buttons</Label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {BUTTON_STYLES.map((b) => (
+            <button
+              key={b}
+              type="button"
+              onClick={() => onChange({ ...theme, button: b })}
+              className={cn(
+                "rounded-md border px-2 py-1.5 text-xs transition-colors",
+                (theme.button ?? "accent") === b ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted",
+              )}
+            >
+              {b === "accent" ? "Accent colour" : "Black / white"}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -18,6 +18,15 @@ export function Nav({ ctx }: { ctx: PageContextValue }) {
   }).filter(Boolean) as Array<{ href: string; label: string }>;
 
   return (
+    <>
+      {nav.banner && (
+        <div className="bg-vp-accent text-vp-accent-fg">
+          <Container className="flex h-9 items-center justify-center gap-2 text-center text-[13px] font-medium">
+            <span aria-hidden className="size-1.5 rounded-full bg-vp-accent-fg/70" />
+            <span className="truncate">{nav.banner}</span>
+          </Container>
+        </div>
+      )}
     <header className="sticky top-0 z-30 border-b border-vp-border bg-vp-bg/80 backdrop-blur-md">
       <Container className="flex h-14 items-center justify-between">
         <a href="#top" className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-vp-fg">
@@ -44,5 +53,6 @@ export function Nav({ ctx }: { ctx: PageContextValue }) {
         </div>
       </Container>
     </header>
+    </>
   );
 }

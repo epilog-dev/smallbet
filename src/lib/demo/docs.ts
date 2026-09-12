@@ -11,7 +11,7 @@ const raw: Record<string, PageDocument> = {
       seoDescription: "Tell us what you'd pay for month-end that finishes without you. Pre-launch, nothing charged.",
     },
     theme: { accent: "amber", mode: "light", rationale: "Warm, trustworthy finance for independent professionals." },
-    nav: { logoText: "Ledgerly", ctaLabel: "See pricing" },
+    nav: { logoText: "Ledgerly", ctaLabel: "See pricing", banner: "Pre-launch · your answer decides whether Ledgerly gets built" },
     goal: { targetResponses: 25, deadlineDays: 30 },
     sections: [
       {
@@ -56,6 +56,21 @@ const raw: Record<string, PageDocument> = {
             { title: "Categorising takes an evening", description: "Two hundred lines a month, each one a small decision you already made once." },
             { title: "Your accountant asks the same questions", description: "Every quarter: what was this transfer, is this personal, where's the receipt." },
             { title: "You don't actually know your margin", description: "Revenue you know. What's left after tools, tax and the odd write-off is a guess." },
+          ],
+        },
+      },
+      {
+        id: "stats",
+        type: "stats",
+        variant: "row",
+        hidden: false,
+        props: {
+          title: "What month-end costs a one-person business",
+          items: [
+            { value: "6 h", label: "a month spent categorising and reconciling", note: "founder's own books, 2024–25" },
+            { value: "3×", label: "the same question answered for the accountant", note: "" },
+            { value: "38%", label: "of sole traders don't know their margin", note: "UK small-business survey, 2024" },
+            { value: "$0", label: "charged until Ledgerly exists" },
           ],
         },
       },

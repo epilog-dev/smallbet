@@ -63,7 +63,7 @@ function Sidebar({ title, nav }: { title: string; nav: string[] }) {
         {nav.slice(0, 6).map((label, i) => {
           const I = icons[i % icons.length];
           return (
-            <li key={i} className={cn("flex items-center gap-2 rounded-vp-sm px-2 py-1", i === 0 ? "bg-vp-surface-2 text-vp-fg" : "text-vp-muted")}>
+            <li key={i} className={cn("flex items-center gap-2 rounded-vp-sm px-2 py-1", i === 0 ? "bg-vp-accent-soft text-vp-accent-ink" : "text-vp-muted")}>
               <I className="size-3" /> <span className="truncate">{label}</span>
             </li>
           );
@@ -322,7 +322,7 @@ export function MockMobile({ v, className }: { v: HeroVisual; className?: string
             <p className="mt-0.5 text-[13px] font-semibold leading-tight text-vp-fg">{headline}</p>
             <div className="mt-2.5 flex gap-1 text-[10px]">
               {tabs.slice(0, 3).map((t, i) => (
-                <span key={i} className={cn("rounded-full px-2 py-0.5", i === 0 ? "bg-vp-fg text-vp-bg" : "bg-vp-surface-2 text-vp-muted")}>
+                <span key={i} className={cn("rounded-full px-2 py-0.5", i === 0 ? "bg-vp-accent text-vp-accent-fg" : "bg-vp-surface-2 text-vp-muted")}>
                   {t}
                 </span>
               ))}

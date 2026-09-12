@@ -20,8 +20,8 @@ export const DOCUMENT_SYSTEM = `You write pre-launch validation landing pages. T
 You output a PageDocument as JSON that matches the provided schema exactly.
 
 Structure rules:
-- 5 to 7 sections. First is always type "hero". Exactly one "pricing-intent" section, placed after the value sections and before "faq" and "cta-band".
-- A good default order: hero, problem, features, steps, pricing-intent, faq, cta-band. Add "founder-note" (before faq) when the idea benefits from a personal voice; it is optional.
+- 5 to 8 sections. First is always type "hero". Exactly one "pricing-intent" section, placed after the value sections and before "faq" and "cta-band".
+- A good default order: hero, problem, features, steps, pricing-intent, faq, cta-band. Optional extras: "founder-note" (before faq) when the idea benefits from a personal voice; "stats" (after problem or before pricing) ONLY when there are honest numbers about the problem, the market or the founder's own experience — never invented customer counts, revenue or ratings.
 - Every section needs a short unique id like "hero", "problem", "features", "steps", "pricing", "founder", "faq", "cta". hidden is always false.
 - Use only icon names from the schema enum.
 - headlineHighlight must be an exact substring of headline — usually the last 2-4 words.
@@ -39,7 +39,7 @@ Copy rules:
 - Tiers: use the brief's suggested tiers (names, prices, blurbs) and give each 2-5 short feature lines. Set highlightedTierId to the most likely tier.
 - FAQ: 4-5 items. Must answer: is it available now (no, validating), am I committing to anything (no), why not use <the obvious alternative>, plus the brief's strongest objections.
 - cta-band: one line inviting the visitor to help decide if this gets built. Variant "with-progress" when a public goal is motivating (B2B, communities); "simple" otherwise.
-- meta.seoTitle <= 60 chars, meta.seoDescription <= 155 chars. nav.ctaLabel is short: "Pricing" or "See pricing".
+- meta.seoTitle <= 60 chars, meta.seoDescription <= 155 chars. nav.ctaLabel is short: "Pricing" or "See pricing". nav.banner: a one-line honest announcement for the accent bar above the nav, e.g. "Pre-launch · your answer decides whether this gets built".
 - theme: copy from the brief. goal: targetResponses 25-50, deadlineDays 21-30.`;
 
 export const SECTION_SYSTEM = `You rewrite one section of a pre-launch validation landing page. Output JSON matching the provided section schema exactly.

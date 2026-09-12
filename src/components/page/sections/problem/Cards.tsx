@@ -16,7 +16,7 @@ export function ProblemCards({ section }: SectionProps<"problem">) {
               style={{ transitionDelay: `${i * 60}ms` }}
               className="vp-card p-6"
             >
-              <p className="vp-num mb-4">{String(i + 1).padStart(2, "0")}</p>
+              <p className="vp-num mb-4 !text-vp-accent-ink">{String(i + 1).padStart(2, "0")}</p>
               <h3 className="vp-display text-lg text-vp-fg">{it.title}</h3>
               <p className="mt-2 text-[15px] leading-relaxed text-vp-muted">{it.description}</p>
             </div>

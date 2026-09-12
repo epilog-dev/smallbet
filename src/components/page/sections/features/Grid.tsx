@@ -17,7 +17,7 @@ export function FeaturesGrid({ section }: SectionProps<"features">) {
               style={{ transitionDelay: `${i * 50}ms` }}
               className="vp-card group p-6"
             >
-              <div className="mb-5 inline-flex size-9 items-center justify-center rounded-vp-md border border-vp-border bg-vp-surface-2 text-vp-fg">
+              <div className="mb-5 inline-flex size-9 items-center justify-center rounded-vp-md bg-vp-accent-soft text-vp-accent-ink">
                 <Icon name={f.icon} className="size-4" strokeWidth={1.75} />
               </div>
               <h3 className="vp-display text-lg text-vp-fg">{f.title}</h3>

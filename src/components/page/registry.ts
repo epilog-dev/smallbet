@@ -17,6 +17,8 @@ import { FaqAccordion } from "./sections/faq/Accordion";
 import { FaqTwoColumn } from "./sections/faq/TwoColumn";
 import { CtaBandSimple } from "./sections/cta-band/Simple";
 import { CtaBandWithProgress } from "./sections/cta-band/WithProgress";
+import { StatsRow } from "./sections/stats/Row";
+import { StatsCards } from "./sections/stats/Cards";
 
 /** type → variant → component. Adding a variant = add it to the schema enum and here. */
 export const SECTION_REGISTRY: SectionRegistry = {
@@ -28,4 +30,5 @@ export const SECTION_REGISTRY: SectionRegistry = {
   "pricing-intent": { tiers: PricingIntentTiers, "single-price": PricingIntentSinglePrice },
   faq: { accordion: FaqAccordion, "two-column": FaqTwoColumn },
   "cta-band": { simple: CtaBandSimple, "with-progress": CtaBandWithProgress },
+  stats: { row: StatsRow, cards: StatsCards },
 };

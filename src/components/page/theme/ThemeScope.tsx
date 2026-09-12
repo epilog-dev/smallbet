@@ -27,7 +27,7 @@ export function ThemeScope({
   /** false in editor/preview so the founder's chosen default is what they see */
   persistMode?: boolean;
 }) {
-  const vars = accentVariables(theme.accent, theme.mode) as CSSProperties;
+  const vars = accentVariables(theme.accent, theme.mode, theme.button ?? "accent") as CSSProperties;
   const boot = persistMode
     ? `try{var m=localStorage.getItem(${JSON.stringify(MODE_STORAGE_KEY)});if(m==='light'||m==='dark'){var e=document.getElementById(${JSON.stringify(id)});if(e)e.setAttribute('data-mode',m);}}catch(e){}`
     : null;
