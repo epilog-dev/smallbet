@@ -58,7 +58,7 @@ export function IdeaForm({ initial, busy, onSubmit }: { initial?: IdeaInput; bus
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4">
         <div className="space-y-2">
           <Label htmlFor="audience">
             Who is it for? <span className="text-muted-foreground">(optional)</span>
