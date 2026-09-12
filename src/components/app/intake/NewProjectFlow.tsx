@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { FramedPreview, type FramedPreviewHandle } from "../FramedPreview";
 import { BriefCard } from "./BriefCard";
 import { IdeaForm } from "./IdeaForm";
+import { progress } from "@/lib/progress";
 
 type Phase = "idea" | "brief" | "building" | "done";
 
@@ -96,6 +97,7 @@ export function NewProjectFlow() {
               document: final,
               usage: { generator: ev.generator, inputTokens: ev.usage.inputTokens, outputTokens: ev.usage.outputTokens, ms: ev.usage.ms },
             });
+            progress.start();
             router.push(isMobile ? `/app/projects/${id}` : `/app/projects/${id}/edit`);
           } catch (e) {
             setSaving(false);

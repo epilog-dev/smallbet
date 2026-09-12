@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/client";
+import { progress } from "@/lib/progress";
 
 export function LoginForm({ next, initialError }: { next: string; initialError?: string }) {
   const router = useRouter();
@@ -37,6 +38,7 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
     run(async () => {
       const { error } = await createClient().auth.signInWithPassword({ email, password });
       if (error) throw error;
+      progress.start();
       router.replace(next);
       router.refresh();
       return null;
@@ -47,6 +49,7 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
       const { data, error } = await createClient().auth.signUp({ email, password, options: { emailRedirectTo: callback() } });
       if (error) throw error;
       if (data.session) {
+        progress.start();
         router.replace(next);
         router.refresh();
         return null;

@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { progress } from "@/lib/progress";
 
 export function UserMenu({ email }: { email: string }) {
   const router = useRouter();
@@ -36,10 +37,10 @@ export function UserMenu({ email }: { email: string }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => router.push("/app")}>
+          <DropdownMenuItem onClick={() => (progress.start(), router.push("/app"))}>
             <LayoutGrid /> Your ideas
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/app/new")}>
+          <DropdownMenuItem onClick={() => (progress.start(), router.push("/app/new"))}>
             <Plus /> New idea
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -48,7 +49,7 @@ export function UserMenu({ email }: { email: string }) {
           variant="destructive"
           disabled={signingOut}
           closeOnClick={false}
-          onClick={() => startSignOut(() => signOutAction())}
+          onClick={() => (progress.start(), startSignOut(() => signOutAction()))}
         >
           {signingOut ? <Loader2 className="animate-spin" /> : <LogOut />} Sign out
         </DropdownMenuItem>
