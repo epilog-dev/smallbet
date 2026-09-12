@@ -20,17 +20,22 @@ export const FramedPreview = forwardRef<
   FramedPreviewHandle,
   {
     width: number;
+    /** Design width to use instead of `width` when the container is narrower than `narrowBelow`px (phones). */
+    narrowWidth?: number;
+    narrowBelow?: number;
     children: ReactNode;
     className?: string;
     maxScale?: number;
     minHeight?: number;
     title?: string;
   }
->(function FramedPreview({ width, children, className, maxScale = 1, minHeight = 480, title = "Page preview" }, ref) {
+>(function FramedPreview({ width: wideWidth, narrowWidth, narrowBelow = 640, children, className, maxScale = 1, minHeight = 480, title = "Page preview" }, ref) {
   const outer = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [mount, setMount] = useState<HTMLElement | null>(null);
   const [scale, setScale] = useState(1);
+  const [narrow, setNarrow] = useState(false);
+  const width = narrow && narrowWidth ? narrowWidth : wideWidth;
   const [contentHeight, setContentHeight] = useState(minHeight);
   const scaleRef = useRef(1);
   scaleRef.current = scale;
@@ -80,16 +85,20 @@ export const FramedPreview = forwardRef<
     return () => cancelAnimationFrame(raf);
   }, [attach, mount]);
 
-  // Fit to container.
+  // Fit to container; on narrow containers switch to the narrow design width so the page renders its phone layout at ~1:1.
   useEffect(() => {
     const o = outer.current;
     if (!o) return;
-    const update = () => setScale(Math.min(maxScale, o.clientWidth / width));
+    const update = () => {
+      const isNarrow = !!narrowWidth && o.clientWidth < narrowBelow;
+      setNarrow(isNarrow);
+      setScale(Math.min(maxScale, o.clientWidth / (isNarrow ? narrowWidth : wideWidth)));
+    };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(o);
     return () => ro.disconnect();
-  }, [width, maxScale]);
+  }, [wideWidth, narrowWidth, narrowBelow, maxScale]);
 
   // Follow the content's height.
   useEffect(() => {

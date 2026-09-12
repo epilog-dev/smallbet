@@ -64,7 +64,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
       <section>
         <h2 className="mb-3 text-sm font-medium">Page</h2>
         <div className="overflow-hidden rounded-lg border border-border bg-background">
-          <FramedPreview width={1280}>
+          <FramedPreview width={1280} narrowWidth={390}>
             <PageRenderer doc={project.document} mode="preview" noReveal />
           </FramedPreview>
         </div>

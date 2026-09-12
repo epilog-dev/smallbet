@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProjectAction } from "@/app/(app)/app/actions";
 import { AlertCircle, Check, Loader2, RotateCcw } from "lucide-react";
@@ -11,7 +11,8 @@ import type { IdeaBrief, IdeaInput } from "@/lib/ai/types";
 import { GenerateClientError, requestBrief, streamDocument } from "@/lib/generate-client";
 import { coercePartialDocument, SECTION_LABELS, type PageDocument } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
-import { FramedPreview } from "../FramedPreview";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { FramedPreview, type FramedPreviewHandle } from "../FramedPreview";
 import { BriefCard } from "./BriefCard";
 import { IdeaForm } from "./IdeaForm";
 
@@ -28,6 +29,19 @@ export function NewProjectFlow() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; retryable: boolean } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const previewRef = useRef<FramedPreviewHandle>(null);
+  const isMobile = useIsMobile();
+
+  // On a phone the page scrolls as a whole, so follow the newest section as it streams in.
+  const sectionCount = doc?.sections.length ?? 0;
+  useEffect(() => {
+    if (!isMobile || phase !== "building" || sectionCount === 0) return;
+    const last = doc?.sections[sectionCount - 1];
+    if (!last) return;
+    const t = setTimeout(() => previewRef.current?.scrollToSelector(`[data-section="${CSS.escape(last.id)}"]`, 96), 120);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionCount, isMobile, phase]);
 
   const fail = (e: unknown) => {
     if (e instanceof DOMException && e.name === "AbortError") return;
@@ -80,7 +94,7 @@ export function NewProjectFlow() {
               document: ev.doc,
               usage: { generator: ev.generator, inputTokens: ev.usage.inputTokens, outputTokens: ev.usage.outputTokens, ms: ev.usage.ms },
             });
-            router.push(`/app/projects/${id}/edit`);
+            router.push(isMobile ? `/app/projects/${id}` : `/app/projects/${id}/edit`);
           } catch (e) {
             setSaving(false);
             fail(e);
@@ -96,10 +110,12 @@ export function NewProjectFlow() {
     } finally {
       setBusy(false);
     }
-  }, [input, brief, router]);
+  }, [input, brief, router, isMobile]);
 
   const expectedSections = ["hero", "problem", "features", "steps", "pricing-intent", "faq", "cta-band"] as const;
   const haveTypes = new Set(doc?.sections.map((s) => s.type) ?? []);
+  const building = phase === "building" || phase === "done";
+  const haveCount = expectedSections.filter((t) => haveTypes.has(t)).length;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -115,8 +131,26 @@ export function NewProjectFlow() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        {/* left: controls */}
-        <aside className="w-full shrink-0 overflow-y-auto border-b border-border p-6 lg:w-[440px] lg:border-b-0 lg:border-r">
+        {/* Phone, while building: a one-line stepper pinned above the preview. */}
+        {building && brief && (
+          <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-2.5 backdrop-blur lg:hidden">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="flex min-w-0 items-center gap-2">
+                {phase === "done" ? <Check className="size-4 shrink-0" strokeWidth={3} /> : <Loader2 className="size-4 shrink-0 animate-spin" />}
+                <span className="truncate">{phase === "done" ? (saving ? "Saving…" : "Your page is ready") : `Writing ${brief.productName}…`}</span>
+              </span>
+              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                {haveCount} of {expectedSections.length}
+              </span>
+            </div>
+            <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-foreground transition-[width] duration-300" style={{ width: `${(haveCount / expectedSections.length) * 100}%` }} />
+            </div>
+          </div>
+        )}
+
+        {/* left: controls (on phones this drops below the preview while building) */}
+        <aside className={cn("w-full shrink-0 border-b border-border p-5 sm:p-6 lg:w-[440px] lg:overflow-y-auto lg:border-b-0 lg:border-r", building && "order-2 lg:order-none")}>
           {error && (
             <div className="mb-5 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
               <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
@@ -151,7 +185,7 @@ export function NewProjectFlow() {
                 <p className="text-xs font-medium text-muted-foreground">Step 3 of 3</p>
                 <h2 className="mt-1 text-lg font-semibold tracking-tight">{phase === "done" ? "Your page is ready" : `Writing ${brief.productName}…`}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {phase === "done" ? "Saving it to your account and opening the editor." : "Sections appear on the right as they're written."}
+                  {phase === "done" ? (isMobile ? "Saving it to your account. You can publish from the next screen." : "Saving it to your account and opening the editor.") : isMobile ? "Sections appear above as they're written." : "Sections appear on the right as they're written."}
                 </p>
               </div>
               <ol className="space-y-1.5">
@@ -179,7 +213,7 @@ export function NewProjectFlow() {
                 <div className="flex flex-col gap-2">
                   <Button size="lg" disabled={saving}>
                     {saving ? <Loader2 className="animate-spin" /> : null}
-                    {saving ? "Saving…" : "Opening editor…"}
+                    {saving ? "Saving…" : isMobile ? "Opening…" : "Opening editor…"}
                   </Button>
                   {!saving && (
                     <Button variant="outline" onClick={build}>
@@ -204,11 +238,11 @@ export function NewProjectFlow() {
           )}
         </aside>
 
-        {/* right: preview */}
-        <main className="relative flex-1 overflow-y-auto bg-muted/40 p-4 sm:p-6">
+        {/* right: preview (first on phones; hidden there until something exists to show) */}
+        <main className={cn("relative flex-1 bg-muted/40 p-3 sm:p-6 lg:overflow-y-auto", !doc && "hidden lg:block", building && "order-1 lg:order-none")}>
           {doc ? (
             <div className="mx-auto max-w-[1100px] overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-              <FramedPreview width={1280}>
+              <FramedPreview ref={previewRef} width={1280} narrowWidth={390}>
                 <PageRenderer doc={doc} mode="preview" noReveal />
               </FramedPreview>
             </div>
