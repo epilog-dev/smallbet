@@ -11,7 +11,7 @@ import type { PageContextValue } from "../../types";
 type Step = { name: "choose" } | { name: "confirm"; kind: ResponseKind; tier?: PriceTier } | { name: "followup"; responseId: string; kind: ResponseKind } | { name: "done" };
 
 export function formatPrice(amount: number, currency: string) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
+  return new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol", maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
 }
 
 export const intervalLabel = (interval: PricingIntentProps["interval"]) =>

@@ -10,7 +10,7 @@ Read the idea and produce a brief that a copywriter could build a landing page f
 Rules:
 - Be specific and concrete. Name the audience precisely. State the problem as it is felt, not as a category.
 - No hype words: never use unlock, supercharge, seamless, revolutionary, game-changing, effortless, 10x.
-- Prices: realistic for the audience and market. Respect the founder's price hint if given. Prefer 2 tiers unless the idea is clearly single-price.
+- Prices: realistic for the audience and market. Respect the founder's price hint if given. currency: the founder's stated currency if given, else the one implied by the price hint, else USD. Prefer 2 tiers unless the idea is clearly single-price.
 - Objections must be the real reasons a sceptic would not pay (existing tools, trust, timing, price), not softballs.
 - theme.mode: dark for developer, infrastructure, security, AI and crypto tools; light otherwise. theme.accent: blue by default; pick another hue only if the idea has an obvious colour association.
 - heroVariant: centered for most products; split when a product screen is the point; minimal for services and consulting.`;
@@ -52,6 +52,7 @@ export function briefUserMessage(input: IdeaInput): string {
     `Idea: ${input.idea.trim()}`,
     input.audience ? `Audience (founder's words): ${input.audience.trim()}` : null,
     input.priceHint ? `Price hint: ${input.priceHint.trim()}` : null,
+    input.currency ? `Currency: ${input.currency} (use this for currency and all prices)` : null,
     input.tone ? `Preferred tone: ${input.tone}` : null,
   ]
     .filter(Boolean)

@@ -8,6 +8,7 @@ export const IdeaInputSchema = z.object({
   idea: z.string().min(12).max(1200),
   audience: z.string().max(200).optional(),
   priceHint: z.string().max(120).optional().describe("e.g. '$20/mo', 'one-time $99', 'free tier + $10'"),
+  currency: z.enum(CURRENCIES).optional().describe("Currency the page should price in. Omitted: inferred from the price hint, else USD."),
   tone: z.enum(TONES).optional(),
 });
 export type IdeaInput = z.infer<typeof IdeaInputSchema>;

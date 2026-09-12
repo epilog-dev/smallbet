@@ -91,5 +91,5 @@ export function computePricingStats(doc: PageDocument, responses: ResponseLike[]
 }
 
 export function formatMoney(amount: number, currency: string) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
+  return new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol", maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
 }

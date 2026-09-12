@@ -102,7 +102,7 @@ export function mockBrief(input: IdeaInput): IdeaBrief {
     promise: `Turns ${stem} into a job that finishes itself, with a clear result you can trust.`,
     differentiators: [`Built only for ${stem}, not a general tool`, "Works from what you already have; no migration", "Tells you when it needs a decision, silent otherwise"],
     objections: ["We already have a spreadsheet for this", "I don't trust something new with this", "The price is hard to justify for one person"],
-    currency: "USD",
+    currency: input.currency ?? "USD",
     interval: oneTime ? "one-time" : "month",
     suggestedTiers: tiers,
     tone: input.tone ?? "plain",

@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { IdeaBrief } from "@/lib/ai/types";
-import { ACCENT_HUES, COLOR_MODES } from "@/lib/page-schema";
+import { ACCENT_HUES, COLOR_MODES, CURRENCIES, CURRENCY_LABELS, currencySymbol } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
+
+const CURRENCY_ITEMS = Object.fromEntries(CURRENCIES.map((c) => [c, `${c} · ${CURRENCY_LABELS[c]}`])) as Record<(typeof CURRENCIES)[number], string>;
 
 /** The founder confirms or adjusts the AI's read before the page is built. */
 export function BriefCard({
@@ -83,7 +85,7 @@ export function BriefCard({
               />
               <div className="relative">
                 <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                  {brief.currency === "USD" ? "$" : brief.currency === "EUR" ? "€" : "£"}
+                  {currencySymbol(brief.currency)}
                 </span>
                 <Input
                   type="number"
@@ -95,9 +97,23 @@ export function BriefCard({
               </div>
             </div>
           ))}
-          <p className="text-xs text-muted-foreground">
-            Billed {brief.interval === "one-time" ? "once" : `per ${brief.interval}`}. Visitors pick one of these or say they wouldn&apos;t pay.
-          </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1">
+            <Select value={brief.currency} onValueChange={(v) => set("currency", v as IdeaBrief["currency"])} items={CURRENCY_ITEMS}>
+              <SelectTrigger className="h-8 w-44 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {CURRENCY_ITEMS[c]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Billed {brief.interval === "one-time" ? "once" : `per ${brief.interval}`}. Visitors pick one of these or say they wouldn&apos;t pay.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -138,7 +154,7 @@ export function BriefCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 pt-2">
+      <div className="sticky bottom-0 -mx-5 flex items-center gap-2 border-t border-border bg-background/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:m-0 lg:border-0 lg:bg-transparent lg:p-0 lg:pt-2 lg:backdrop-blur-none">
         <Button type="button" variant="outline" onClick={onBack} disabled={busy}>
           <ArrowLeft /> Back
         </Button>

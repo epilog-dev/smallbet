@@ -3,7 +3,31 @@ import { baseSection, short } from "./shared";
 
 export const PRICING_INTENT_VARIANTS = ["tiers", "single-price"] as const;
 
-export const CURRENCIES = ["USD", "EUR", "GBP"] as const;
+export const CURRENCIES = ["USD", "EUR", "GBP", "INR", "CAD", "AUD", "SGD", "JPY", "CHF", "BRL", "MXN", "NGN"] as const;
+export type Currency = (typeof CURRENCIES)[number];
+
+export const CURRENCY_LABELS: Record<Currency, string> = {
+  USD: "US dollar",
+  EUR: "Euro",
+  GBP: "British pound",
+  INR: "Indian rupee",
+  CAD: "Canadian dollar",
+  AUD: "Australian dollar",
+  SGD: "Singapore dollar",
+  JPY: "Japanese yen",
+  CHF: "Swiss franc",
+  BRL: "Brazilian real",
+  MXN: "Mexican peso",
+  NGN: "Nigerian naira",
+};
+
+/** "$", "€", "₹"… — the symbol Intl uses for this currency in en-US. */
+export function currencySymbol(currency: string): string {
+  const part = new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol" })
+    .formatToParts(0)
+    .find((x) => x.type === "currency");
+  return part?.value ?? currency;
+}
 export const INTERVALS = ["month", "year", "one-time"] as const;
 
 export const PriceTierSchema = z.object({
