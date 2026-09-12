@@ -104,7 +104,11 @@ export function BriefCard({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Default mode</Label>
-          <Select value={brief.theme.mode} onValueChange={(v) => set("theme", { ...brief.theme, mode: v as IdeaBrief["theme"]["mode"] })}>
+          <Select
+            value={brief.theme.mode}
+            onValueChange={(v) => set("theme", { ...brief.theme, mode: v as IdeaBrief["theme"]["mode"] })}
+            items={{ light: "Light", dark: "Dark" }}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>

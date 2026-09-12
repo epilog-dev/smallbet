@@ -7,7 +7,6 @@ import { createProjectAction } from "@/app/(app)/app/actions";
 import { AlertCircle, Check, Loader2, RotateCcw } from "lucide-react";
 import { PageRenderer } from "@/components/page/PageRenderer";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "../ThemeToggle";
 import type { IdeaBrief, IdeaInput } from "@/lib/ai/types";
 import { GenerateClientError, requestBrief, streamDocument } from "@/lib/generate-client";
 import { coercePartialDocument, SECTION_LABELS, type PageDocument } from "@/lib/page-schema";
@@ -104,19 +103,16 @@ export function NewProjectFlow() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
-        <Link href="/app" className="text-sm font-semibold tracking-tight">
-          validate
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4 text-xs text-muted-foreground">
+        <Link href="/app" className="hover:text-foreground">
+          ← Your ideas
         </Link>
-        <div className="flex items-center gap-3">
-          <p className="text-xs text-muted-foreground">
-            {phase === "idea" && "Step 1 of 3 · Describe"}
-            {phase === "brief" && "Step 2 of 3 · Confirm"}
-            {(phase === "building" || phase === "done") && "Step 3 of 3 · Build"}
-          </p>
-          <ThemeToggle />
-        </div>
-      </header>
+        <p>
+          {phase === "idea" && "Step 1 of 3 · Describe"}
+          {phase === "brief" && "Step 2 of 3 · Confirm"}
+          {(phase === "building" || phase === "done") && "Step 3 of 3 · Build"}
+        </p>
+      </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         {/* left: controls */}

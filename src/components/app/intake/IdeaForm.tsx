@@ -75,7 +75,11 @@ export function IdeaForm({ initial, busy, onSubmit }: { initial?: IdeaInput; bus
 
       <div className="space-y-2">
         <Label>Tone</Label>
-        <Select value={tone ?? "auto"} onValueChange={(v) => setTone(v === "auto" ? undefined : (v as IdeaInput["tone"]))}>
+        <Select
+          value={tone ?? "auto"}
+          onValueChange={(v) => setTone(v === "auto" ? undefined : (v as IdeaInput["tone"]))}
+          items={{ auto: "Let the AI decide", ...Object.fromEntries(TONES.map((t) => [t, t[0].toUpperCase() + t.slice(1)])) }}
+        >
           <SelectTrigger className="w-full sm:w-56">
             <SelectValue />
           </SelectTrigger>
