@@ -1,6 +1,6 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { Download, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatMoney } from "@/lib/analytics/pricing-stats";
@@ -11,7 +11,7 @@ const tierName = (r: ResponseRow, names: Record<string, string>) => (r.tier_id ?
 // Fixed locale + zone so server and client render the same text (no hydration mismatch).
 const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
 
-export function ResponsesTable({ rows, tierNames, projectName }: { rows: ResponseRow[]; tierNames: Record<string, string>; projectName: string }) {
+export function ResponsesTable({ rows, tierNames, projectName, unlocked }: { rows: ResponseRow[]; tierNames: Record<string, string>; projectName: string; unlocked: boolean }) {
   const exportCsv = () => {
     const head = ["created_at", "answer", "tier", "amount", "currency", "interval", "email", "reason", "referrer"];
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
@@ -40,9 +40,16 @@ export function ResponsesTable({ rows, tierNames, projectName }: { rows: Respons
         <p className="text-sm text-muted-foreground">
           {rows.length} {rows.length === 1 ? "answer" : "answers"}
         </p>
-        <Button variant="outline" size="sm" onClick={exportCsv}>
-          <Download /> Export CSV
-        </Button>
+        <div className="flex items-center gap-3">
+          {!unlocked && (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Lock className="size-3" /> Emails and reasons unlock with the result
+            </span>
+          )}
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={!unlocked}>
+            <Download /> Export CSV
+          </Button>
+        </div>
       </div>
       <div className="overflow-x-auto rounded-lg border border-border">
         <Table>
@@ -68,8 +75,8 @@ export function ResponsesTable({ rows, tierNames, projectName }: { rows: Respons
                 </TableCell>
                 <TableCell>{tierName(r, tierNames)}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.amount_cents != null ? formatMoney(r.amount_cents / 100, r.currency ?? "USD") : "—"}</TableCell>
-                <TableCell className="text-muted-foreground">{r.email ?? "—"}</TableCell>
-                <TableCell className="max-w-[24rem] whitespace-normal text-muted-foreground">{r.reason ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">{unlocked ? (r.email ?? "—") : r.email ? <Masked /> : "—"}</TableCell>
+                <TableCell className="max-w-[24rem] whitespace-normal text-muted-foreground">{unlocked ? (r.reason ?? "—") : r.reason ? <Masked wide /> : "—"}</TableCell>
                 <TableCell className="max-w-[10rem] truncate text-muted-foreground" title={r.referrer ?? ""}>
                   {r.referrer ? r.referrer.replace(/^https?:\/\//, "").split("/")[0] : "direct"}
                 </TableCell>
@@ -79,5 +86,15 @@ export function ResponsesTable({ rows, tierNames, projectName }: { rows: Respons
         </Table>
       </div>
     </div>
+  );
+}
+
+/** Locked cell: the server has already stripped the value; this just shows that one exists. */
+function Masked({ wide }: { wide?: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-muted-foreground/70" aria-label="Locked">
+      <Lock className="size-3" />
+      <span className="tracking-[0.2em]">{wide ? "••••••••••••" : "••••••"}</span>
+    </span>
   );
 }

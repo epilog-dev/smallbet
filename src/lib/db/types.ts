@@ -178,6 +178,7 @@ export type Database = {
           published_at: string | null
           slug: string
           status: string
+          unlocked_at: string | null
           updated_at: string
           version: number
         }
@@ -192,6 +193,7 @@ export type Database = {
           published_at?: string | null
           slug: string
           status?: string
+          unlocked_at?: string | null
           updated_at?: string
           version?: number
         }
@@ -206,8 +208,42 @@ export type Database = {
           published_at?: string | null
           slug?: string
           status?: string
+          unlocked_at?: string | null
           updated_at?: string
           version?: number
+        }
+        Relationships: []
+      }
+      unlocks: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          owner_id: string
+          project_id: string
+          provider: string
+          provider_ref: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          owner_id: string
+          project_id: string
+          provider: string
+          provider_ref?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          owner_id?: string
+          project_id?: string
+          provider?: string
+          provider_ref?: string | null
         }
         Relationships: []
       }

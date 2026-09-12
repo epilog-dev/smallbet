@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dashboard } from "@/components/app/dashboard/Dashboard";
 import { computePricingStats } from "@/lib/analytics/pricing-stats";
+import { unlockState } from "@/lib/billing/unlock";
 import { getProject } from "@/lib/db/projects";
 import { countViews, listResponses } from "@/lib/db/responses";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +30,9 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
   const published = project.status === "published";
   const [rows, views] = await Promise.all([listResponses(db, project.id), countViews(db, project.id)]);
   const stats = computePricingStats(project.document, rows, views, project.published_at);
+  const unlock = unlockState(stats, project.unlocked_at);
+  // Locked pages never ship emails or reasons to the browser — only whether one exists.
+  const safeRows = unlock.kind === "unlocked" ? rows : rows.map((r) => ({ ...r, email: r.email ? "locked" : null, reason: r.reason ? "locked" : null }));
   const pricing = project.document.sections.find((s) => s.type === "pricing-intent");
   const tierNames = Object.fromEntries(pricing?.type === "pricing-intent" ? pricing.props.tiers.map((t) => [t.id, t.name]) : []);
 
@@ -60,7 +64,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projects/[
         </div>
       </div>
 
-      <Dashboard stats={stats} rows={rows} tierNames={tierNames} projectName={project.name} published={project.status === "published"} />
+      <Dashboard stats={stats} rows={safeRows} tierNames={tierNames} projectName={project.name} published={published} projectId={project.id} unlock={unlock} />
 
       <section>
         <div className="mb-3 flex items-center justify-between gap-3">
