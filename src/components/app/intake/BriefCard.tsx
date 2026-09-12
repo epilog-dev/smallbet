@@ -1,13 +1,14 @@
 "use client";
 
 import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
+import { AccentPicker } from "@/components/app/AccentPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { IdeaBrief } from "@/lib/ai/types";
-import { ACCENT_HUES, COLOR_MODES, CURRENCIES, CURRENCY_LABELS, currencySymbol } from "@/lib/page-schema";
+import { COLOR_MODES, CURRENCIES, CURRENCY_LABELS, currencySymbol } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 
 const CURRENCY_ITEMS = Object.fromEntries(CURRENCIES.map((c) => [c, `${c} · ${CURRENCY_LABELS[c]}`])) as Record<(typeof CURRENCIES)[number], string>;
@@ -139,17 +140,8 @@ export function BriefCard({
         </div>
         <div className="space-y-2">
           <Label>Accent</Label>
-          <div className="flex flex-wrap gap-1.5 pt-1.5">
-            {ACCENT_HUES.map((h) => (
-              <button
-                key={h}
-                type="button"
-                title={h}
-                onClick={() => set("theme", { ...brief.theme, accent: h })}
-                className={cn("size-6 rounded-full border-2 transition-transform hover:scale-110", brief.theme.accent === h ? "border-foreground" : "border-transparent")}
-                style={{ background: `oklch(0.6 0.18 ${{ blue: 259, indigo: 277, violet: 293, teal: 183, emerald: 163, amber: 75, orange: 55, rose: 16 }[h]})` }}
-              />
-            ))}
+          <div className="pt-1.5">
+            <AccentPicker size="sm" value={{ accent: brief.theme.accent, accentHex: brief.theme.accentHex }} onChange={(v) => set("theme", { ...brief.theme, ...v })} />
           </div>
         </div>
       </div>

@@ -27,6 +27,7 @@ export type ButtonStyle = z.infer<typeof ButtonStyleSchema>;
 
 export const ThemeSchema = z.object({
   accent: AccentHueSchema.describe("Brand accent hue: buttons, highlighted words, labels, icon tiles, chart lines. blue is the safe default."),
+  accentHex: z.string().max(7).optional().describe("Founder-chosen brand colour as #rrggbb; its hue replaces `accent`. Leave unset."),
   mode: ColorModeSchema.describe("Default colour mode the page opens in. Visitors can toggle."),
   button: ButtonStyleSchema.optional().describe("accent (default): primary buttons use the accent colour. ink: black/white buttons for a quieter look."),
   rationale: z.string().max(200).optional().describe("One sentence on why this accent/mode suits the idea."),

@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { HUE_ANGLE } from "@/components/page/theme/tokens";
-import { ACCENT_HUES, BUTTON_STYLES, COLOR_MODES, PageGoalSchema, PageMetaSchema, PageNavSchema, SECTION_LABELS, SECTION_SCHEMAS, SECTION_VARIANTS, type PageDocument, type Section } from "@/lib/page-schema";
+import { AccentPicker } from "@/components/app/AccentPicker";
+import { BUTTON_STYLES, COLOR_MODES, PageGoalSchema, PageMetaSchema, PageNavSchema, SECTION_LABELS, SECTION_SCHEMAS, SECTION_VARIANTS, type PageDocument, type Section } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import { SchemaForm } from "./SchemaForm";
 import { humanize } from "./schema-form-utils";
@@ -121,19 +121,7 @@ export function ThemePanel({ theme, onChange }: { theme: PageDocument["theme"]; 
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Accent</Label>
-        <div className="flex flex-wrap gap-2">
-          {ACCENT_HUES.map((h) => (
-            <button
-              key={h}
-              type="button"
-              title={h}
-              onClick={() => onChange({ ...theme, accent: h })}
-              className={cn("size-7 rounded-full border-2 transition-transform hover:scale-110", theme.accent === h ? "border-foreground" : "border-transparent")}
-              style={{ background: `oklch(0.6 0.18 ${HUE_ANGLE[h]})` }}
-              aria-label={h}
-            />
-          ))}
-        </div>
+        <AccentPicker value={{ accent: theme.accent, accentHex: theme.accentHex }} onChange={(v) => onChange({ ...theme, ...v })} />
         <p className="text-xs text-muted-foreground">Buttons, highlighted words, labels, icon tiles and chart lines.</p>
       </div>
       <div className="space-y-1.5">

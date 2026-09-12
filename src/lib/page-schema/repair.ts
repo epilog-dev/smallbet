@@ -18,6 +18,11 @@ export function repairDocument(input: unknown): PageDocument {
   if (!draft || typeof draft !== "object") throw new Error("repairDocument: not an object");
   draft.version = 1;
   if (!Array.isArray(draft.sections)) draft.sections = [];
+  if (draft.theme && typeof draft.theme === "object") {
+    const hex = draft.theme.accentHex;
+    if (typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex)) draft.theme.accentHex = hex.toLowerCase();
+    else delete draft.theme.accentHex;
+  }
 
   // Drop anything that isn't a plausible section object.
   let sections = draft.sections.filter(

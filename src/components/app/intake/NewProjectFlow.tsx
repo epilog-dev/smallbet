@@ -79,11 +79,13 @@ export function NewProjectFlow() {
     abortRef.current = ac;
     try {
       for await (const ev of streamDocument(input, brief, ac.signal)) {
+        const withBrand = (d: PageDocument): PageDocument => (brief.theme.accentHex ? { ...d, theme: { ...d.theme, accentHex: brief.theme.accentHex } } : d);
         if (ev.type === "partial") {
           const partial = coercePartialDocument(ev.doc, brief.productName);
-          if (partial) setDoc(partial);
+          if (partial) setDoc(withBrand(partial));
         } else if (ev.type === "final") {
-          setDoc(ev.doc);
+          const final = withBrand(ev.doc);
+          setDoc(final);
           setGeneratorName(ev.generator);
           setPhase("done");
           setSaving(true);
@@ -91,7 +93,7 @@ export function NewProjectFlow() {
             const { id } = await createProjectAction({
               idea: input,
               brief,
-              document: ev.doc,
+              document: final,
               usage: { generator: ev.generator, inputTokens: ev.usage.inputTokens, outputTokens: ev.usage.outputTokens, ms: ev.usage.ms },
             });
             router.push(isMobile ? `/app/projects/${id}` : `/app/projects/${id}/edit`);

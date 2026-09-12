@@ -22,7 +22,7 @@ export function briefFromDocument(doc: PageDocument): IdeaBrief {
     suggestedTiers:
       pricing?.type === "pricing-intent" ? pricing.props.tiers.map((t) => ({ name: t.name, price: t.price, blurb: t.blurb })) : [{ name: "Standard", price: 19, blurb: "For individuals" }],
     tone: "plain",
-    theme: { accent: doc.theme.accent, mode: doc.theme.mode },
+    theme: { accent: doc.theme.accent, mode: doc.theme.mode, accentHex: doc.theme.accentHex },
     heroVariant: hero?.type === "hero" ? hero.variant : "centered",
   };
 }
