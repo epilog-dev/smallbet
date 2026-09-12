@@ -55,20 +55,30 @@ export const FramedPreview = forwardRef<
 
   const attach = useCallback(() => {
     const doc = iframeRef.current?.contentDocument;
-    if (!doc?.body) return;
+    // An iframe starts with an about:blank document before srcdoc loads; only mount into the real one.
+    if (!doc?.body || doc.location.href !== "about:srcdoc" || doc.readyState !== "complete") return false;
     doc.documentElement.className = document.documentElement.className;
     doc.body.style.margin = "0";
     doc.body.style.overflowX = "hidden";
     syncStyles(document, doc);
-    setMount(doc.body);
+    setMount((prev) => (prev === doc.body ? prev : doc.body));
+    return true;
   }, []);
 
-  // `srcDoc` iframes usually fire onLoad, but if the document is already complete
-  // (fast paths, strict-mode remounts) onLoad never comes — attach directly.
+  // onLoad usually gets us there, but hydration can happen after load already fired (SSR) or the
+  // effect can run against the placeholder document (client nav) — so also poll briefly, and
+  // re-attach if the mounted body ever belongs to a stale document.
   useEffect(() => {
-    const f = iframeRef.current;
-    if (f?.contentDocument?.readyState === "complete" && f.contentDocument.body) attach();
-  }, [attach]);
+    let tries = 0;
+    let raf = 0;
+    const tick = () => {
+      const ok = attach();
+      const stale = mount && mount.ownerDocument !== iframeRef.current?.contentDocument;
+      if ((!ok || stale) && tries++ < 120) raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [attach, mount]);
 
   // Fit to container.
   useEffect(() => {

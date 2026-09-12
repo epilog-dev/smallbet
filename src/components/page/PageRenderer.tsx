@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { PageProvider } from "./context";
 import { Footer } from "./Footer";
 import { Nav } from "./Nav";
+import { PreviewGuard } from "./primitives/PreviewGuard";
 import { RevealController } from "./primitives/Reveal";
 import { SECTION_REGISTRY } from "./registry";
 import { ThemeScope } from "./theme/ThemeScope";
@@ -95,6 +96,7 @@ export function PageRenderer({
         </main>
         <Footer ctx={ctx} />
         {!noReveal && !editor && <RevealController rootId={rootId} />}
+        {mode !== "live" && <PreviewGuard rootId={rootId} />}
       </ThemeScope>
     </PageProvider>
   );

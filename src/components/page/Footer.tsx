@@ -11,9 +11,13 @@ export function Footer({ ctx }: { ctx: PageContextValue }) {
         </p>
         <p className="flex items-center gap-1.5">
           Built with
-          <Link href="/" className="font-semibold text-vp-fg underline-offset-4 hover:underline">
-            validate
-          </Link>
+          {ctx.mode === "live" ? (
+            <Link href="/" className="font-semibold text-vp-fg underline-offset-4 hover:underline">
+              validate
+            </Link>
+          ) : (
+            <span className="font-semibold text-vp-fg">validate</span>
+          )}
         </p>
       </Container>
     </footer>
