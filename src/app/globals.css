@@ -169,12 +169,14 @@
   --font-vp: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Live client pages: in-page anchors (nav links, hero CTA → pricing) glide instead of jumping. */
-html:has(.vp[data-live]) {
+/* Live client pages and the marketing site: in-page anchors glide instead of jumping. */
+html:has(.vp[data-live]),
+html:has([data-smooth-scroll]) {
   scroll-behavior: smooth;
 }
 @media (prefers-reduced-motion: reduce) {
-  html:has(.vp[data-live]) {
+  html:has(.vp[data-live]),
+  html:has([data-smooth-scroll]) {
     scroll-behavior: auto;
   }
 }

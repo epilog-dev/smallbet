@@ -58,7 +58,7 @@ export default async function LandingPage() {
   const start = user ? "/app/new" : "/login?next=/app/new";
 
   return (
-    <div className="relative min-h-dvh bg-background text-foreground">
+    <div data-smooth-scroll className="relative min-h-dvh bg-background text-foreground [&_section[id]]:scroll-mt-14">
       <div aria-hidden className="pointer-events-none absolute inset-0 mx-auto hidden max-w-5xl lg:block">
         <div className="absolute inset-y-0 left-0 w-px bg-border" />
         <div className="absolute inset-y-0 right-0 w-px bg-border" />
