@@ -1,35 +1,29 @@
 import { z } from "zod";
 
-export const THEME_PRESETS = ["haze", "paper", "aurora", "editorial"] as const;
-export const ThemePresetSchema = z.enum(THEME_PRESETS);
-export type ThemePreset = z.infer<typeof ThemePresetSchema>;
-
 export const ACCENT_HUES = [
-  "violet",
-  "indigo",
   "blue",
+  "indigo",
+  "violet",
   "teal",
   "emerald",
-  "lime",
   "amber",
   "orange",
   "rose",
-  "pink",
-  "fuchsia",
-  "slate",
 ] as const;
 export const AccentHueSchema = z.enum(ACCENT_HUES);
 export type AccentHue = z.infer<typeof AccentHueSchema>;
 
+export const COLOR_MODES = ["light", "dark"] as const;
+export const ColorModeSchema = z.enum(COLOR_MODES);
+export type ColorMode = z.infer<typeof ColorModeSchema>;
+
+/**
+ * One design system, two modes. The accent only colours small things
+ * (status dots, chart lines, chips); buttons are always ink-on-paper.
+ */
 export const ThemeSchema = z.object({
-  preset: ThemePresetSchema.describe(
-    "haze: light neutral canvas with a soft accent wash — default for most B2B/consumer SaaS. paper: off-white, grain, hairlines — analytics, dev tools, writing tools. aurora: near-black with an accent aurora — AI, infra, developer platforms, fintech. editorial: warm cream + light serif — healthcare, finance for individuals, wellness, services, premium consumer.",
-  ),
-  accent: AccentHueSchema.describe("Brand accent hue used for buttons, highlights and the background wash."),
-  rationale: z
-    .string()
-    .max(200)
-    .optional()
-    .describe("One sentence on why this preset and accent suit the idea."),
+  accent: AccentHueSchema.describe("Accent hue for dots, chart lines and chips. blue is the safe default."),
+  mode: ColorModeSchema.describe("Default colour mode the page opens in. Visitors can toggle."),
+  rationale: z.string().max(200).optional().describe("One sentence on why this accent/mode suits the idea."),
 });
 export type Theme = z.infer<typeof ThemeSchema>;

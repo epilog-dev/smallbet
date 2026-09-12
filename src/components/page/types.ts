@@ -1,5 +1,4 @@
 import type { PageDocument, Section, SectionOfType, SectionType, Theme } from "@/lib/page-schema";
-import type { PresetDef } from "./theme/presets";
 
 export type PageMode = "live" | "preview" | "editor";
 
@@ -15,8 +14,9 @@ export interface PageContextValue {
   slug?: string;
   doc: PageDocument;
   theme: Theme;
-  preset: PresetDef;
   stats: PageStats;
+  /** id of the `.vp` root element (mode toggle, reveal) */
+  rootId: string;
   /** id of the pricing-intent section, for CTA anchors */
   pricingAnchor: string;
 }

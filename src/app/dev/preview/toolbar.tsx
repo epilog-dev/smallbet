@@ -1,10 +1,10 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ACCENT_HUES, THEME_PRESETS } from "@/lib/page-schema";
+import { ACCENT_HUES, COLOR_MODES } from "@/lib/page-schema";
 import { DEMO_KEYS } from "@/lib/demo/docs";
 
-export function PreviewToolbar({ docKey, preset, accent }: { docKey: string; preset: string; accent: string }) {
+export function PreviewToolbar({ docKey, mode, accent }: { docKey: string; mode: string; accent: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -26,9 +26,9 @@ export function PreviewToolbar({ docKey, preset, accent }: { docKey: string; pre
         </select>
       </label>
       <label className="flex items-center gap-1.5">
-        preset
-        <select className={sel} value={preset} onChange={(e) => set("preset", e.target.value)}>
-          {THEME_PRESETS.map((k) => (
+        mode
+        <select className={sel} value={mode} onChange={(e) => set("mode", e.target.value)}>
+          {COLOR_MODES.map((k) => (
             <option key={k}>{k}</option>
           ))}
         </select>

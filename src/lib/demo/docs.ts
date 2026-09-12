@@ -2,7 +2,7 @@ import { PageDocumentSchema, type PageDocument } from "@/lib/page-schema";
 
 /** Hand-written reference documents, one per preset. Used by /dev/preview and as few-shot examples. */
 const raw: Record<string, PageDocument> = {
-  editorial: {
+  ledgerly: {
     version: 1,
     meta: {
       productName: "Ledgerly",
@@ -10,7 +10,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Ledgerly — bookkeeping that closes itself",
       seoDescription: "Tell us what you'd pay for month-end that finishes without you. Pre-launch, nothing charged.",
     },
-    theme: { preset: "editorial", accent: "amber", rationale: "Warm, trustworthy finance for independent professionals." },
+    theme: { accent: "amber", mode: "light", rationale: "Warm, trustworthy finance for independent professionals." },
     nav: { logoText: "Ledgerly", ctaLabel: "See pricing" },
     goal: { targetResponses: 25, deadlineDays: 30 },
     sections: [
@@ -145,7 +145,7 @@ const raw: Record<string, PageDocument> = {
       },
     ],
   },
-  paper: {
+  handoff: {
     version: 1,
     meta: {
       productName: "Handoff",
@@ -153,7 +153,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Handoff — design to dev, without the thread",
       seoDescription: "Would you pay for handoff notes that write themselves from Figma? Pre-launch.",
     },
-    theme: { preset: "paper", accent: "blue" },
+    theme: { accent: "blue", mode: "light" },
     nav: { logoText: "Handoff", ctaLabel: "Pricing" },
     goal: { targetResponses: 30, deadlineDays: 21 },
     sections: [
@@ -166,7 +166,8 @@ const raw: Record<string, PageDocument> = {
           eyebrow: "For product teams shipping from Figma",
           headline: "Handoff notes that write themselves.",
           headlineHighlight: "write themselves.",
-          subheadline: "Handoff watches your Figma file, diffs every change, and posts a plain-English change list with specs to the ticket. Engineers stop asking what changed.",
+          subheadline: "Handoff watches your Figma file and posts a plain-English change list to the ticket, covering",
+          chips: ["Layout diffs", "Spacing", "States"],
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
@@ -269,7 +270,7 @@ const raw: Record<string, PageDocument> = {
       },
     ],
   },
-  aurora: {
+  tracepoint: {
     version: 1,
     meta: {
       productName: "Tracepoint",
@@ -277,7 +278,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Tracepoint — replay production bugs locally",
       seoDescription: "Would you pay to replay any production request on your laptop? Pre-launch.",
     },
-    theme: { preset: "aurora", accent: "violet" },
+    theme: { accent: "violet", mode: "dark" },
     nav: { logoText: "tracepoint", ctaLabel: "Pricing" },
     goal: { targetResponses: 40, deadlineDays: 30 },
     sections: [
@@ -290,7 +291,8 @@ const raw: Record<string, PageDocument> = {
           eyebrow: "For backend teams on Node and Go",
           headline: "Replay any production request. Locally.",
           headlineHighlight: "Locally.",
-          subheadline: "Tracepoint captures the inputs, dependencies and timing of a failing request, then reproduces it on your machine with a debugger attached. No more 'cannot reproduce'.",
+          subheadline: "Tracepoint captures a failing production request and replays it on your laptop with a debugger attached, including",
+          chips: ["Inputs", "Dependencies", "Timing"],
           primaryCta: "See pricing",
           secondaryCta: "How it works",
           visual: {
@@ -394,7 +396,7 @@ const raw: Record<string, PageDocument> = {
       },
     ],
   },
-  haze: {
+  pantry: {
     version: 1,
     meta: {
       productName: "Pantry",
@@ -402,7 +404,7 @@ const raw: Record<string, PageDocument> = {
       seoTitle: "Pantry — dinner from what you already have",
       seoDescription: "Would you pay for an app that plans dinner from your actual fridge? Pre-launch.",
     },
-    theme: { preset: "haze", accent: "orange" },
+    theme: { accent: "orange", mode: "light" },
     nav: { logoText: "Pantry", ctaLabel: "Pricing" },
     goal: { targetResponses: 50, deadlineDays: 30 },
     sections: [

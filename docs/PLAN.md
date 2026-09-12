@@ -12,7 +12,7 @@ The earlier Nuxt attempt (`~/Workspace/dummy-projects/idea-validation-platform`)
 - **Vercel AI SDK 7** (`ai`), structured output via `generateText`/`streamText` + `Output.object(zodSchema)`. **Provider = Gemini for now** (`@ai-sdk/google`, your free `GOOGLE_GENERATIVE_AI_API_KEY`), default model `gemini-2.5-flash` (bump via `AI_MODEL` env, e.g. to the newest Flash). `@ai-sdk/anthropic` is also wired so setting `AI_PROVIDER=anthropic` + `ANTHROPIC_API_KEY` switches to Claude with no code change. A deterministic `MockGenerator` sits behind the same interface for tests and keyless dev.
 - **Supabase** (Postgres + Auth + RLS): restore & reuse paused project `test-project` (`vvippletqmhhliwtjocy`, ap-southeast-1).
 - v1 signal = **price intent only** (tier pick or "wouldn't pay" + optional email + optional "why?"). No Stripe.
-- **Token theme system, 4 presets**; AI picks preset + accent hue. Founder can override.
+- **One design system (Peec-style) with light/dark**; AI picks accent hue + default mode. Founder can override; visitors can toggle.
 - **App UI**: shadcn/ui + Tailwind v4. Generated pages use a **separate** component library (`components/page/*`) so they don't look like shadcn.
 - Scope = core loop: auth → describe → generate → edit → publish `/p/[slug]` → dashboard.
 
@@ -132,18 +132,14 @@ Section types → variants → props (discriminated union on `type`; `variant` i
 `--vp-bg, --vp-surface, --vp-surface-2, --vp-border, --vp-fg, --vp-fg-muted, --vp-accent, --vp-accent-fg, --vp-accent-soft, --vp-accent-ink, --vp-radius-sm/md/lg/xl, --vp-shadow, --vp-font-display, --vp-font-body`.
 Tailwind v4 `@theme` maps these to utilities (`bg-vp-surface`, `text-vp-fg-muted`, `rounded-vp-lg`, `font-vp-display`…) so section components use ordinary Tailwind classes and are theme-agnostic.
 
-**Presets (`theme/presets.ts`)** — direction set by the reference set in `~/Workspace/Resources/saas-designs` (Mercury, Gladia, Joyful Health, Peec, Strut, Outchat, Bonsai, Laravel Cloud, Spark, Midnight, Limitless, Studio Rodeo): calm and premium, light-weight display type (400–500), atmospheric backgrounds, pill buttons, quiet eyebrows, a big product frame doing the visual work. No doodles, squiggles, stickers, hard shadows or mono brackets.
+**One design system, two modes** (decided 2026-09-12, replacing the earlier multi-preset idea). Reference: Peec AI (`~/Workspace/Resources/saas-designs/Peec.png`).
 
-| preset | drawn from | canvas / backdrop | display / body | primary button |
-|---|---|---|---|---|
-| `haze` | Mercury, Midnight, Joyful | neutral canvas, radial accent wash dissolving into the page | Instrument Sans 500 | accent pill |
-| `paper` | Peec, Strut, Outchat, Bonsai | off-white, faint grain, hairline guide rails on the hero | Hanken Grotesk 400 | black pill |
-| `aurora` | Gladia, Laravel Cloud, Spark | near-black, two-hue aurora behind the hero, glass product frame | Inter 500 | white pill |
-| `editorial` | Joyful Health, Studio Rodeo | warm cream, peach/accent bloom low in the hero | Instrument Serif 400 / Inter | accent, rounded-md |
-
-Headline `headlineHighlight` renders as a quiet secondary tone (Peec-style), gradient text on `aurora`, italic accent on `editorial`.
-
-Accent hue → OKLCH ramp computed at runtime (`accent`, `accent-soft`, `accent-ink`, `accent-fg`) with per-preset lightness targets so violet on `bold` (dark) and on `editorial` (cream) both pass contrast. Fonts loaded once via `next/font/google` in `theme/fonts.ts` and exposed as CSS vars; `ThemeScope` sets `data-preset` + inline vars on the wrapper.
+- Canvas off-white / near-black; **full-height hairline rails** frame a 64rem column; every section after the hero starts with a hairline rule; a fine **hatched band** separates hero copy from the product frame.
+- Type: Inter only. Headline 600 / -0.03em, `headlineHighlight` rendered in the faint tone (the grey second line). Section labels are plain small text.
+- Buttons: rectangular, 6px radius; primary is ink-on-paper (black in light, white in dark), secondary is bordered surface. No pills except the tiny eyebrow.
+- Hero subhead supports up to 3 inline **metric chips** (`hero.props.chips`).
+- Product frame: a dense analytics dashboard (`MockUI`: sidebar, filter chips, chart with tooltip, ranked table fed by `mockRows`) sitting flush inside the rails on a grey band.
+- `theme = { accent, mode }`. Accent only colours dots, chart lines, chips and the pricing highlight line. `mode` is the default; visitors toggle via `ModeToggle` (persisted in `localStorage['vp-mode']`, applied pre-paint by an inline script in `ThemeScope`). Neutral palettes live in `globals.css` under `.vp` / `.vp[data-mode="dark"]`; accent vars come from `theme/tokens.ts`.
 
 **Primitives:** `Container` (max-w-6xl), `Eyebrow` (quiet pill), `Heading` (with `HighlightedText`), `Button` (primary/secondary/ghost), `MockUI` (fake product window built from `mockRows` so hero visuals never need images), `Icon`.
 
@@ -176,7 +172,7 @@ createGenerator() // AI_PROVIDER: google (default) | anthropic | mock — all us
 2. **Document**: `streamText` + `Output.object(PageDocumentSchema)`; `partialOutputStream` is forwarded as SSE from `/api/generate` so the preview fills in section by section. On completion: `safeParse` → `repair()` → save to `projects.document` + a row in `generations` (model, token usage).
 3. **Section regenerate**: `generateText` + `Output.object(SectionSchemaFor(type))` with brief + compact summary of other sections + founder instruction ("shorter", "more concrete").
 
-**Prompting (`prompts.ts`):** one stable system prompt (cacheable): role, the invariants from §3, copy rules (benefit headline ≤ 10 words, audience-named eyebrow, no "unlock/supercharge/seamless", pain points as plain statements, FAQ answers the pricing/refund/timeline objections, tiers anchored to `priceHint`/market norms, `headlineHighlight` is a literal substring), theme-selection guidance (`aurora` for AI/infra/dev platforms, `paper` for analytics/dev/writing tools, `editorial` for health/personal finance/wellness/services, `haze` default). Volatile content (idea, brief) goes in the user message.
+**Prompting (`prompts.ts`):** one stable system prompt (cacheable): role, the invariants from §3, copy rules (benefit headline ≤ 10 words, audience-named eyebrow, no "unlock/supercharge/seamless", pain points as plain statements, FAQ answers the pricing/refund/timeline objections, tiers anchored to `priceHint`/market norms, `headlineHighlight` is a literal substring), theme guidance (dark default for dev/infra/AI tools, light otherwise; accent blue unless the idea has an obvious colour). Volatile content (idea, brief) goes in the user message.
 
 **Model config (`client.ts`):** `resolveModel()` reads `AI_PROVIDER` (`google` default | `anthropic` | `mock`) and `AI_MODEL` → `google(AI_MODEL ?? 'gemini-2.5-flash')` or `anthropic(AI_MODEL ?? 'claude-sonnet-5')`. Structured output goes through the AI SDK's provider-native JSON-schema mode for both; Zod 4 schemas are kept Gemini-compatible (no `z.record` with dynamic keys, no unions except the `type` discriminator, enums as `z.enum`). `maxOutputTokens` 8k; on schema failure retry once with the Zod issues appended; if still failing, `repair()` the partial. Free-tier Gemini rate limits (RPM) → generation endpoint returns a friendly 429 and the UI offers retry.
 
@@ -232,7 +228,7 @@ Server component: fetch published project by slug (anon client, RLS), render `Pa
 | # | Phase | Output | Verify |
 |---|---|---|---|
 | 0 | Scaffold | `create-next-app@latest validate --ts --tailwind --eslint --app --src-dir --turbopack --use-npm`; `shadcn init` + button/input/textarea/select/switch/dialog/dropdown/tabs/card/badge/table/tooltip/sonner; deps: `ai @ai-sdk/google @ai-sdk/anthropic zod @supabase/ssr @supabase/supabase-js @dnd-kit/core @dnd-kit/sortable recharts nanoid lucide-react`; `.env.example`; git init | `npm run dev` boots |
-| 1 | Schema + theme + page library | §3 + §4 fully, 4 demo docs, `/dev/preview` gallery | Screenshot each preset (desktop+mobile) in the browser pane; contrast check accent-on-surface for all 12 hues × 4 presets via a small script |
+| 1 | Schema + theme + page library | §3 + §4 fully, 4 demo docs, `/dev/preview` gallery | Screenshot light + dark (desktop+mobile) in the browser pane |
 | 2 | AI layer | §5 with Gemini provider + MockGenerator, `/api/generate` SSE, `/app/new` (no auth yet, in-memory) | Gemini: 5 varied ideas all pass Zod + repair (log schema-failure rate); streaming preview fills live; mock path also green |
 | 3 | Supabase + auth + persistence | restore `test-project`, migration, RLS, types; login/callback/proxy; projects CRUD; `/app` list; save generation | Sign up → create → reload persists; RLS: anon can't read drafts (checked via `execute_sql` as anon role) |
 | 4 | Editor | §7 editor incl. inspector, dnd, regenerate, theme tab, autosave | Edit copy/reorder/variant/theme → reload matches; concurrent-save conflict surfaces toast |

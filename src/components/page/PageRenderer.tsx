@@ -6,7 +6,6 @@ import { Footer } from "./Footer";
 import { Nav } from "./Nav";
 import { RevealController } from "./primitives/Reveal";
 import { SECTION_REGISTRY } from "./registry";
-import { PRESETS } from "./theme/presets";
 import { ThemeScope } from "./theme/ThemeScope";
 import type { PageContextValue, PageMode, PageStats } from "./types";
 
@@ -49,7 +48,7 @@ export function PageRenderer({
     slug,
     doc,
     theme: doc.theme,
-    preset: PRESETS[doc.theme.preset],
+    rootId,
     pricingAnchor: pricing?.id ?? "pricing",
     stats: {
       responses: stats?.responses ?? (mode === "live" ? 0 : 12),
@@ -66,10 +65,12 @@ export function PageRenderer({
       <ThemeScope
         id={rootId}
         theme={doc.theme}
+        persistMode={mode === "live"}
         className={cn("relative min-h-full", className)}
         style={{ isolation: "isolate" }}
       >
         <span id="top" />
+        <div aria-hidden className="vp-rails" />
         <Nav ctx={ctx} />
         <main>
           {doc.sections
