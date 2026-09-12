@@ -116,7 +116,7 @@ export function NewProjectFlow() {
     } finally {
       setBusy(false);
     }
-  }, [input, brief, router, isMobile]);
+  }, [input, brief, router]);
 
   const expectedSections = ["hero", "problem", "features", "steps", "pricing-intent", "faq", "cta-band"] as const;
   const haveTypes = new Set(doc?.sections.map((s) => s.type) ?? []);
